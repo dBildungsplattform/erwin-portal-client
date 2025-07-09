@@ -198,6 +198,19 @@
         :title="$t('admin.rolle.createNew')"
         to="/admin/rollen/new"
       ></v-list-item>
+      <v-list-item
+        class="menu-bar-main-item headline-2"
+        data-testid="rolle-management-title"
+        :title="$t('admin.rolle.mapping')"
+      ></v-list-item>
+      <v-list-item
+        class="menu-bar-sub-item caption"
+        @click="closeMenuOnMobile"
+        data-testid="rolle-show-menu-item"
+        prepend-icon="mdi-format-list-bulleted"
+        :title="$t('admin.rolle.showMapping')"
+        to="/admin/rolle/mapping"
+      ></v-list-item>
     </div>
 
     <!-- Schulverwaltung -->
@@ -263,22 +276,6 @@
         prepend-icon="mdi-pencil"
         :title="$t('admin.portal.editHinweise')"
         to="/admin/hinweise/new"
-      ></v-list-item>
-      </div>
-    <!-- Rollen Mapping -->
-    <div v-if="authStore.hasRollenverwaltungPermission">
-      <v-list-item
-        class="menu-bar-main-item headline-2"
-        data-testid="rolle-management-title"
-        :title="$t('admin.rolle.mapping')"
-      ></v-list-item>
-      <v-list-item
-        class="menu-bar-sub-item caption"
-        @click="closeMenuOnMobile"
-        data-testid="rolle-show-menu-item"
-        prepend-icon="mdi-format-list-bulleted"
-        :title="$t('admin.rolle.showMapping')"
-        to="/admin/rolle/mapping"
       ></v-list-item>
     </div>
   </v-navigation-drawer>
