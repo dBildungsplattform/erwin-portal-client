@@ -1,53 +1,58 @@
 <script setup lang="ts">
   import LayoutCard from '@/components/cards/LayoutCard.vue';
-  import { ref, type Ref } from 'vue';
-
-  // const router: Router = useRouter();
+  import { computed, ref, type Ref, watch } from 'vue';
 
   type Item = {
     label: string;
     value: string;
   };
 
+  type Role = {
+    lms: string;
+    roles: Array<string>;
+  };
+
   const erWInPortalRoles: Array<string> = ['USER', 'LERN', 'LEHR', 'LEIT', 'SYSADMIN', 'EXTERN', 'Portal-Admin'];
 
   const spshRoles: Array<string> = [
-    '-',
     'Itslearning-Schüler',
     'Lehrkraft in den diversen Ausprägungen',
     'Schul-Admin',
-    'Landes-Admin	',
+    'Landes-Admin',
     'Schulsekretariat, Gärtner...',
-    '-',
   ];
 
-  const svsRoles: Array<string> = ['user', 'Student', 'Teacher', 'Administrator', 'Superhero', 'Expert', '-'];
+  const svsRoles: Array<string> = ['user', 'Student', 'Teacher', 'Administrator', 'Superhero', 'Expert'];
 
-  const moodleRoles: Array<string> = ['Authenticated User', 'Student', 'Teacher', 'Manager', 'Site Administrator', '-', '-'];
+  const moodleRoles: Array<string> = ['Authenticated User', 'Student', 'Teacher', 'Manager', 'Site Administrator'];
 
-  let selectedInstance: Ref<Item | undefined> = ref();
+  const roles: Array<Role> = [
+    { lms: 'SVS', roles: svsRoles },
+    { lms: 'Moodle', roles: moodleRoles },
+    { lms: 'SPSH', roles: spshRoles },
+  ];
+
   const headersWithLabel: Item[] = [
     { label: 'SVS', value: 'SVS' },
     { label: 'Moodle', value: 'Moodle' },
     { label: 'SPSH', value: 'SPSH' },
   ];
 
-  let selectedRole: Ref< | undefined> = ref();
+  const selectedInstance: Ref<Item> = ref({ label: '', value: '' });
+
+  const selectedRoles = ref<(string | null)[]>(Array(erWInPortalRoles.length).fill(null));
+
+  const currentRoleOptions = computed<string[]>(() => {
+    const foundRole = roles.find((role) => role.lms === selectedInstance.value.label);
+    return foundRole ? foundRole.roles : [];
+  });
+
+  watch(selectedInstance, () => {
+    selectedRoles.value = Array(erWInPortalRoles.length).fill(null);
+  });
 
   function onChangeSelectedItem(value: Item | null): void {
-    selectedInstance.value = value === null ? undefined : value;
-  }
-
-  function getInstanceList(instance: string, index: number): string {
-    if (instance === 'SVS') {
-      return svsRoles[index]!;
-    } else if (instance === 'Moodle') {
-      return moodleRoles[index]!;
-    } else if (instance === 'SPSH') {
-      return spshRoles[index]!;
-    } else {
-      return '-';
-    }
+    selectedInstance.value = value ?? { label: '', value: '' };
   }
 </script>
 
@@ -81,7 +86,7 @@
             clearable
             chips
             density="compact"
-            :class="[{ 'align-center': true }]"
+            class="align-center"
             id="instance-select"
             :no-data-text="$t('noDataFound')"
             :placeholder="$t('admin.instance')"
@@ -98,7 +103,7 @@
         <thead>
           <tr>
             <th>ErWIn-Portal</th>
-            <th>{{ selectedInstance?.label ?? '...' }}</th>
+            <th>{{ selectedInstance.label || '...' }}</th>
           </tr>
         </thead>
         <tbody>
@@ -107,25 +112,21 @@
             :key="index"
           >
             <td>{{ role }}</td>
-            <v-select
-            v-model="selectedRole"
-            :items=[]
-            item-title="label"
-            return-object
-            :label="$t('admin.Role')"
-            variant="outlined"
-            clearable
-            chips
-            density="compact"
-            :class="[{ 'align-center': true }]"
-            id="role-select"
-            :no-data-text="$t('noDataFound')"
-            :placeholder="$t('admin.Role')"
-            :multiple="false"
-            @update:modelValue="onChangeSelectedItem"
-          />
-            <td :class="[{ 'align-start': true }]">
-              {{ getInstanceList(selectedInstance?.label!, index) }}
+            <td>
+              <v-select
+                v-model="selectedRoles[index]"
+                :items="currentRoleOptions"
+                :label="$t('admin.Role')"
+                variant="outlined"
+                clearable
+                chips
+                density="compact"
+                class="align-center"
+                id="role-select"
+                :no-data-text="$t('noDataFound')"
+                :placeholder="$t('admin.Role')"
+                :multiple="false"
+              />
             </td>
           </tr>
         </tbody>
@@ -134,4 +135,11 @@
   </div>
 </template>
 
-<style></style>
+<style scoped>
+  .align-center {
+    text-align: center;
+  }
+  .align-start {
+    text-align: start;
+  }
+</style>
