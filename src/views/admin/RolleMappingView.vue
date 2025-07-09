@@ -141,7 +141,7 @@
           variant="elevated"
           size="large"
         >
-          {{ 'Speichern' }}
+          {{ $t('admin.save') }}
         </v-btn>
       </v-row>
     </LayoutCard>

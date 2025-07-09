@@ -460,7 +460,8 @@
     },
     "status": "Status",
     "instance": "Instanz",
-    "Role": "Rolle"
+    "Role": "Rolle",
+    "save": "Speichern"
   },
   "cancel": "Abbrechen",
   "proceed": "Weiter",
