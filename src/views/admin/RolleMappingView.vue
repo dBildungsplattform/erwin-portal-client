@@ -131,6 +131,19 @@
           </tr>
         </tbody>
       </v-table>
+      <!-- Save button can be removed if not needed, can be decided later-->
+      <v-row
+        justify="end"
+        class="mt-4 me-4 pb-4"
+      >
+        <v-btn
+          color="primary"
+          variant="elevated"
+          size="large"
+        >
+          {{ 'Speichern' }}
+        </v-btn>
+      </v-row>
     </LayoutCard>
   </div>
 </template>
