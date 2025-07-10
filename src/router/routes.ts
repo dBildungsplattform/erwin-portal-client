@@ -233,6 +233,28 @@ const routes: readonly RouteRecordRaw[] = [
       requiresPermission: 'rollenverwaltung',
     },
   },
+  {
+    path: '/admin/rolle/mapping/schulcloud',
+    name: 'rolle-mapping-schulcloud',
+    component: () => import('../views/admin/RolleMappingView.vue'),
+    meta: {
+      layout: 'AdminLayout',
+      requiresAuth: true,
+      requiredStepUpLevel: StepUpLevel.GOLD,
+      requiresPermission: 'rollenverwaltung',
+    },
+  },
+  {
+    path: '/admin/rolle/mapping/moodle',
+    name: 'rolle-mapping-moodle',
+    component: () => import('../views/admin/RolleMappingView.vue'),
+    meta: {
+      layout: 'AdminLayout',
+      requiresAuth: true,
+      requiredStepUpLevel: StepUpLevel.GOLD,
+      requiresPermission: 'rollenverwaltung',
+    },
+  },
 ];
 
 export default routes;

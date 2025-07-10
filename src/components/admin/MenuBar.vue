@@ -19,7 +19,7 @@
 
   function handleRoleInstanceSelection(instance: string): void {
     closeMenuOnMobile();
-    router.push({ path: '/admin/rolle/mapping', query: { instance } });
+    router.push({ path: `/admin/rolle/mapping/${instance.toLowerCase()}`, query: { instance } });
   }
 
   function handleMenuItemClick(nextRoute: string): void {
@@ -221,12 +221,14 @@
         prepend-icon="mdi-school"
         :title="'Schulcloud'"
         @click="() => handleRoleInstanceSelection('Schulcloud')"
+        to="/admin/rolle/mapping/schulcloud?instance=Schulcloud"
       />
       <v-list-item
         class="menu-bar-sub-item caption"
         prepend-icon="mdi-school"
         :title="'Moodle'"
         @click="() => handleRoleInstanceSelection('Moodle')"
+        to="/admin/rolle/mapping/moodle?instance=Moodle"
       />
     </div>
 
