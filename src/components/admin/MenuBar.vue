@@ -17,6 +17,11 @@
     }
   }
 
+  function handleRoleInstanceSelection(instance: string): void {
+    closeMenuOnMobile();
+    router.push({ path: '/admin/rolle/mapping', query: { instance } });
+  }
+
   function handleMenuItemClick(nextRoute: string): void {
     if (route.path === nextRoute) {
       // If current route is the same as the route we're navigating to,
@@ -211,6 +216,18 @@
         :title="$t('admin.rolle.showMapping')"
         to="/admin/rolle/mapping"
       ></v-list-item>
+      <v-list-item
+        class="menu-bar-sub-item caption"
+        prepend-icon="mdi-school"
+        :title="'Schulcloud'"
+        @click="() => handleRoleInstanceSelection('Schulcloud')"
+      />
+      <v-list-item
+        class="menu-bar-sub-item caption"
+        prepend-icon="mdi-school"
+        :title="'Moodle'"
+        @click="() => handleRoleInstanceSelection('Moodle')"
+      />
     </div>
 
     <!-- Schulverwaltung -->
