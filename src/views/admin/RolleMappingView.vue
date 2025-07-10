@@ -78,7 +78,7 @@
             :key="index"
           >
             <td>{{ role }}</td>
-            <td>
+            <td class="align-start">
               <v-select
                 v-model="selectedRoles[index]"
                 :items="currentRoleOptions"
@@ -87,11 +87,12 @@
                 clearable
                 chips
                 density="compact"
-                class="align-center"
+                class="fixed-select"
                 id="role-select"
                 :no-data-text="$t('noDataFound')"
                 :placeholder="$t('admin.Role')"
                 :multiple="false"
+                style="width: 300px"
               />
             </td>
           </tr>
@@ -115,10 +116,17 @@
 </template>
 
 <style scoped>
-  .align-center {
-    text-align: center;
-  }
   .align-start {
     text-align: start;
+  }
+  .fixed-select {
+    text-align: left;
+  }
+  .fixed-select .v-field__input {
+    text-align: left !important;
+    padding-left: 12px !important;
+  }
+  .fixed-select .v-select__selection-text {
+    text-align: left !important;
   }
 </style>
