@@ -210,14 +210,6 @@
       ></v-list-item>
       <v-list-item
         class="menu-bar-sub-item caption"
-        @click="closeMenuOnMobile"
-        data-testid="rolle-show-menu-item"
-        prepend-icon="mdi-format-list-bulleted"
-        :title="$t('admin.rolle.showMapping')"
-        to="/admin/rolle/mapping"
-      ></v-list-item>
-      <v-list-item
-        class="menu-bar-sub-item caption"
         prepend-icon="mdi-school"
         :title="'Schulcloud'"
         @click="() => handleRoleInstanceSelection('Schulcloud')"
