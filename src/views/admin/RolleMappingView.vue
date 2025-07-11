@@ -12,7 +12,7 @@
     roles: Array<string>;
   };
 
-  const erWInPortalRoles: Array<string> = ['USER', 'LERN', 'LEHR', 'LEIT', 'SYSADMIN', 'PORTALADMIN'];
+  const erWInPortalRoles: Array<string> = ['USER', 'LERN', 'LEHR', 'LEIT', 'SYSADMIN'];
 
   const schulcloudRoles: Array<string> = ['user', 'Student', 'Teacher', 'Administrator', 'Superhero', 'Expert'];
 
@@ -80,7 +80,6 @@
             <td>{{ role }}</td>
             <td class="align-start">
               <v-select
-                v-if="role !== 'PORTALADMIN'"
                 v-model="selectedRoles[index]"
                 :items="currentRoleOptions"
                 :label="$t('admin.Role')"
