@@ -6,29 +6,24 @@
   import { computed, onMounted, ref, watch, type Ref } from 'vue';
   import { useRoute, type RouteLocationNormalizedLoaded } from 'vue-router';
 
-  type Item = {
-    label: string;
-    value: string;
-  };
-
   const route: RouteLocationNormalizedLoaded = useRoute();
   const rollenartStore: RollenartStore = useRollenartStore();
+
   const erWInPortalRoles: string[] = ['USER', 'LERN', 'LEHR', 'LEIT', 'SYSADMIN'];
   const retrievedRoles: Ref<string[]> = ref([]);
-  const selectedInstance: Ref<Item> = ref({ label: '', value: '' });
+  const selectedInstance: Ref<string> = ref('');
   const selectedRoles: Ref<(string | null)[]> = ref(Array(erWInPortalRoles.length).fill(null));
   const roles: Ref<RollenartListLms[]> = ref([]);
 
   const currentRoleOptions: Ref<string[]> = computed((): string[] => {
     const foundRoles: RollenartListLms | undefined = roles.value.find(
-      (role: RollenartListLms) => role.lmsName.toLowerCase() === selectedInstance.value.label.toLowerCase(),
+      (role: RollenartListLms) => role.lmsName.toLowerCase() === selectedInstance.value.toLowerCase(),
     );
     return foundRoles ? Array.from(new Set(foundRoles.rollenartList)) : [];
   });
 
   onMounted(async (): Promise<void> => {
     retrievedRoles.value = await rollenartStore.getAllRollenart();
-
     roles.value = retrievedLmsOrganisations.value.map(
       (org: Organisation): RollenartListLms => ({
         lmsName: org.name,
@@ -41,11 +36,7 @@
       (org: Organisation) => org.name.toLowerCase() === instanceLabel.toLowerCase(),
     );
 
-    selectedInstance.value = {
-      label: matchedOrg?.name || instanceLabel,
-      value: instanceLabel,
-    };
-
+    selectedInstance.value = matchedOrg?.name || instanceLabel;
     selectedRoles.value = Array(retrievedRoles.value.length).fill(null);
   });
 
@@ -53,16 +44,11 @@
     () => route.query['instance'],
     (newInstance) => {
       const instanceLabel: string = String(newInstance || '');
-
       const matchedOrg: Organisation | undefined = retrievedLmsOrganisations.value.find(
         (org: Organisation) => org.name.toLowerCase() === instanceLabel.toLowerCase(),
       );
 
-      selectedInstance.value = {
-        label: matchedOrg?.name || instanceLabel,
-        value: instanceLabel,
-      };
-
+      selectedInstance.value = matchedOrg?.name || instanceLabel;
       selectedRoles.value = Array(retrievedRoles.value.length).fill(null);
     },
     { immediate: true },
@@ -94,7 +80,7 @@
           <tr>
             <th><strong>ErWIn-Portal</strong></th>
             <th>
-              <strong>{{ selectedInstance.label || '...' }}</strong>
+              <strong>{{ selectedInstance || '...' }}</strong>
             </th>
           </tr>
         </thead>
