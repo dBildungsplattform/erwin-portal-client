@@ -1,44 +1,69 @@
 <script setup lang="ts">
   import LayoutCard from '@/components/cards/LayoutCard.vue';
-  import { computed, ref, type Ref, watch } from 'vue';
-  import { useRoute } from 'vue-router';
+  import { retrievedLmsOrganisations } from '@/main';
+  import type { Organisation } from '@/stores/OrganisationStore';
+  import { useRollenartStore, type RollenartListLms, type RollenartStore } from '@/stores/RollenartStore';
+  import { computed, onMounted, ref, watch, type Ref } from 'vue';
+  import { useRoute, type RouteLocationNormalizedLoaded } from 'vue-router';
+
   type Item = {
     label: string;
     value: string;
   };
 
-  type Role = {
-    lms: string;
-    roles: Array<string>;
-  };
-
-
-  const erWInPortalRoles: Array<string> = ['USER', 'LERN', 'LEHR', 'LEIT', 'SYSADMIN'];
-
-  const schulcloudRoles: Array<string> = ['user', 'Student', 'Teacher', 'Administrator', 'Superhero', 'Expert'];
-
-  const moodleRoles: Array<string> = ['Authenticated User', 'Student', 'Teacher', 'Manager', 'Site Administrator'];
-
-  const route = useRoute();
-
-  const roles: Array<Role> = [
-    { lms: 'Schulcloud', roles: schulcloudRoles },
-    { lms: 'Moodle', roles: moodleRoles },
-  ];
+  const route: RouteLocationNormalizedLoaded = useRoute();
+  const rollenartStore: RollenartStore = useRollenartStore();
+  const erWInPortalRoles: string[] = ['USER', 'LERN', 'LEHR', 'LEIT', 'SYSADMIN'];
+  const retrievedRoles: Ref<string[]> = ref([]);
   const selectedInstance: Ref<Item> = ref({ label: '', value: '' });
-  const selectedRoles = ref<(string | null)[]>(Array(erWInPortalRoles.length).fill(null));
+  const selectedRoles: Ref<(string | null)[]> = ref(Array(erWInPortalRoles.length).fill(null));
+  const roles: Ref<RollenartListLms[]> = ref([]);
 
-  const currentRoleOptions = computed<string[]>(() => {
-    const foundRole = roles.find((role) => role.lms === selectedInstance.value.label);
-    return foundRole ? foundRole.roles : [];
+  const currentRoleOptions: Ref<string[]> = computed((): string[] => {
+    const foundRoles: RollenartListLms | undefined = roles.value.find(
+      (role: RollenartListLms) => role.lmsName.toLowerCase() === selectedInstance.value.label.toLowerCase(),
+    );
+    return foundRoles ? Array.from(new Set(foundRoles.rollenartList)) : [];
+  });
+
+  onMounted(async (): Promise<void> => {
+    retrievedRoles.value = await rollenartStore.getAllRollenart();
+
+    roles.value = retrievedLmsOrganisations.value.map(
+      (org: Organisation): RollenartListLms => ({
+        lmsName: org.name,
+        rollenartList: retrievedRoles.value,
+      }),
+    );
+
+    const instanceLabel: string = String(route.query['instance'] || '');
+    const matchedOrg: Organisation | undefined = retrievedLmsOrganisations.value.find(
+      (org: Organisation) => org.name.toLowerCase() === instanceLabel.toLowerCase(),
+    );
+
+    selectedInstance.value = {
+      label: matchedOrg?.name || instanceLabel,
+      value: instanceLabel,
+    };
+
+    selectedRoles.value = Array(retrievedRoles.value.length).fill(null);
   });
 
   watch(
     () => route.query['instance'],
     (newInstance) => {
-      const instanceLabel = String(newInstance || '');
-      selectedInstance.value = { label: instanceLabel, value: instanceLabel };
-      selectedRoles.value = Array(erWInPortalRoles.length).fill(null); // <-- keep this
+      const instanceLabel: string = String(newInstance || '');
+
+      const matchedOrg: Organisation | undefined = retrievedLmsOrganisations.value.find(
+        (org: Organisation) => org.name.toLowerCase() === instanceLabel.toLowerCase(),
+      );
+
+      selectedInstance.value = {
+        label: matchedOrg?.name || instanceLabel,
+        value: instanceLabel,
+      };
+
+      selectedRoles.value = Array(retrievedRoles.value.length).fill(null);
     },
     { immediate: true },
   );

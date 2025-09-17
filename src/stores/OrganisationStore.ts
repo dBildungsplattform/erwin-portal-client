@@ -18,7 +18,6 @@ import axiosApiInstance from '@/services/ApiService';
 import { useSearchFilterStore, type SearchFilterStore } from './SearchFilterStore';
 
 const organisationApi: OrganisationenApiInterface = OrganisationenApiFactory(undefined, '', axiosApiInstance);
-const searchFilterStore: SearchFilterStore = useSearchFilterStore();
 
 export type Organisation = {
   id: string;
@@ -135,6 +134,7 @@ export enum SchuleType {
 type OrganisationGetters = {};
 type OrganisationActions = {
   getAllOrganisationen: (filter?: OrganisationenFilter) => Promise<void>;
+  getLmsOrganisations: () => Promise<Organisation[]>;
   getFilteredKlassen(filter?: OrganisationenFilter): Promise<void>;
   getKlassenByOrganisationId: (filter?: OrganisationenFilter) => Promise<void>;
   getOrganisationById: (organisationId: string, organisationsTyp: OrganisationsTyp) => Promise<Organisation>;
@@ -255,7 +255,14 @@ export const useOrganisationStore: StoreDefinition<
       }
     },
 
+    async getLmsOrganisations(): Promise<Organisation[]> {
+      const filter: OrganisationenFilter = { includeTyp: OrganisationsTyp.Lms };
+      await this.getAllOrganisationen(filter);
+      return this.allOrganisationen;
+    },
+
     async fetchSchuleDetailsForKlassen(filterActive: boolean): Promise<void> {
+      const searchFilterStore: SearchFilterStore = useSearchFilterStore();
       let administriertVonSet: Set<string> = new Set();
       if (filterActive) {
         administriertVonSet = new Set(
@@ -309,6 +316,7 @@ export const useOrganisationStore: StoreDefinition<
     },
 
     async fetchSchuleDetailsForSchultraeger(): Promise<void> {
+      const searchFilterStore: SearchFilterStore = useSearchFilterStore();
       const schultraegerIds: Set<string> = new Set(
         this.allSchultraeger.map((schultraeger: Organisation) => schultraeger.id),
       );

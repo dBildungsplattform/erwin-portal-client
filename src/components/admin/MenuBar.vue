@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import { useAuthStore, type AuthStore } from '@/stores/AuthStore';
+  import { useOrganisationStore, type Organisation, type OrganisationStore } from '@/stores/OrganisationStore';
   import { onMounted, ref, type ComputedRef, type Ref } from 'vue';
   import { useRoute, useRouter, type RouteLocationNormalizedLoaded, type Router } from 'vue-router';
   import { useDisplay } from 'vuetify';
@@ -7,7 +8,8 @@
   const router: Router = useRouter();
   const route: RouteLocationNormalizedLoaded = useRoute();
   const authStore: AuthStore = useAuthStore();
-
+  const organisationStore: OrganisationStore = useOrganisationStore();
+  const organisations: Ref<Organisation[]> = ref([]);
   const menuDrawer: Ref<boolean> = ref(true);
   const { mobile }: { mobile: ComputedRef<boolean> } = useDisplay();
 
@@ -15,11 +17,6 @@
     if (mobile.value) {
       menuDrawer.value = false;
     }
-  }
-
-  function handleRoleInstanceSelection(instance: string): void {
-    closeMenuOnMobile();
-    router.push({ path: `/admin/rolle/mapping/${instance.toLowerCase()}`, query: { instance } });
   }
 
   function handleMenuItemClick(nextRoute: string): void {
@@ -37,6 +34,7 @@
 
   onMounted(async () => {
     menuDrawer.value = !mobile.value;
+    organisations.value = await organisationStore.getLmsOrganisations();
   });
 </script>
 
@@ -203,25 +201,21 @@
         :title="$t('admin.rolle.createNew')"
         to="/admin/rollen/new"
       ></v-list-item>
+      <!-- Rollen-Mapping -->
       <v-list-item
         class="menu-bar-main-item headline-2"
-        data-testid="rolle-management-title"
+        data-testid="rolle-mapping-title"
         :title="$t('admin.rolle.mapping')"
       ></v-list-item>
       <v-list-item
+        v-for="org in organisations"
+        :key="org.name"
         class="menu-bar-sub-item caption"
         prepend-icon="mdi-school"
-        :title="'Schulcloud'"
-        @click="() => handleRoleInstanceSelection('Schulcloud')"
-        to="/admin/rolle/mapping/schulcloud?instance=Schulcloud"
-      />
-      <v-list-item
-        class="menu-bar-sub-item caption"
-        prepend-icon="mdi-school"
-        :title="'Moodle'"
-        @click="() => handleRoleInstanceSelection('Moodle')"
-        to="/admin/rolle/mapping/moodle?instance=Moodle"
-      />
+        :data-testid="`rolle-mapping-menu-item-${org.name.toLowerCase()}`"
+        :title="org.name"
+        :to="`/admin/rolle/mapping/${org.name.toLowerCase()}?instance=${org.name}`"
+      ></v-list-item>
     </div>
 
     <!-- Schulverwaltung -->
