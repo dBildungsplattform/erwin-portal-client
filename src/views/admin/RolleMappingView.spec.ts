@@ -50,4 +50,28 @@ describe('RolleMappingView', () => {
     await router.isReady();
     expect(wrapper?.find('th:nth-child(2) strong').text()).toBe('Moodle');
   });
+
+  test('renders correct number of rows based on erWInPortalRoles', () => {
+    const rows = wrapper?.findAll('tbody tr');
+    expect(rows?.length).toBe(5); // erWInPortalRoles has 5 roles
+    const expectedRoles = ['USER', 'LERN', 'LEHR', 'LEIT', 'SYSADMIN'];
+    rows?.forEach((row, index) => {
+      expect(row.find('td:first-child').text()).toBe(expectedRoles[index]);
+    });
+  });
+
+  test('renders empty select options when no roles are available', async () => {
+    await router.push({ path: '/admin/rolle/mapping', query: { instance: 'UnknownInstance' } });
+    await router.isReady();
+    const selects = wrapper?.findAll('tbody tr td:nth-child(2) v-select');
+    selects?.forEach((select) => {
+      expect(select.attributes('items')).toBe('[]');
+    });
+  });
+
+  test('displays placeholder when no instance is selected', async () => {
+    await router.push({ path: '/admin/rolle/mapping', query: {} });
+    await router.isReady();
+    expect(wrapper?.find('th:nth-child(2) strong').text()).toBe('...');
+  });
 });
