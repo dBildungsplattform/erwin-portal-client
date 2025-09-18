@@ -35,6 +35,9 @@ describe('RolleMappingView', () => {
     wrapper = mount(RolleMappingView, {
       attachTo: document.getElementById('app') || '',
       global: {
+        components: {
+          RolleMappingView,
+        },
         plugins: [router],
       },
     });
@@ -77,5 +80,14 @@ describe('RolleMappingView', () => {
     await router.push({ path: '/admin/rolle/mapping', query: {} });
     await router.isReady();
     expect(wrapper?.find('th:nth-child(2) strong').text()).toBe('...');
+  })
+    
+   test('it renders the headline and table', async () => {
+    expect(wrapper).toBeTruthy();
+    expect(wrapper?.find('[data-testid="admin-headline"]').text()).toBe('Administrationsbereich');
+    expect(wrapper?.find('[data-testid="rolle-table"]').exists()).toBe(true);
+    expect(wrapper?.find('thead tr th').text()).toBe('ErWIn-Portal');
+    expect(wrapper?.find('th:nth-child(2) strong').text()).toBe('...');
+    expect(wrapper?.findAll('tbody tr').length).toBe(5);
   });
 });
