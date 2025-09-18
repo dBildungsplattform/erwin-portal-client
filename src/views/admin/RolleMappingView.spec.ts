@@ -3,6 +3,7 @@ import { VueWrapper, mount } from '@vue/test-utils';
 import RolleMappingView from './RolleMappingView.vue';
 import { createRouter, createWebHistory, type Router } from 'vue-router';
 import routes from '@/router/routes';
+import { retrievedLmsOrganisations } from '@/main';
 
 vi.mock('@/stores/RollenartStore', () => ({
   useRollenartStore: vi.fn(() => ({
@@ -46,14 +47,17 @@ describe('RolleMappingView', () => {
   });
 
   test('updates LMS column header based on route query', async () => {
-    await router.push({ path: '/admin/rolle/mapping', query: { instance: 'Moodle' } });
+    await router.push({
+      path: `/admin/rolle/mapping/${retrievedLmsOrganisations.value[0]?.name}`,
+      query: { instance: `${retrievedLmsOrganisations.value[0]?.name}` },
+    });
     await router.isReady();
-    expect(wrapper?.find('th:nth-child(2) strong').text()).toBe('Moodle');
+    expect(wrapper?.find('th:nth-child(2) strong').text()).toBe(`${retrievedLmsOrganisations.value[0]?.name}`);
   });
 
   test('renders correct number of rows based on erWInPortalRoles', () => {
     const rows = wrapper?.findAll('tbody tr');
-    expect(rows?.length).toBe(5); // erWInPortalRoles has 5 roles
+    expect(rows?.length).toBe(5);
     const expectedRoles = ['USER', 'LERN', 'LEHR', 'LEIT', 'SYSADMIN'];
     rows?.forEach((row, index) => {
       expect(row.find('td:first-child').text()).toBe(expectedRoles[index]);
