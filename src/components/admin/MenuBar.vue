@@ -1,6 +1,7 @@
 <script setup lang="ts">
-  import { useAuthStore, type AuthStore } from '@/stores/AuthStore';
-  import { useOrganisationStore, type Organisation, type OrganisationStore } from '@/stores/OrganisationStore';
+  import { retrievedLmsOrganisations } from '@/main';
+import { useAuthStore, type AuthStore } from '@/stores/AuthStore';
+  import { type Organisation } from '@/stores/OrganisationStore';
   import { onMounted, ref, type ComputedRef, type Ref } from 'vue';
   import { useRoute, useRouter, type RouteLocationNormalizedLoaded, type Router } from 'vue-router';
   import { useDisplay } from 'vuetify';
@@ -8,7 +9,6 @@
   const router: Router = useRouter();
   const route: RouteLocationNormalizedLoaded = useRoute();
   const authStore: AuthStore = useAuthStore();
-  const organisationStore: OrganisationStore = useOrganisationStore();
   const organisations: Ref<Organisation[]> = ref([]);
   const menuDrawer: Ref<boolean> = ref(true);
   const { mobile }: { mobile: ComputedRef<boolean> } = useDisplay();
@@ -34,7 +34,7 @@
 
   onMounted(async () => {
     menuDrawer.value = !mobile.value;
-    organisations.value = await organisationStore.getLmsOrganisations();
+    organisations.value = retrievedLmsOrganisations.value;
   });
 </script>
 
@@ -204,7 +204,7 @@
       <!-- Rollen-Mapping -->
       <v-list-item
         class="menu-bar-main-item headline-2"
-        data-testid="rolle-mapping-title"
+        data-testid="rolle-mapping-item"
         :title="$t('admin.rolle.mapping')"
       ></v-list-item>
       <v-list-item

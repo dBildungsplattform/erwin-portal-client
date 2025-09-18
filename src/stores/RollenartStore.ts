@@ -25,11 +25,6 @@ export const useRollenartStore: StoreDefinition<'rollenartStore', RollenartState
     state: (): RollenartState => ({
       rollenartList: [],
     }),
-    getters: {
-      getRollenart: (state: RollenartState) => {
-        return state.rollenartList;
-      },
-    },
     actions: {
       async getAllRollenart() {
         const response: { data: string[] } = await rollenartApi.rollenartControllerGetAllLmsRollenarten();

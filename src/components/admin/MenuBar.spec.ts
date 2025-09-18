@@ -2,11 +2,12 @@ import { useAuthStore, type AuthStore } from '@/stores/AuthStore';
 import { DoFactory } from '@/testing/DoFactory';
 import { VueWrapper, mount } from '@vue/test-utils';
 import { expect, test, type Mock, type MockInstance } from 'vitest';
-import { h, nextTick } from 'vue';
+import { h, nextTick, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useDisplay } from 'vuetify';
 import { VApp } from 'vuetify/components';
 import MenuBar from './MenuBar.vue';
+import { retrievedLmsOrganisations } from '@/main';
 
 let wrapper: VueWrapper | null = null;
 const authStore: AuthStore = useAuthStore();
@@ -26,6 +27,10 @@ vi.mock('vuetify', () => ({
   useDisplay: vi.fn(() => ({
     mobile: false,
   })),
+}));
+
+vi.mock('@/main', () => ({
+  retrievedLmsOrganisations: ref([{ name: 'SVS' }, { name: 'Moodle' }]),
 }));
 
 function mountComponent(): VueWrapper {
@@ -93,6 +98,15 @@ describe('MenuBar', () => {
       expect(wrapper?.find('[data-testid="rolle-management-menu-item"]').exists()).toBe(hasPermission);
       expect(wrapper?.find('[data-testid="rolle-creation-menu-item"]').exists()).toBe(hasPermission);
 
+      expect(
+        wrapper
+          ?.find(`[data-testid="rolle-mapping-menu-item-${retrievedLmsOrganisations.value[0]?.name.toLowerCase()}"]`)
+          .exists(),
+      ).toBe(hasPermission);
+      expect(
+        wrapper?.find(`[data-testid="rolle-mapping-menu-item-${retrievedLmsOrganisations.value[1]?.name.toLowerCase()}"]`).exists(),
+      ).toBe(hasPermission);
+
       expect(wrapper?.find('[data-testid="schule-management-title"]').exists()).toBe(hasPermission);
       expect(wrapper?.find('[data-testid="schule-management-menu-item"]').exists()).toBe(hasPermission);
       expect(wrapper?.find('[data-testid="schule-creation-menu-item"]').exists()).toBe(hasPermission);
@@ -105,6 +119,14 @@ describe('MenuBar', () => {
       expect(wrapper?.find('[data-testid="hinweise-edit-menu-item"]').exists()).toBe(hasPermission);
     },
   );
+
+  test('renders menu items for each organisation', () => {
+    const svsItem = wrapper?.find(`[data-testid="rolle-mapping-menu-item-${retrievedLmsOrganisations.value[0]?.name.toLowerCase()}"]`);
+    const moodleItem = wrapper?.find(`[data-testid="rolle-mapping-menu-item-${retrievedLmsOrganisations.value[0]?.name.toLowerCase()}"]`);
+
+    expect(svsItem?.exists()).toBe(true);
+    expect(moodleItem?.exists()).toBe(true);
+  });
 
   test('hides elements when permissions are false', async () => {
     // Reset permissions to false
