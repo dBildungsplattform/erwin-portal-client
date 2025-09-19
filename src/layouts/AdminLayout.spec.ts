@@ -1,8 +1,11 @@
-import { expect, test } from 'vitest';
-import { VueWrapper, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
+import { VApp } from 'vuetify/components';
+import { describe, test, expect, beforeEach } from 'vitest';
 import AdminLayout from './AdminLayout.vue';
+import 'vuetify/styles';
+import vuetify from '@/plugins/vuetify';
 
-let wrapper: VueWrapper | null = null;
+let wrapper: ReturnType<typeof mount>;
 
 beforeEach(() => {
   document.body.innerHTML = `
@@ -11,23 +14,31 @@ beforeEach(() => {
     </div>
   `;
 
-  wrapper = mount(AdminLayout, {
-    attachTo: document.getElementById('app') || '',
-    global: {
-      components: {
-        AdminLayout,
+  wrapper = mount(
+    {
+      components: { VApp, AdminLayout },
+      template: `
+      <v-app>
+        <admin-layout>
+          Main Content
+        </admin-layout>
+      </v-app>
+    `,
+    },
+    {
+      attachTo: document.getElementById('app') || undefined,
+      global: {
+        plugins: [vuetify],
+        provide: {
+          cspNonce: '',
+        },
       },
     },
-    slots: {
-      default: 'Main Content',
-    },
-  });
+  );
 });
 
-// TODO: we have to use v-layout as wrapper in AdminLayout.vue, which breaks the layout
-//       we have to fix the broken layout before we can increase the coverage threshold for layouts
 describe('AdminLayout', () => {
-  test.skip('it renders the slot content inside the admin layout', () => {
-    expect(wrapper?.html()).toContain('Main Content');
+  test('renders slot content inside the admin layout', () => {
+    expect(wrapper.html()).toContain('Main Content');
   });
 });
