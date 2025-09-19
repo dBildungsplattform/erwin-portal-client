@@ -1,3 +1,7 @@
+// This line ensures that cspNonce is defined in the global scope before importing Vuetify plugins.
+// Without this, SonarQube will fail due to a ReferenceError when Vuetify tries to access cspNonce.
+(globalThis as unknown as { cspNonce: string }).cspNonce = '';
+
 import { expect, test } from 'vitest';
 import { VueWrapper, mount } from '@vue/test-utils';
 import AdminLayout from './AdminLayout.vue';
