@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import LayoutCard from '@/components/cards/LayoutCard.vue';
+  import { erWInPortalRoles } from '@/enums/user-roles';
   import { retrievedLmsOrganisations } from '@/main';
   import type { Organisation } from '@/stores/OrganisationStore';
   import { useRollenartStore, type RollenartListLms, type RollenartStore } from '@/stores/RollenartStore';
@@ -9,7 +10,6 @@
   const route: RouteLocationNormalizedLoaded = useRoute();
   const rollenartStore: RollenartStore = useRollenartStore();
 
-  const erWInPortalRoles: string[] = ['USER', 'LERN', 'LEHR', 'LEIT', 'SYSADMIN'];
   const retrievedRoles: Ref<string[]> = ref([]);
   const selectedInstance: Ref<string> = ref('');
   const selectedRoles: Ref<(string | null)[]> = ref(Array(erWInPortalRoles.length).fill(null));

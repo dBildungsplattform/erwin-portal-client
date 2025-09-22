@@ -142,38 +142,6 @@ describe('MenuBar', () => {
     expect(wrapper?.find('[data-testid="person-creation-menu-item"]').exists()).toBe(false);
   });
 
-  // test('it handles role instance selection', async () => {
-  //   const router = createRouter({
-  //     history: createWebHistory(),
-  //     routes,
-  //   });
-
-  //   await router.push('/');
-  //   await router.isReady();
-
-  //   wrapper = mountComponent({ router });
-
-  //   // Schulcloud Mapping
-  //   await wrapper
-  //     .findAll('.menu-bar-sub-item.caption')
-  //     .find((item) => item.text() === 'Schulcloud')
-  //     ?.trigger('click');
-  //   await nextTick();
-
-  //   expect(router.currentRoute.value.path).toBe('/admin/rolle/mapping/schulcloud');
-  //   expect(router.currentRoute.value.query['instance']).toBe(retrievedLmsOrganisations.value[0]?.name);
-
-  //   // Moodle Mapping
-  //   await wrapper
-  //     .findAll('.menu-bar-sub-item.caption')
-  //     .find((item) => item.text() === 'Moodle')
-  //     ?.trigger('click');
-  //   await nextTick();
-
-  //   expect(router.currentRoute.value.path).toBe('/admin/rolle/mapping/moodle');
-  //   expect(router.currentRoute.value.query['instance']).toBe(retrievedLmsOrganisations.value[1]?.name);
-  // });
-
   test('it handles menu item click', async () => {
     const push: MockInstance = vi.fn();
     (useRouter as Mock).mockImplementation(() => {
