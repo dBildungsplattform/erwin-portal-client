@@ -224,7 +224,7 @@ const routes: readonly RouteRecordRaw[] = [
   },
   //rolle mapping routes
   {
-    path: '/admin/rolle/mapping',
+    path: '/admin/rolle/mapping/:lms',
     name: 'rolle-mapping',
     component: () => import('../views/admin/RolleMappingView.vue'),
     meta: {
