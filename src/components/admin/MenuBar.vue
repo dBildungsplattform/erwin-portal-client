@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { useAuthStore, type AuthStore } from '@/stores/AuthStore';
-  import { useOrganisationStore, type Organisation, type OrganisationStore } from '@/stores/OrganisationStore';
+  import { useOrganisationStore, type OrganisationStore } from '@/stores/OrganisationStore';
   import { onMounted, ref, type ComputedRef, type Ref } from 'vue';
   import { useRoute, useRouter, type RouteLocationNormalizedLoaded, type Router } from 'vue-router';
   import { useDisplay } from 'vuetify';
@@ -8,7 +8,6 @@
   const router: Router = useRouter();
   const route: RouteLocationNormalizedLoaded = useRoute();
   const authStore: AuthStore = useAuthStore();
-  const organisations: Ref<Organisation[]> = ref([]);
   const organisationStore: OrganisationStore = useOrganisationStore();
   const menuDrawer: Ref<boolean> = ref(true);
   const { mobile }: { mobile: ComputedRef<boolean> } = useDisplay();
@@ -35,7 +34,6 @@
   onMounted(async () => {
     menuDrawer.value = !mobile.value;
     await organisationStore.getLmsOrganisations();
-    organisations.value = organisationStore.retrievedLmsOrganisations;
   });
 </script>
 
@@ -209,7 +207,7 @@
         :title="$t('admin.rolle.mapping')"
       ></v-list-item>
       <v-list-item
-        v-for="org in organisations"
+        v-for="org in organisationStore.retrievedLmsOrganisations"
         :key="org.name"
         class="menu-bar-sub-item caption"
         prepend-icon="mdi-school"
