@@ -7,7 +7,7 @@ import { aliases, mdi } from 'vuetify/iconsets/mdi';
 import '@/styles/main.scss';
 
 // eslint-disable-next-line no-var
-declare var cspNonce: string;
+var cspNonce: string = '';
 
 const shTheme: ThemeDefinition = {
   dark: false,
@@ -39,7 +39,7 @@ const vuetifyConfig: VuetifyOptions = {
     adapter: createVueI18nAdapter({ i18n, useI18n }),
   },
   theme: {
-    cspNonce,
+    cspNonce: cspNonce,
     defaultTheme: 'shTheme',
     themes: {
       shTheme,
