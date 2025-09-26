@@ -31,5 +31,31 @@ describe('RollenartStore', () => {
       });
       expect(rollenartStore.rollenartList).toEqual(mockRollenartList);
     });
+    it('should overwrite rollenartList on multiple fetches', async () => {
+      const firstList = ['admin', 'editor'];
+      const secondList = ['viewer', 'contributor'];
+      mockAdapter.onGet('/api/rollenart').replyOnce(200, firstList).onGet('/api/rollenart').replyOnce(200, secondList);
+
+      await rollenartStore.getAllRollenart();
+      expect(rollenartStore.rollenartList).toEqual(firstList);
+
+      await rollenartStore.getAllRollenart();
+      expect(rollenartStore.rollenartList).toEqual(secondList);
+    });
+
+    it('should set rollenartList to empty array if API returns empty', async () => {
+      mockAdapter.onGet('/api/rollenart').reply(200, []);
+      await rollenartStore.getAllRollenart();
+      expect(rollenartStore.rollenartList).toEqual([]);
+    });
+
+    it('should not update rollenartList if API call fails', async () => {
+      const initialList = ['existing'];
+      rollenartStore.rollenartList = initialList.slice();
+      mockAdapter.onGet('/api/rollenart').reply(500);
+
+      await expect(rollenartStore.getAllRollenart()).rejects.toThrow();
+      expect(rollenartStore.rollenartList).toEqual(initialList);
+    });
   });
 });
