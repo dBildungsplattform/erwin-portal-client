@@ -16,7 +16,7 @@ type RollenartState = {
 };
 
 type RollenartActions = {
-  getAllRollenart: () => Promise<string[]>;
+  getAllRollenart: () => Promise<void>;
 };
 export type RollenartStore = Store<'rollenartStore', RollenartState, RollenartGetters, RollenartActions>;
 
@@ -26,10 +26,9 @@ export const useRollenartStore: StoreDefinition<'rollenartStore', RollenartState
       rollenartList: [],
     }),
     actions: {
-      async getAllRollenart() {
+      async getAllRollenart(): Promise<void> {
         const response: { data: string[] } = await rollenartApi.rollenartControllerGetAllLmsRollenarten();
         this.rollenartList = response.data;
-        return this.rollenartList;
       },
     },
   });

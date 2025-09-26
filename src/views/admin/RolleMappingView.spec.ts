@@ -1,21 +1,36 @@
-import { expect, test, vi, beforeEach, describe } from 'vitest';
+import { expect, test, beforeEach, describe } from 'vitest';
 import { VueWrapper, mount } from '@vue/test-utils';
 import RolleMappingView from './RolleMappingView.vue';
 import { createRouter, createWebHistory, type Router } from 'vue-router';
 import routes from '@/router/routes';
-import { retrievedLmsOrganisations } from '@/main';
+import { useOrganisationStore, type OrganisationStore } from '@/stores/OrganisationStore';
+import { useRollenartStore, type RollenartStore } from '@/stores/RollenartStore';
 
-vi.mock('@/stores/RollenartStore', () => ({
-  useRollenartStore: vi.fn(() => ({
-    getAllRollenart: vi.fn().mockResolvedValue(['Student', 'Teacher', 'Admin']),
-  })),
-}));
+const organisationStore: OrganisationStore = useOrganisationStore();
+const rollenartStore: RollenartStore = useRollenartStore();
 
-vi.mock('@/main', () => ({
-  retrievedLmsOrganisations: {
-    value: [{ name: 'SVS' }, { name: 'Moodle' }],
+organisationStore.retrievedLmsOrganisations = [
+  {
+    id: '1',
+    name: 'Albert-Emil-Hansebrot-Gymnasium',
+    kennung: '9356494',
+    namensergaenzung: 'Schule',
+    kuerzel: 'aehg',
+    typ: 'LMS',
+    administriertVon: '1',
   },
-}));
+  {
+    id: '2',
+    name: 'Albert-Emil-Hansebrot-Gymnasium',
+    kennung: '9356494',
+    namensergaenzung: 'Schule',
+    kuerzel: 'aehg',
+    typ: 'LMS',
+    administriertVon: '1',
+  },
+];
+
+rollenartStore.rollenartList = ['Student', 'Teacher', 'Admin'];
 
 let wrapper: VueWrapper | null = null;
 let router: Router;
@@ -51,11 +66,13 @@ describe('RolleMappingView', () => {
 
   test('updates LMS column header based on route query', async () => {
     await router.push({
-      path: `/admin/rolle/mapping/${retrievedLmsOrganisations.value[0]?.name}`,
-      query: { instance: `${retrievedLmsOrganisations.value[0]?.name}` },
+      path: `/admin/rolle/mapping/${organisationStore.retrievedLmsOrganisations[0]?.name}`,
+      query: { instance: `${organisationStore.retrievedLmsOrganisations[0]?.name}` },
     });
     await router.isReady();
-    expect(wrapper?.find('th:nth-child(2) strong').text()).toBe(`${retrievedLmsOrganisations.value[0]?.name}`);
+    expect(wrapper?.find('th:nth-child(2) strong').text()).toBe(
+      `${organisationStore.retrievedLmsOrganisations[0]?.name.toString()}`,
+    );
   });
 
   test('renders correct number of rows based on erWInPortalRoles', () => {
@@ -80,9 +97,9 @@ describe('RolleMappingView', () => {
     await router.push({ path: '/admin/rolle/mapping', query: {} });
     await router.isReady();
     expect(wrapper?.find('th:nth-child(2) strong').text()).toBe('...');
-  })
-    
-   test('it renders the headline and table', async () => {
+  });
+
+  test('it renders the headline and table', async () => {
     expect(wrapper).toBeTruthy();
     expect(wrapper?.find('[data-testid="admin-headline"]').text()).toBe('Administrationsbereich');
     expect(wrapper?.find('[data-testid="rolle-table"]').exists()).toBe(true);

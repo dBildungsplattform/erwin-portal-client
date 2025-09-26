@@ -1,14 +1,15 @@
 <script setup lang="ts">
   import LayoutCard from '@/components/cards/LayoutCard.vue';
   import { erWInPortalRoles } from '@/enums/user-roles';
-  import { retrievedLmsOrganisations } from '@/main';
-  import type { Organisation } from '@/stores/OrganisationStore';
+  import { useOrganisationStore, type Organisation, type OrganisationStore } from '@/stores/OrganisationStore';
   import { useRollenartStore, type RollenartListLms, type RollenartStore } from '@/stores/RollenartStore';
   import { computed, onMounted, ref, watch, type Ref } from 'vue';
   import { useRoute, type RouteLocationNormalizedLoaded } from 'vue-router';
 
   const route: RouteLocationNormalizedLoaded = useRoute();
   const rollenartStore: RollenartStore = useRollenartStore();
+  const retrievedLmsOrganisations: Ref<Organisation[]> = ref([]);
+  const organisationStore: OrganisationStore = useOrganisationStore();
 
   const retrievedRoles: Ref<string[]> = ref([]);
   const selectedInstance: Ref<string> = ref('');
@@ -23,7 +24,10 @@
   });
 
   onMounted(async (): Promise<void> => {
-    retrievedRoles.value = await rollenartStore.getAllRollenart();
+    await rollenartStore.getAllRollenart();
+    retrievedRoles.value = rollenartStore.rollenartList;
+    await organisationStore.getLmsOrganisations();
+    retrievedLmsOrganisations.value = organisationStore.retrievedLmsOrganisations;
     roles.value = retrievedLmsOrganisations.value.map(
       (org: Organisation): RollenartListLms => ({
         lmsName: org.name,

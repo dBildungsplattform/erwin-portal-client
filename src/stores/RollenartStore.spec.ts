@@ -23,10 +23,11 @@ describe('RollenartStore', () => {
       const mockRollenartList: string[] = ['teacher', 'user', 'student'];
       mockAdapter.onGet('/api/rollenart').reply(200, mockRollenartList);
 
-      const result = await rollenartStore.getAllRollenart();
+      const getAllRollenartPromise: Promise<void> = rollenartStore.getAllRollenart();
+      await getAllRollenartPromise;
 
       mockRollenartList.forEach((item) => {
-        expect(result).toContain(item);
+        expect(rollenartStore.rollenartList).toContain(item);
       });
       expect(rollenartStore.rollenartList).toEqual(mockRollenartList);
     });

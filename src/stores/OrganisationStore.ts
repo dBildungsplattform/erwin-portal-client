@@ -105,6 +105,7 @@ type OrganisationState = {
   parentOrganisationen: Array<Organisation>;
   schultraeger: Array<Organisation>;
   activatedItslearningOrganisation: Organisation | null;
+  retrievedLmsOrganisations: Array<Organisation>;
 };
 
 export type OrganisationenFilter = {
@@ -134,7 +135,7 @@ export enum SchuleType {
 type OrganisationGetters = {};
 type OrganisationActions = {
   getAllOrganisationen: (filter?: OrganisationenFilter) => Promise<void>;
-  getLmsOrganisations: () => Promise<Organisation[]>;
+  getLmsOrganisations: () => Promise<void>;
   getFilteredKlassen(filter?: OrganisationenFilter): Promise<void>;
   getKlassenByOrganisationId: (filter?: OrganisationenFilter) => Promise<void>;
   getOrganisationById: (organisationId: string, organisationsTyp: OrganisationsTyp) => Promise<Organisation>;
@@ -207,6 +208,7 @@ export const useOrganisationStore: StoreDefinition<
       parentOrganisationen: [],
       schultraeger: [],
       activatedItslearningOrganisation: null,
+      retrievedLmsOrganisations: [],
     };
   },
 
@@ -255,10 +257,10 @@ export const useOrganisationStore: StoreDefinition<
       }
     },
 
-    async getLmsOrganisations(): Promise<Organisation[]> {
+    async getLmsOrganisations(): Promise<void> {
       const filter: OrganisationenFilter = { includeTyp: OrganisationsTyp.Lms };
       await this.getAllOrganisationen(filter);
-      return this.allOrganisationen;
+      this.retrievedLmsOrganisations = this.allOrganisationen;
     },
 
     async fetchSchuleDetailsForKlassen(filterActive: boolean): Promise<void> {

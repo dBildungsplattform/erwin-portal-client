@@ -2,15 +2,16 @@ import { useAuthStore, type AuthStore } from '@/stores/AuthStore';
 import { DoFactory } from '@/testing/DoFactory';
 import { VueWrapper, mount } from '@vue/test-utils';
 import { expect, test, type Mock, type MockInstance } from 'vitest';
-import { h, nextTick, ref } from 'vue';
+import { h, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useDisplay } from 'vuetify';
 import { VApp } from 'vuetify/components';
 import MenuBar from './MenuBar.vue';
-import { retrievedLmsOrganisations } from '@/main';
+import { useOrganisationStore, type OrganisationStore } from '@/stores/OrganisationStore';
 
 let wrapper: VueWrapper | null = null;
 const authStore: AuthStore = useAuthStore();
+const organisationStore: OrganisationStore = useOrganisationStore();
 
 authStore.currentUser = DoFactory.getUserinfoResponse();
 
@@ -29,9 +30,26 @@ vi.mock('vuetify', () => ({
   })),
 }));
 
-vi.mock('@/main', () => ({
-  retrievedLmsOrganisations: ref([{ name: 'SVS' }, { name: 'Moodle' }]),
-}));
+organisationStore.retrievedLmsOrganisations = [
+  {
+    id: '1',
+    name: 'Albert-Emil-Hansebrot-Gymnasium',
+    kennung: '9356494',
+    namensergaenzung: 'Schule',
+    kuerzel: 'aehg',
+    typ: 'LMS',
+    administriertVon: '1',
+  },
+  {
+    id: '2',
+    name: 'Albert-Emil-Hansebrot-Gymnasium',
+    kennung: '9356494',
+    namensergaenzung: 'Schule',
+    kuerzel: 'aehg',
+    typ: 'LMS',
+    administriertVon: '1',
+  },
+];
 
 function mountComponent(): VueWrapper {
   return mount(VApp, {
@@ -100,12 +118,16 @@ describe('MenuBar', () => {
 
       expect(
         wrapper
-          ?.find(`[data-testid="rolle-mapping-menu-item-${retrievedLmsOrganisations.value[0]?.name.toLowerCase()}"]`)
+          ?.find(
+            `[data-testid="rolle-mapping-menu-item-${organisationStore.retrievedLmsOrganisations[0]?.name.toLowerCase()}"]`,
+          )
           .exists(),
       ).toBe(hasPermission);
       expect(
         wrapper
-          ?.find(`[data-testid="rolle-mapping-menu-item-${retrievedLmsOrganisations.value[1]?.name.toLowerCase()}"]`)
+          ?.find(
+            `[data-testid="rolle-mapping-menu-item-${organisationStore.retrievedLmsOrganisations[1]?.name.toLowerCase()}"]`,
+          )
           .exists(),
       ).toBe(hasPermission);
 
@@ -124,10 +146,10 @@ describe('MenuBar', () => {
 
   test('renders menu items for each organisation', () => {
     const svsItem = wrapper?.find(
-      `[data-testid="rolle-mapping-menu-item-${retrievedLmsOrganisations.value[0]?.name.toLowerCase()}"]`,
+      `[data-testid="rolle-mapping-menu-item-${organisationStore.retrievedLmsOrganisations[0]?.name.toLowerCase()}"]`,
     );
     const moodleItem = wrapper?.find(
-      `[data-testid="rolle-mapping-menu-item-${retrievedLmsOrganisations.value[0]?.name.toLowerCase()}"]`,
+      `[data-testid="rolle-mapping-menu-item-${organisationStore.retrievedLmsOrganisations[1]?.name.toLowerCase()}"]`,
     );
 
     expect(svsItem?.exists()).toBe(true);

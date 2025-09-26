@@ -1,7 +1,6 @@
 <script setup lang="ts">
-  import { retrievedLmsOrganisations } from '@/main';
-import { useAuthStore, type AuthStore } from '@/stores/AuthStore';
-  import { type Organisation } from '@/stores/OrganisationStore';
+  import { useAuthStore, type AuthStore } from '@/stores/AuthStore';
+  import { useOrganisationStore, type Organisation, type OrganisationStore } from '@/stores/OrganisationStore';
   import { onMounted, ref, type ComputedRef, type Ref } from 'vue';
   import { useRoute, useRouter, type RouteLocationNormalizedLoaded, type Router } from 'vue-router';
   import { useDisplay } from 'vuetify';
@@ -10,6 +9,7 @@ import { useAuthStore, type AuthStore } from '@/stores/AuthStore';
   const route: RouteLocationNormalizedLoaded = useRoute();
   const authStore: AuthStore = useAuthStore();
   const organisations: Ref<Organisation[]> = ref([]);
+  const organisationStore: OrganisationStore = useOrganisationStore();
   const menuDrawer: Ref<boolean> = ref(true);
   const { mobile }: { mobile: ComputedRef<boolean> } = useDisplay();
 
@@ -34,7 +34,8 @@ import { useAuthStore, type AuthStore } from '@/stores/AuthStore';
 
   onMounted(async () => {
     menuDrawer.value = !mobile.value;
-    organisations.value = retrievedLmsOrganisations.value;
+    await organisationStore.getLmsOrganisations();
+    organisations.value = organisationStore.retrievedLmsOrganisations;
   });
 </script>
 
