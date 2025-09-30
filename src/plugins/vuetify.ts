@@ -7,7 +7,7 @@ import { aliases, mdi } from 'vuetify/iconsets/mdi';
 import '@/styles/main.scss';
 
 // eslint-disable-next-line no-var
-var cspNonce: string = '';
+declare var cspNonce: string;
 
 const shTheme: ThemeDefinition = {
   dark: false,
