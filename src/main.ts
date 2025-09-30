@@ -17,8 +17,4 @@ const app: VueApp<Element> = createApp(App)
 const configStore: ConfigStore = useConfigStore();
 configStore.getFeatureFlags();
 
-(async (): Promise<void> => {
-  await router.isReady();
-})();
-
 app.mount('#app');
