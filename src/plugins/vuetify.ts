@@ -39,7 +39,7 @@ const vuetifyConfig: VuetifyOptions = {
     adapter: createVueI18nAdapter({ i18n, useI18n }),
   },
   theme: {
-    cspNonce: cspNonce,
+    cspNonce,
     defaultTheme: 'shTheme',
     themes: {
       shTheme,
