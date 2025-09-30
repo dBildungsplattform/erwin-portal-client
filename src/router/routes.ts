@@ -222,7 +222,6 @@ const routes: readonly RouteRecordRaw[] = [
     name: 'no-second-factor',
     component: () => import('../views/NoSecondFactorView.vue'),
   },
-  //rolle mapping routes
   {
     path: '/admin/rolle/mapping/:lms',
     name: 'rolle-mapping',

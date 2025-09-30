@@ -31,6 +31,7 @@ describe('RollenartStore', () => {
       });
       expect(rollenartStore.rollenartList).toEqual(mockRollenartList);
     });
+
     it('should overwrite rollenartList on multiple fetches', async () => {
       const firstList = ['admin', 'editor'];
       const secondList = ['viewer', 'contributor'];
