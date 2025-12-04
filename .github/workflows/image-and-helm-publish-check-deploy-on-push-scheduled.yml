@@ -58,7 +58,9 @@ jobs:
   codeql_analyze:
     name: 'CodeQL'
     if: ${{ github.event_name == 'push' }}
-    uses: dBildungsplattform/dbp-github-workflows/.github/workflows/check-codeql.yaml@5
+    uses: dBildungsplattform/dbp-github-workflows/.github/workflows/check-codeql.yaml@OPS-10097-Fix-CodeQL-Analysis
+    with:
+      codeql_languages: javascript
     permissions:
       actions: read
       contents: read
@@ -67,7 +69,7 @@ jobs:
   nest_lint:
     name: 'Linting'
     if: ${{ github.event_name == 'push' }}
-    uses: dBildungsplattform/dbp-github-workflows/.github/workflows/check-nest-lint.yaml@5
+    uses: dBildungsplattform/dbp-github-workflows/.github/workflows/check-nest-lint.yaml@7
     with:
       node_version: '18'
     permissions:
@@ -94,7 +96,7 @@ jobs:
       report_location: 'Dockerfile'
 
   scan_helm:
-    uses: dBildungsplattform/dbp-github-workflows/.github/workflows/check-helm-kics.yaml@5
+    uses: dBildungsplattform/dbp-github-workflows/.github/workflows/check-helm-kics.yaml@7
     permissions:
       contents: read
 
