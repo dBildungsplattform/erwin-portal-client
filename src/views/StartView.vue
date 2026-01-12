@@ -43,10 +43,12 @@
       .sort((a: ServiceProvider, b: ServiceProvider) => a.name.localeCompare(b.name));
   }
 
+  /*
   // Filter service providers by category "EMAIL"
   const emailServiceProviders: ComputedRef<ServiceProvider[]> = computed(() =>
     filterSortProviders(serviceProviderStore.availableServiceProviders, ServiceProviderKategorie.Email),
   );
+  */
   // Filter service providers by category "UNTERRICHT"
   const classServiceProviders: ComputedRef<ServiceProvider[]> = computed(() =>
     filterSortProviders(serviceProviderStore.availableServiceProviders, ServiceProviderKategorie.Unterricht),
@@ -268,11 +270,13 @@
     <!-- Template to be displayed in case of no error nor loading -->
     <template v-else>
       <!-- Categorie 1: Work Email -->
+      <!-- 
       <ServiceProviderCategory
         :categoryTitle="$t('start.categories.workEmail')"
         :serviceProviders="emailServiceProviders"
         :hasToken="getHasToken()"
       ></ServiceProviderCategory>
+      -->
       <!-- Categorie 2: Class -->
       <ServiceProviderCategory
         :categoryTitle="$t('start.categories.class')"
