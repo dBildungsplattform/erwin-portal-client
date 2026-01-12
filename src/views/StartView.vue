@@ -43,6 +43,7 @@
       .sort((a: ServiceProvider, b: ServiceProvider) => a.name.localeCompare(b.name));
   }
 
+  // Currently not needed for ErWIn Portal
   /*
   // Filter service providers by category "EMAIL"
   const emailServiceProviders: ComputedRef<ServiceProvider[]> = computed(() =>
@@ -270,7 +271,7 @@
     <!-- Template to be displayed in case of no error nor loading -->
     <template v-else>
       <!-- Categorie 1: Work Email -->
-      <!-- 
+      <!-- Currently not needed for ErWIn Portal
       <ServiceProviderCategory
         :categoryTitle="$t('start.categories.workEmail')"
         :serviceProviders="emailServiceProviders"
