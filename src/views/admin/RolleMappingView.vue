@@ -1,12 +1,15 @@
 <script setup lang="ts">
   import LayoutCard from '@/components/cards/LayoutCard.vue';
-  import { erWInPortalRoles } from '@/enums/user-roles';
-  import { useOrganisationStore, type Organisation, type OrganisationStore } from '@/stores/OrganisationStore';
-  import { useRollenartStore, type RollenartListLms, type RollenartStore } from '@/stores/RollenartStore';
-  import { computed, onMounted, ref, watch, type Ref } from 'vue';
-  import { useRoute, type RouteLocationNormalizedLoaded } from 'vue-router';
+import { erWInPortalRoles } from '@/enums/user-roles';
+import { useOrganisationStore, type Organisation, type OrganisationStore } from '@/stores/OrganisationStore';
+import { useRollenartStore, type RollenartListLms, type RollenartStore } from '@/stores/RollenartStore';
+import { useRollenMappingStore, type RollenMappingStore } from '@/stores/RollenMappingStore';
+import { computed, onMounted, ref, watch, type Ref } from 'vue';
+import { useRoute, type LocationQueryValue, type RouteLocationNormalizedLoaded } from 'vue-router';
 
   const route: RouteLocationNormalizedLoaded = useRoute();
+  const rollenMappingStore: RollenMappingStore = useRollenMappingStore();
+
   const rollenartStore: RollenartStore = useRollenartStore();
   const retrievedLmsOrganisations: Ref<Organisation[]> = ref([]);
   const organisationStore: OrganisationStore = useOrganisationStore();
@@ -14,6 +17,7 @@
   const retrievedRoles: Ref<string[]> = ref([]);
   const selectedInstance: Ref<string> = ref('');
   const selectedRoles: Ref<(string | null)[]> = ref(Array(erWInPortalRoles.length).fill(null));
+
   const roles: Ref<RollenartListLms[]> = ref([]);
 
   const currentRoleOptions: Ref<string[]> = computed((): string[] => {
@@ -41,22 +45,50 @@
     );
 
     selectedInstance.value = matchedOrg?.name || instanceLabel;
-    selectedRoles.value = Array(retrievedRoles.value.length).fill(null);
+    selectedRoles.value = Array(erWInPortalRoles.length).fill(null);
   });
 
   watch(
     () => route.query['instance'],
-    (newInstance) => {
+    (newInstance: LocationQueryValue | LocationQueryValue[] | undefined) => {
       const instanceLabel: string = String(newInstance || '');
       const matchedOrg: Organisation | undefined = retrievedLmsOrganisations.value.find(
         (org: Organisation) => org.name.toLowerCase() === instanceLabel.toLowerCase(),
       );
 
       selectedInstance.value = matchedOrg?.name || instanceLabel;
-      selectedRoles.value = Array(retrievedRoles.value.length).fill(null);
+      selectedRoles.value = Array(erWInPortalRoles.length).fill(null);
     },
     { immediate: true },
   );
+
+  // use rollenmappingController to save assigned roles to lms instance
+  function saveRolleMapping(): void {
+    // eslint-disable-next-line no-console
+    console.log('Saving Rolle Mapping...', selectedRoles);
+    selectedRoles.value.forEach((role: string | null, index: number) => {
+      if (role === null) {
+        // eslint-disable-next-line no-console
+        console.warn(
+          `Role for ErWIn-Portal role "${erWInPortalRoles[index]}" is not selected. Please select a role before saving.`,
+        );
+        return; // Skip if not selected
+      }
+      // Handle async call without making the function itself async
+      (async (): Promise<void> => {
+        await rollenMappingStore.createRollenMapping({
+          rolleId: erWInPortalRoles[index] ?? '',
+          serviceProviderId: ((): string => {
+            const matchedOrg: Organisation | undefined = retrievedLmsOrganisations.value.find(
+              (org: Organisation) => org.name === selectedInstance.value,
+            );
+            return matchedOrg?.id ?? '';
+          })(),
+          mapToLmsRolle: role,
+        });
+      })();
+    });
+  }
 </script>
 
 <template>
@@ -123,6 +155,8 @@
           color="primary"
           variant="elevated"
           size="large"
+          data-testid="save-rolle-mapping-btn"
+          @click="saveRolleMapping"
         >
           {{ $t('admin.save') }}
         </v-btn>

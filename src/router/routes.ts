@@ -198,6 +198,17 @@ const routes: readonly RouteRecordRaw[] = [
     },
   },
   {
+    path: '/rollenMapping',
+    name: 'rollenMapping',
+    component: () => import('../views/admin/RolleMappingView.vue'),
+    meta: {
+      layout: 'AdminLayout',
+      requiresAuth: true,
+      requiredStepUpLevel: StepUpLevel.GOLD,
+      requiresPermission: 'rollenverwaltung',
+    },
+  },
+  {
     path: '/login-error',
     name: 'login-error',
     component: () => import('../views/UnknownUserErrorView.vue'),
