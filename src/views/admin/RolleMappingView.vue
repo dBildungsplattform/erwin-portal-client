@@ -1,16 +1,19 @@
+<!-- eslint-disable no-console -->
 <script setup lang="ts">
   import LayoutCard from '@/components/cards/LayoutCard.vue';
-import { erWInPortalRoles } from '@/enums/user-roles';
-import { useOrganisationStore, type Organisation, type OrganisationStore } from '@/stores/OrganisationStore';
-import { useRollenartStore, type RollenartListLms, type RollenartStore } from '@/stores/RollenartStore';
-import { useRollenMappingStore, type RollenMappingStore } from '@/stores/RollenMappingStore';
-import { computed, onMounted, ref, watch, type Ref } from 'vue';
-import { useRoute, type LocationQueryValue, type RouteLocationNormalizedLoaded } from 'vue-router';
+  import { erWInPortalRoles } from '@/enums/user-roles';
+  import { useOrganisationStore, type Organisation, type OrganisationStore } from '@/stores/OrganisationStore';
+  import { useRollenartStore, type RollenartListLms, type RollenartStore } from '@/stores/RollenartStore';
+  import { useRolleStore, type Rolle, type RolleStore } from '@/stores/RolleStore';
+  import { useRollenMappingStore, type RollenMappingStore } from '@/stores/RollenMappingStore';
+  import { computed, onMounted, ref, watch, type Ref } from 'vue';
+  import { useRoute, type LocationQueryValue, type RouteLocationNormalizedLoaded } from 'vue-router';
 
   const route: RouteLocationNormalizedLoaded = useRoute();
   const rollenMappingStore: RollenMappingStore = useRollenMappingStore();
 
   const rollenartStore: RollenartStore = useRollenartStore();
+  const rolleStore: RolleStore = useRolleStore();
   const retrievedLmsOrganisations: Ref<Organisation[]> = ref([]);
   const organisationStore: OrganisationStore = useOrganisationStore();
 
@@ -68,16 +71,25 @@ import { useRoute, type LocationQueryValue, type RouteLocationNormalizedLoaded }
     console.log('Saving Rolle Mapping...', selectedRoles);
     selectedRoles.value.forEach((role: string | null, index: number) => {
       if (role === null) {
-        // eslint-disable-next-line no-console
         console.warn(
           `Role for ErWIn-Portal role "${erWInPortalRoles[index]}" is not selected. Please select a role before saving.`,
         );
-        return; // Skip if not selected
+        return;
       }
       // Handle async call without making the function itself async
       (async (): Promise<void> => {
+        await rolleStore.getAllRollen({});
+        const allRoles: Rolle[] = rolleStore.allRollen;
+        console.log(allRoles);
+        // console.log(allRoles, 'allRoles retrieved from RolleStore');
+        const existRole: Rolle = allRoles.find(
+          (rol: Rolle) =>
+            rol.serviceProviders?.values.name === selectedInstance.value &&
+            rol.rollenart.includes(erWInPortalRoles[index]!),
+        ) as Rolle;
+        console.log(existRole);
         await rollenMappingStore.createRollenMapping({
-          rolleId: erWInPortalRoles[index] ?? '',
+          rolleId: existRole.id,
           serviceProviderId: ((): string => {
             const matchedOrg: Organisation | undefined = retrievedLmsOrganisations.value.find(
               (org: Organisation) => org.name === selectedInstance.value,
