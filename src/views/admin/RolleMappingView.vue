@@ -8,6 +8,7 @@
   import { useRollenMappingStore, type RollenMappingStore } from '@/stores/RollenMappingStore';
   import { computed, onMounted, ref, watch, type Ref } from 'vue';
   import { useRoute, type LocationQueryValue, type RouteLocationNormalizedLoaded } from 'vue-router';
+  import { useSearchFilterStore, type SearchFilterStore } from '@/stores/SearchFilterStore';
 
   const route: RouteLocationNormalizedLoaded = useRoute();
   const rollenMappingStore: RollenMappingStore = useRollenMappingStore();
@@ -16,6 +17,7 @@
   const rolleStore: RolleStore = useRolleStore();
   const retrievedLmsOrganisations: Ref<Organisation[]> = ref([]);
   const organisationStore: OrganisationStore = useOrganisationStore();
+  const searchFilterStore: SearchFilterStore = useSearchFilterStore();
 
   const retrievedRoles: Ref<string[]> = ref([]);
   const selectedInstance: Ref<string> = ref('');
@@ -68,7 +70,7 @@
   // use rollenmappingController to save assigned roles to lms instance
   function saveRolleMapping(): void {
     // eslint-disable-next-line no-console
-    console.log('Saving Rolle Mapping...', selectedRoles);
+    // console.log('Saving Rolle Mapping...', selectedRoles);
     selectedRoles.value.forEach((role: string | null, index: number) => {
       if (role === null) {
         console.warn(
@@ -78,7 +80,11 @@
       }
       // Handle async call without making the function itself async
       (async (): Promise<void> => {
-        await rolleStore.getAllRollen({});
+        await rolleStore.getAllRollen({
+          offset: (searchFilterStore.rollenPage - 1) * searchFilterStore.rollenPerPage,
+          limit: searchFilterStore.rollenPerPage,
+          searchString: '',
+        });
         const allRoles: Rolle[] = rolleStore.allRollen;
         console.log(allRoles);
         // console.log(allRoles, 'allRoles retrieved from RolleStore');
@@ -87,7 +93,7 @@
             rol.serviceProviders?.values.name === selectedInstance.value &&
             rol.rollenart.includes(erWInPortalRoles[index]!),
         ) as Rolle;
-        console.log(existRole);
+        // console.log(existRole);
         await rollenMappingStore.createRollenMapping({
           rolleId: existRole.id,
           serviceProviderId: ((): string => {
