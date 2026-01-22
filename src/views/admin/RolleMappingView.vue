@@ -9,9 +9,11 @@
   import { computed, onMounted, ref, watch, type Ref } from 'vue';
   import { useRoute, type LocationQueryValue, type RouteLocationNormalizedLoaded } from 'vue-router';
   import { useSearchFilterStore, type SearchFilterStore } from '@/stores/SearchFilterStore';
+  import type { RolleNameIdResponse } from '@/api-client/generated';
 
   const route: RouteLocationNormalizedLoaded = useRoute();
   const rollenMappingStore: RollenMappingStore = useRollenMappingStore();
+  const dynamicErWInPortalRoles: Ref<string[]> = ref(erWInPortalRoles);
 
   const rollenartStore: RollenartStore = useRollenartStore();
   const rolleStore: RolleStore = useRolleStore();
@@ -55,14 +57,23 @@
 
   watch(
     () => route.query['instance'],
-    (newInstance: LocationQueryValue | LocationQueryValue[] | undefined) => {
+    async (newInstance: LocationQueryValue | LocationQueryValue[] | undefined) => {
       const instanceLabel: string = String(newInstance || '');
       const matchedOrg: Organisation | undefined = retrievedLmsOrganisations.value.find(
         (org: Organisation) => org.name.toLowerCase() === instanceLabel.toLowerCase(),
       );
 
-      selectedInstance.value = matchedOrg?.name || instanceLabel;
-      selectedRoles.value = Array(erWInPortalRoles.length).fill(null);
+      if (matchedOrg) {
+        await rolleStore.getRollenByServiceProviderId(matchedOrg.id);
+        rolleStore.rollenRetrievedByServiceProvider.forEach((rolleIdName: RolleNameIdResponse): void => {
+          dynamicErWInPortalRoles.value.push(rolleIdName.name);
+        });
+        console.log('Rollen from LMS Instance:', rolleStore.rollenRetrievedByServiceProvider);
+        console.log('Dynamic ErWInPortal Roles:', dynamicErWInPortalRoles.value);
+        selectedInstance.value = matchedOrg.name;
+      } else {
+        selectedInstance.value = instanceLabel;
+      }
     },
     { immediate: true },
   );
@@ -87,7 +98,12 @@
         });
         const allRoles: Rolle[] = rolleStore.allRollen;
         console.log(allRoles);
-        // console.log(allRoles, 'allRoles retrieved from RolleStore');
+        const providerId: string = ((): string => {
+          const matchedOrg: Organisation | undefined = retrievedLmsOrganisations.value.find(
+            (org: Organisation) => org.name === selectedInstance.value,
+          );
+          return matchedOrg?.id ?? '';
+        })();
         const existRole: Rolle = allRoles.find(
           (rol: Rolle) =>
             rol.serviceProviders?.values.name === selectedInstance.value &&
@@ -96,12 +112,7 @@
         // console.log(existRole);
         await rollenMappingStore.createRollenMapping({
           rolleId: existRole.id,
-          serviceProviderId: ((): string => {
-            const matchedOrg: Organisation | undefined = retrievedLmsOrganisations.value.find(
-              (org: Organisation) => org.name === selectedInstance.value,
-            );
-            return matchedOrg?.id ?? '';
-          })(),
+          serviceProviderId: providerId,
           mapToLmsRolle: role,
         });
       })();
@@ -140,7 +151,7 @@
         </thead>
         <tbody>
           <tr
-            v-for="(role, index) in erWInPortalRoles"
+            v-for="(role, index) in dynamicErWInPortalRoles"
             :key="index"
           >
             <td>{{ role }}</td>

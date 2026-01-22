@@ -2842,6 +2842,25 @@ export interface RawPagedResponse {
 /**
  * 
  * @export
+ * @interface RolleNameIdResponse
+ */
+export interface RolleNameIdResponse {
+    /**
+     * 
+     * @type {string}
+     * @memberof RolleNameIdResponse
+     */
+    'id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof RolleNameIdResponse
+     */
+    'name': string;
+}
+/**
+ * 
+ * @export
  * @interface RolleResponse
  */
 export interface RolleResponse {
@@ -12036,7 +12055,7 @@ export const RolleApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async rolleControllerGetRollenByServiceProviderId(serviceProviderId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<object>>> {
+        async rolleControllerGetRollenByServiceProviderId(serviceProviderId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<RolleNameIdResponse>>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.rolleControllerGetRollenByServiceProviderId(serviceProviderId, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
@@ -12156,7 +12175,7 @@ export const RolleApiFactory = function (configuration?: Configuration, basePath
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        rolleControllerGetRollenByServiceProviderId(serviceProviderId: string, options?: any): AxiosPromise<Array<object>> {
+        rolleControllerGetRollenByServiceProviderId(serviceProviderId: string, options?: any): AxiosPromise<Array<RolleNameIdResponse>> {
             return localVarFp.rolleControllerGetRollenByServiceProviderId(serviceProviderId, options).then((request) => request(axios, basePath));
         },
         /**
@@ -12272,7 +12291,7 @@ export interface RolleApiInterface {
      * @throws {RequiredError}
      * @memberof RolleApiInterface
      */
-    rolleControllerGetRollenByServiceProviderId(serviceProviderId: string, options?: AxiosRequestConfig): AxiosPromise<Array<object>>;
+    rolleControllerGetRollenByServiceProviderId(serviceProviderId: string, options?: AxiosRequestConfig): AxiosPromise<Array<RolleNameIdResponse>>;
 
     /**
      * Remove a service-provider from a rolle by id.

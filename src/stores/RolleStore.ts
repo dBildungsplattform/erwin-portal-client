@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { defineStore, type Store, type StoreDefinition } from 'pinia';
 import { type AxiosResponse } from 'axios';
 import { getResponseErrorCode } from '@/utils/errorHandlers';
@@ -13,6 +14,7 @@ import {
   type RolleWithServiceProvidersResponse,
   type ServiceProviderResponse,
   type UpdateRolleBodyParams,
+  type RolleNameIdResponse,
 } from '../api-client/generated/api';
 import axiosApiInstance from '@/services/ApiService';
 import type { ServiceProvider } from './ServiceProviderStore';
@@ -24,6 +26,7 @@ type RolleState = {
   updatedRolle: RolleWithServiceProvidersResponse | null;
   currentRolle: Rolle | null;
   allRollen: Array<RolleResponse>;
+  rollenRetrievedByServiceProvider: Array<RolleNameIdResponse>;
   errorCode: string;
   loading: boolean;
   totalRollen: number;
@@ -44,6 +47,7 @@ type RolleActions = {
   ) => Promise<RolleResponse>;
   getAllRollen: (filter: RolleFilter) => Promise<void>;
   getRolleById: (rolleId: string) => Promise<Rolle>;
+  getRollenByServiceProviderId: (serviceProviderId: string) => Promise<void>;
   updateRolle: (
     rolleId: string,
     rollenName: string,
@@ -107,6 +111,7 @@ export const useRolleStore: StoreDefinition<'rolleStore', RolleState, RolleGette
       updatedRolle: null,
       currentRolle: null,
       allRollen: [],
+      rollenRetrievedByServiceProvider: [],
       errorCode: '',
       loading: false,
       totalRollen: 0,
@@ -191,6 +196,19 @@ export const useRolleStore: StoreDefinition<'rolleStore', RolleState, RolleGette
         return await Promise.reject(this.errorCode);
       } finally {
         this.loading = false;
+      }
+    },
+
+    async getRollenByServiceProviderId(serviceProviderId: string): Promise<void> {
+      this.loading = true;
+      this.errorCode = '';
+      try {
+        const response: AxiosResponse<RolleNameIdResponse[]> =
+          await rolleApi.rolleControllerGetRollenByServiceProviderId(serviceProviderId);
+        console.log('Rollen retrieved by Service Provider ID:', response.data);
+        this.rollenRetrievedByServiceProvider = response.data;
+      } catch (error) {
+        this.errorCode = getResponseErrorCode(error, 'ROLLE_STORE_ERROR');
       }
     },
 
