@@ -1,30 +1,29 @@
-<!-- eslint-disable no-console -->
 <script setup lang="ts">
   import LayoutCard from '@/components/cards/LayoutCard.vue';
   import { erWInPortalRoles } from '@/enums/user-roles';
   import { useOrganisationStore, type Organisation, type OrganisationStore } from '@/stores/OrganisationStore';
   import { useRollenartStore, type RollenartListLms, type RollenartStore } from '@/stores/RollenartStore';
-  import { useRolleStore, type Rolle, type RolleStore } from '@/stores/RolleStore';
-  import { useRollenMappingStore, type RollenMappingStore } from '@/stores/RollenMappingStore';
+  import { useRolleStore, type RolleStore } from '@/stores/RolleStore';
+  import {
+    useServiceProviderStore,
+    type ServiceProvider,
+    type ServiceProviderStore,
+  } from '@/stores/ServiceProviderStore';
   import { computed, onMounted, ref, watch, type Ref } from 'vue';
-  import { useRoute, type LocationQueryValue, type RouteLocationNormalizedLoaded } from 'vue-router';
-  import { useSearchFilterStore, type SearchFilterStore } from '@/stores/SearchFilterStore';
-  import type { RolleNameIdResponse } from '@/api-client/generated';
+  import { useRoute, type RouteLocationNormalizedLoaded } from 'vue-router';
 
   const route: RouteLocationNormalizedLoaded = useRoute();
-  const rollenMappingStore: RollenMappingStore = useRollenMappingStore();
-  const dynamicErWInPortalRoles: Ref<string[]> = ref(erWInPortalRoles);
-
   const rollenartStore: RollenartStore = useRollenartStore();
-  const rolleStore: RolleStore = useRolleStore();
   const retrievedLmsOrganisations: Ref<Organisation[]> = ref([]);
   const organisationStore: OrganisationStore = useOrganisationStore();
-  const searchFilterStore: SearchFilterStore = useSearchFilterStore();
+  const serviceProviderStore: ServiceProviderStore = useServiceProviderStore();
+  const rolleStore: RolleStore = useRolleStore();
+  const dynamicErWInPortalRoles: Ref<string[]> = ref([]);
+  const neededServiceProviders: Ref<ServiceProvider[]> = ref([]);
 
   const retrievedRoles: Ref<string[]> = ref([]);
   const selectedInstance: Ref<string> = ref('');
   const selectedRoles: Ref<(string | null)[]> = ref(Array(erWInPortalRoles.length).fill(null));
-
   const roles: Ref<RollenartListLms[]> = ref([]);
 
   const currentRoleOptions: Ref<string[]> = computed((): string[] => {
@@ -37,8 +36,15 @@
   onMounted(async (): Promise<void> => {
     await rollenartStore.getAllRollenart();
     retrievedRoles.value = rollenartStore.rollenartList;
+
     await organisationStore.getLmsOrganisations();
     retrievedLmsOrganisations.value = organisationStore.retrievedLmsOrganisations;
+
+    await serviceProviderStore.getAllServiceProviders();
+    neededServiceProviders.value = serviceProviderStore.allServiceProviders.filter(
+      (serviceProvider: ServiceProvider) => serviceProvider.kategorie === 'LMS',
+    );
+
     roles.value = retrievedLmsOrganisations.value.map(
       (org: Organisation): RollenartListLms => ({
         lmsName: org.name,
@@ -52,72 +58,23 @@
     );
 
     selectedInstance.value = matchedOrg?.name || instanceLabel;
-    selectedRoles.value = Array(erWInPortalRoles.length).fill(null);
+    selectedRoles.value = Array(retrievedRoles.value.length).fill(null);
   });
 
   watch(
     () => route.query['instance'],
-    async (newInstance: LocationQueryValue | LocationQueryValue[] | undefined) => {
+    async (newInstance) => {
       const instanceLabel: string = String(newInstance || '');
-      const matchedOrg: Organisation | undefined = retrievedLmsOrganisations.value.find(
-        (org: Organisation) => org.name.toLowerCase() === instanceLabel.toLowerCase(),
-      );
 
-      if (matchedOrg) {
-        await rolleStore.getRollenByServiceProviderId(matchedOrg.id);
-        rolleStore.rollenRetrievedByServiceProvider.forEach((rolleIdName: RolleNameIdResponse): void => {
-          dynamicErWInPortalRoles.value.push(rolleIdName.name);
-        });
-        console.log('Rollen from LMS Instance:', rolleStore.rollenRetrievedByServiceProvider);
-        console.log('Dynamic ErWInPortal Roles:', dynamicErWInPortalRoles.value);
-        selectedInstance.value = matchedOrg.name;
-      } else {
-        selectedInstance.value = instanceLabel;
-      }
+      const chosenServiceProvider: ServiceProvider = neededServiceProviders.value.find(
+        (sp: ServiceProvider) => sp.name.toLowerCase() === instanceLabel.toLowerCase(),
+      ) as ServiceProvider;
+      await rolleStore.getRollenByServiceProviderId(chosenServiceProvider.id);
+      dynamicErWInPortalRoles.value = rolleStore.rollenRetrievedByServiceProvider.map((role) => role.name);
+      selectedRoles.value = Array(retrievedRoles.value.length).fill(null);
     },
     { immediate: true },
   );
-
-  // use rollenmappingController to save assigned roles to lms instance
-  function saveRolleMapping(): void {
-    // eslint-disable-next-line no-console
-    // console.log('Saving Rolle Mapping...', selectedRoles);
-    selectedRoles.value.forEach((role: string | null, index: number) => {
-      if (role === null) {
-        console.warn(
-          `Role for ErWIn-Portal role "${erWInPortalRoles[index]}" is not selected. Please select a role before saving.`,
-        );
-        return;
-      }
-      // Handle async call without making the function itself async
-      (async (): Promise<void> => {
-        await rolleStore.getAllRollen({
-          offset: (searchFilterStore.rollenPage - 1) * searchFilterStore.rollenPerPage,
-          limit: searchFilterStore.rollenPerPage,
-          searchString: '',
-        });
-        const allRoles: Rolle[] = rolleStore.allRollen;
-        console.log(allRoles);
-        const providerId: string = ((): string => {
-          const matchedOrg: Organisation | undefined = retrievedLmsOrganisations.value.find(
-            (org: Organisation) => org.name === selectedInstance.value,
-          );
-          return matchedOrg?.id ?? '';
-        })();
-        const existRole: Rolle = allRoles.find(
-          (rol: Rolle) =>
-            rol.serviceProviders?.values.name === selectedInstance.value &&
-            rol.rollenart.includes(erWInPortalRoles[index]!),
-        ) as Rolle;
-        // console.log(existRole);
-        await rollenMappingStore.createRollenMapping({
-          rolleId: existRole.id,
-          serviceProviderId: providerId,
-          mapToLmsRolle: role,
-        });
-      })();
-    });
-  }
 </script>
 
 <template>
@@ -151,7 +108,7 @@
         </thead>
         <tbody>
           <tr
-            v-for="(role, index) in dynamicErWInPortalRoles"
+            v-for="(role, index) in erWInPortalRoles"
             :key="index"
           >
             <td>{{ role }}</td>
@@ -184,8 +141,6 @@
           color="primary"
           variant="elevated"
           size="large"
-          data-testid="save-rolle-mapping-btn"
-          @click="saveRolleMapping"
         >
           {{ $t('admin.save') }}
         </v-btn>
