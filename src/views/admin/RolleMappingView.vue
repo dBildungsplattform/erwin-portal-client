@@ -3,6 +3,7 @@
   import { erWInPortalRoles } from '@/enums/user-roles';
   import { useOrganisationStore, type Organisation, type OrganisationStore } from '@/stores/OrganisationStore';
   import { useRollenartStore, type RollenartListLms, type RollenartStore } from '@/stores/RollenartStore';
+  import { useRollenMappingStore, type RollenMappingStore } from '@/stores/RollenMappingStore';
   import { useRolleStore, type RolleStore } from '@/stores/RolleStore';
   import {
     useServiceProviderStore,
@@ -18,6 +19,7 @@
   const organisationStore: OrganisationStore = useOrganisationStore();
   const serviceProviderStore: ServiceProviderStore = useServiceProviderStore();
   const rolleStore: RolleStore = useRolleStore();
+  const rollenMappingStore: RollenMappingStore = useRollenMappingStore();
   const dynamicErWInPortalRoles: Ref<string[]> = ref([]);
   const neededServiceProviders: Ref<ServiceProvider[]> = ref([]);
 
@@ -40,11 +42,6 @@
     await organisationStore.getLmsOrganisations();
     retrievedLmsOrganisations.value = organisationStore.retrievedLmsOrganisations;
 
-    await serviceProviderStore.getAllServiceProviders();
-    neededServiceProviders.value = serviceProviderStore.allServiceProviders.filter(
-      (serviceProvider: ServiceProvider) => serviceProvider.kategorie === 'LMS',
-    );
-
     roles.value = retrievedLmsOrganisations.value.map(
       (org: Organisation): RollenartListLms => ({
         lmsName: org.name,
@@ -61,16 +58,42 @@
     selectedRoles.value = Array(retrievedRoles.value.length).fill(null);
   });
 
+  async function saveChosenRolesForMapping(): Promise<void> {
+    const serviceProvider: ServiceProvider | undefined = neededServiceProviders.value[0];
+    if (!serviceProvider) {
+      return;
+    }
+
+    selectedRoles.value.forEach(async (chosenRole: string | null, index: number) => {
+      const erwInPortalRole: string | undefined = dynamicErWInPortalRoles.value[index];
+      if (chosenRole && erwInPortalRole) {
+        // TODO
+        await rollenMappingStore.createRollenMapping({
+          rolleId: erwInPortalRole,
+          serviceProviderId: serviceProvider.id,
+          mapToLmsRolle: chosenRole,
+        });
+      }
+    });
+  }
+
   watch(
-    () => route.query['instance'],
-    async (newInstance) => {
+    () => route.query['instance'] as string | string[] | null | undefined,
+    async (newInstance: string | string[] | null | undefined): Promise<void> => {
       const instanceLabel: string = String(newInstance || '');
+
+      await serviceProviderStore.getAllServiceProviders();
+      neededServiceProviders.value = serviceProviderStore.allServiceProviders.filter(
+        (serviceProvider: ServiceProvider) => serviceProvider.name.toLowerCase() === instanceLabel.toLowerCase(),
+      );
 
       const chosenServiceProvider: ServiceProvider = neededServiceProviders.value.find(
         (sp: ServiceProvider) => sp.name.toLowerCase() === instanceLabel.toLowerCase(),
       ) as ServiceProvider;
       await rolleStore.getRollenByServiceProviderId(chosenServiceProvider.id);
-      dynamicErWInPortalRoles.value = rolleStore.rollenRetrievedByServiceProvider.map((role) => role.name);
+      dynamicErWInPortalRoles.value = rolleStore.rollenRetrievedByServiceProvider.map(
+        (role: { id: string; name: string }) => role.name,
+      );
       selectedRoles.value = Array(retrievedRoles.value.length).fill(null);
     },
     { immediate: true },
@@ -108,7 +131,7 @@
         </thead>
         <tbody>
           <tr
-            v-for="(role, index) in erWInPortalRoles"
+            v-for="(role, index) in dynamicErWInPortalRoles"
             :key="index"
           >
             <td>{{ role }}</td>
@@ -141,6 +164,7 @@
           color="primary"
           variant="elevated"
           size="large"
+          @click="saveChosenRolesForMapping()"
         >
           {{ $t('admin.save') }}
         </v-btn>
