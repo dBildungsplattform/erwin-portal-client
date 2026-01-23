@@ -1,9 +1,10 @@
 <script setup lang="ts">
-  import LayoutCard from '@/components/cards/LayoutCard.vue';
+  import type { RolleNameIdResponse } from '@/api-client/generated';
+import LayoutCard from '@/components/cards/LayoutCard.vue';
   import { erWInPortalRoles } from '@/enums/user-roles';
   import { useOrganisationStore, type Organisation, type OrganisationStore } from '@/stores/OrganisationStore';
   import { useRollenartStore, type RollenartListLms, type RollenartStore } from '@/stores/RollenartStore';
-  import { useRollenMappingStore, type RollenMappingStore } from '@/stores/RollenMappingStore';
+  import { useRollenMappingStore, type RollenMapping, type RollenMappingStore } from '@/stores/RollenMappingStore';
   import { useRolleStore, type RolleStore } from '@/stores/RolleStore';
   import {
     useServiceProviderStore,
@@ -20,8 +21,9 @@
   const serviceProviderStore: ServiceProviderStore = useServiceProviderStore();
   const rolleStore: RolleStore = useRolleStore();
   const rollenMappingStore: RollenMappingStore = useRollenMappingStore();
-  const dynamicErWInPortalRoles: Ref<string[]> = ref([]);
-  const neededServiceProviders: Ref<ServiceProvider[]> = ref([]);
+  const dynamicErWInPortalRoles: Ref<RolleNameIdResponse[]> = ref([]);
+  const chosenServiceProvider: Ref<ServiceProvider> = ref({} as ServiceProvider);
+  const existingRollenMapping: Ref<RollenMapping[]> = ref([]);
 
   const retrievedRoles: Ref<string[]> = ref([]);
   const selectedInstance: Ref<string> = ref('');
@@ -59,22 +61,35 @@
   });
 
   async function saveChosenRolesForMapping(): Promise<void> {
-    const serviceProvider: ServiceProvider | undefined = neededServiceProviders.value[0];
-    if (!serviceProvider) {
-      return;
-    }
+    const serviceProvider: ServiceProvider = chosenServiceProvider.value;
 
-    selectedRoles.value.forEach(async (chosenRole: string | null, index: number) => {
-      const erwInPortalRole: string | undefined = dynamicErWInPortalRoles.value[index];
-      if (chosenRole && erwInPortalRole) {
-        // TODO
-        await rollenMappingStore.createRollenMapping({
-          rolleId: erwInPortalRole,
-          serviceProviderId: serviceProvider.id,
-          mapToLmsRolle: chosenRole,
-        });
-      }
-    });
+    // Iterate over each selected role and handle create or update of rollenmapping
+    await Promise.all(
+      selectedRoles.value.map(async (chosenRole: string | null, index: number) => {
+        const erwInPortalRole: RolleNameIdResponse | undefined = dynamicErWInPortalRoles.value[index];
+        if (!erwInPortalRole || !chosenRole) return;
+
+        // Find existing mapping for this rolleId
+        const existingMapping: RollenMapping | undefined = existingRollenMapping.value.find(
+          (mapping: RollenMapping) =>
+            mapping.rolleId === erwInPortalRole.id && mapping.serviceProviderId === serviceProvider.id,
+        );
+
+        if (existingMapping) {
+          // Update if mapToLmsRolle has changed
+          if (existingMapping.mapToLmsRolle !== chosenRole) {
+            await rollenMappingStore.updateRollenMapping(existingMapping.id, chosenRole);
+          }
+        } else {
+          // Create new mapping
+          await rollenMappingStore.createRollenMapping({
+            rolleId: erwInPortalRole.id,
+            serviceProviderId: serviceProvider.id,
+            mapToLmsRolle: chosenRole,
+          });
+        }
+      }),
+    );
   }
 
   watch(
@@ -83,17 +98,16 @@
       const instanceLabel: string = String(newInstance || '');
 
       await serviceProviderStore.getAllServiceProviders();
-      neededServiceProviders.value = serviceProviderStore.allServiceProviders.filter(
-        (serviceProvider: ServiceProvider) => serviceProvider.name.toLowerCase() === instanceLabel.toLowerCase(),
-      );
 
-      const chosenServiceProvider: ServiceProvider = neededServiceProviders.value.find(
+      chosenServiceProvider.value = serviceProviderStore.allServiceProviders.find(
         (sp: ServiceProvider) => sp.name.toLowerCase() === instanceLabel.toLowerCase(),
       ) as ServiceProvider;
-      await rolleStore.getRollenByServiceProviderId(chosenServiceProvider.id);
-      dynamicErWInPortalRoles.value = rolleStore.rollenRetrievedByServiceProvider.map(
-        (role: { id: string; name: string }) => role.name,
-      );
+
+      await rollenMappingStore.getRollenMappingsForServiceProvider(chosenServiceProvider.value.id);
+      existingRollenMapping.value = rollenMappingStore.allRollenMappings;
+
+      await rolleStore.getRollenByServiceProviderId(chosenServiceProvider.value.id);
+      dynamicErWInPortalRoles.value = rolleStore.rollenRetrievedByServiceProvider;
       selectedRoles.value = Array(retrievedRoles.value.length).fill(null);
     },
     { immediate: true },
@@ -134,7 +148,7 @@
             v-for="(role, index) in dynamicErWInPortalRoles"
             :key="index"
           >
-            <td>{{ role }}</td>
+            <td>{{ role.name }}</td>
             <td class="align-start">
               <v-select
                 v-model="selectedRoles[index]"

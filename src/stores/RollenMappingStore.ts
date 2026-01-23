@@ -1,11 +1,7 @@
 import { defineStore, type Store, type StoreDefinition } from 'pinia';
 import axiosApiInstance from '@/services/ApiService';
 import { getResponseErrorCode } from '@/utils/errorHandlers';
-import {
-  RollenMappingApiFactory,
-  type RollenMappingApiInterface,
-  type UpdateRolleBodyParams,
-} from '../api-client/generated/api';
+import { RollenMappingApiFactory, type RollenMappingApiInterface } from '../api-client/generated/api';
 import type { AxiosResponse } from 'axios';
 
 const rollenMappingApi: RollenMappingApiInterface = RollenMappingApiFactory(undefined, '', axiosApiInstance);
@@ -14,7 +10,7 @@ export type RollenMapping = {
   id: string;
   rolleId: string;
   serviceProviderId: string;
-  // Add other fields
+  mapToLmsRolle: string;
 };
 
 export type CreateRollenMappingBodyParams = {
@@ -51,7 +47,7 @@ type RollenMappingActions = {
     clientName: string,
   ) => Promise<RollenMapping>;
   getRollenMappingById: (rollenMappingId: string) => Promise<RollenMapping>;
-  updateRollenMapping: (rollenMappingId: string, body: UpdateRolleBodyParams) => Promise<void>;
+  updateRollenMapping: (rollenMappingId: string, mapToLmsRolle: string) => Promise<void>;
 };
 
 export type RollenMappingStore = Store<
@@ -207,15 +203,12 @@ export const useRollenMappingStore: StoreDefinition<
       }
     },
 
-    async updateRollenMapping(rollenMappingId: string, body: UpdateRolleBodyParams): Promise<void> {
+    async updateRollenMapping(rollenMappingId: string, mapToLmsRolle: string): Promise<void> {
       this.loading = true;
       this.errorCode = '';
       try {
         const response: AxiosResponse<object> =
-          await rollenMappingApi.rollenMappingControllerUpdateExistingRollenMapping(
-            rollenMappingId,
-            body as unknown as string,
-          );
+          await rollenMappingApi.rollenMappingControllerUpdateExistingRollenMapping(rollenMappingId, mapToLmsRolle);
         const data: RollenMapping = response.data as RollenMapping;
         this.updatedRollenMapping = data;
         this.currentRollenMapping = data;
