@@ -19,16 +19,9 @@ export type CreateRollenMappingBodyParams = {
   mapToLmsRolle: string;
 };
 
-export type RollenMappingFilter = {
-  limit?: number;
-  offset?: number;
-  searchString?: string;
-};
-
 type RollenMappingState = {
   createdRollenMapping: RollenMapping | null;
   updatedRollenMapping: RollenMapping | null;
-  currentRollenMapping: RollenMapping | null;
   allRollenMappings: Array<RollenMapping>;
   errorCode: string;
   loading: boolean;
@@ -39,12 +32,12 @@ type RollenMappingGetters = {};
 type RollenMappingActions = {
   createRollenMapping: (body: CreateRollenMappingBodyParams) => Promise<RollenMapping>;
   deleteRollenMappingById: (rollenMappingId: string) => Promise<void>;
-  getAllRollenMappings: (filter: RollenMappingFilter) => Promise<void>;
-  getRollenMappingsForServiceProvider: (serviceProviderId: string, filter?: RollenMappingFilter) => Promise<void>;
+  getAllRollenMappings: () => Promise<void>;
+  getRollenMappingsForServiceProvider: (serviceProviderId: string) => Promise<void>;
   getMappingForRolleAndServiceProvider: (
     rolleId: string,
     serviceProviderId: string,
-    clientName: string,
+    mapToLmsRolle: string,
   ) => Promise<RollenMapping>;
   getRollenMappingById: (rollenMappingId: string) => Promise<RollenMapping>;
   updateRollenMapping: (rollenMappingId: string, mapToLmsRolle: string) => Promise<void>;
@@ -67,7 +60,6 @@ export const useRollenMappingStore: StoreDefinition<
   state: (): RollenMappingState => ({
     createdRollenMapping: null,
     updatedRollenMapping: null,
-    currentRollenMapping: null,
     allRollenMappings: [],
     errorCode: '',
     loading: false,
@@ -79,14 +71,14 @@ export const useRollenMappingStore: StoreDefinition<
       this.errorCode = '';
       try {
         const { rolleId, serviceProviderId, mapToLmsRolle }: CreateRollenMappingBodyParams = body;
-        const response: AxiosResponse<object> = await rollenMappingApi.rollenMappingControllerCreateNewRollenMapping(
-          serviceProviderId,
-          rolleId,
-          mapToLmsRolle,
-        );
-        const rollenMapping: RollenMapping = response.data as RollenMapping;
+        const response: AxiosResponse<RollenMapping> =
+          (await rollenMappingApi.rollenMappingControllerCreateNewRollenMapping(
+            serviceProviderId,
+            rolleId,
+            mapToLmsRolle,
+          )) as AxiosResponse<RollenMapping>;
+        const rollenMapping: RollenMapping = response.data;
         this.createdRollenMapping = rollenMapping;
-        this.currentRollenMapping = rollenMapping;
         return rollenMapping;
       } catch (error) {
         this.errorCode = getResponseErrorCode(error, 'ROLLENMAPPING_CREATE_ERROR');
@@ -108,21 +100,16 @@ export const useRollenMappingStore: StoreDefinition<
       }
     },
 
-    async getAllRollenMappings(filter: RollenMappingFilter): Promise<void> {
+    async getAllRollenMappings(): Promise<void> {
       this.loading = true;
       this.errorCode = '';
       try {
-        const response: AxiosResponse<object[]> =
-          await rollenMappingApi.rollenMappingControllerGetAllAvailableRollenMapping({
-            params: {
-              offset: filter.offset,
-              limit: filter.limit,
-              searchString: filter.searchString,
-            },
-          });
-        this.allRollenMappings = (response.data as object[]).map((item: object) => item as RollenMapping);
-        const totalHeader: string | undefined = response.headers['x-paging-total'];
-        this.totalRollenMappings = typeof totalHeader === 'string' ? +totalHeader : response.data.length;
+        const response: AxiosResponse<RollenMapping[]> =
+          (await rollenMappingApi.rollenMappingControllerGetAllAvailableRollenMapping()) as AxiosResponse<
+            RollenMapping[]
+          >;
+        this.allRollenMappings = response.data;
+        this.totalRollenMappings = response.data.length;
       } catch (error) {
         this.errorCode = getResponseErrorCode(error, 'ROLLENMAPPING_LIST_ERROR');
       } finally {
@@ -130,21 +117,16 @@ export const useRollenMappingStore: StoreDefinition<
       }
     },
 
-    async getRollenMappingsForServiceProvider(serviceProviderId: string, filter?: RollenMappingFilter): Promise<void> {
+    async getRollenMappingsForServiceProvider(serviceProviderId: string): Promise<void> {
       this.loading = true;
       this.errorCode = '';
       try {
-        const response: AxiosResponse<object[]> =
-          await rollenMappingApi.rollenMappingControllerGetAvailableRollenMappingForServiceProvider(serviceProviderId, {
-            params: {
-              offset: filter?.offset,
-              limit: filter?.limit,
-              searchString: filter?.searchString,
-            },
-          });
-        this.allRollenMappings = (response.data as Array<RollenMapping>).map((item: object) => item as RollenMapping);
-        const totalHeader: string | undefined = response.headers['x-paging-total'];
-        this.totalRollenMappings = typeof totalHeader === 'string' ? +totalHeader : response.data.length;
+        const response: AxiosResponse<RollenMapping[]> =
+          (await rollenMappingApi.rollenMappingControllerGetAvailableRollenMappingForServiceProvider(
+            serviceProviderId,
+          )) as AxiosResponse<RollenMapping[]>;
+        this.allRollenMappings = response.data;
+        this.totalRollenMappings = response.data.length;
       } catch (error) {
         this.errorCode = getResponseErrorCode(error, 'ROLLENMAPPING_LIST_ERROR');
       } finally {
@@ -155,17 +137,17 @@ export const useRollenMappingStore: StoreDefinition<
     async getMappingForRolleAndServiceProvider(
       rolleId: string,
       serviceProviderId: string,
-      clientName: string,
+      mapToLmsRolle: string,
     ): Promise<RollenMapping> {
       this.loading = true;
       this.errorCode = '';
       try {
-        const response: AxiosResponse<object> =
-          await rollenMappingApi.rollenMappingControllerGetMappingForRolleAndServiceProvider(
+        const response: AxiosResponse<RollenMapping> =
+          (await rollenMappingApi.rollenMappingControllerGetMappingForRolleAndServiceProvider(
             rolleId,
             serviceProviderId,
-            clientName,
-          );
+            mapToLmsRolle,
+          )) as AxiosResponse<RollenMapping>;
         const data: Partial<RollenMapping> = response.data as Partial<RollenMapping>;
         if (!data.id || !data.rolleId || !data.serviceProviderId) {
           throw new Error('Invalid RollenMapping response: missing required properties');
@@ -174,9 +156,8 @@ export const useRollenMappingStore: StoreDefinition<
           id: data.id,
           rolleId: data.rolleId,
           serviceProviderId: data.serviceProviderId,
-          ...(data as Omit<RollenMapping, 'id' | 'rolleId' | 'serviceProviderId'>),
+          mapToLmsRolle: data.mapToLmsRolle || '',
         };
-        this.currentRollenMapping = rollenMapping;
         return rollenMapping;
       } catch (error) {
         this.errorCode = getResponseErrorCode(error, 'ROLLENMAPPING_FETCH_ERROR');
@@ -190,10 +171,11 @@ export const useRollenMappingStore: StoreDefinition<
       this.loading = true;
       this.errorCode = '';
       try {
-        const response: AxiosResponse<object> =
-          await rollenMappingApi.rollenMappingControllerGetRollenMappingWithId(rollenMappingId);
+        const response: AxiosResponse<RollenMapping> =
+          (await rollenMappingApi.rollenMappingControllerGetRollenMappingWithId(
+            rollenMappingId,
+          )) as AxiosResponse<RollenMapping>;
         const data: RollenMapping = response.data as RollenMapping;
-        this.currentRollenMapping = data;
         return data;
       } catch (error) {
         this.errorCode = getResponseErrorCode(error, 'ROLLENMAPPING_FETCH_ERROR');
@@ -207,11 +189,13 @@ export const useRollenMappingStore: StoreDefinition<
       this.loading = true;
       this.errorCode = '';
       try {
-        const response: AxiosResponse<object> =
-          await rollenMappingApi.rollenMappingControllerUpdateExistingRollenMapping(rollenMappingId, mapToLmsRolle);
+        const response: AxiosResponse<RollenMapping> =
+          (await rollenMappingApi.rollenMappingControllerUpdateExistingRollenMapping(
+            rollenMappingId,
+            mapToLmsRolle,
+          )) as AxiosResponse<RollenMapping>;
         const data: RollenMapping = response.data as RollenMapping;
         this.updatedRollenMapping = data;
-        this.currentRollenMapping = data;
       } catch (error) {
         this.errorCode = getResponseErrorCode(error, 'ROLLENMAPPING_UPDATE_ERROR');
       } finally {

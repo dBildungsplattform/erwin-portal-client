@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import type { RolleNameIdResponse } from '@/api-client/generated';
-import LayoutCard from '@/components/cards/LayoutCard.vue';
+  import LayoutCard from '@/components/cards/LayoutCard.vue';
   import { erWInPortalRoles } from '@/enums/user-roles';
   import { useOrganisationStore, type Organisation, type OrganisationStore } from '@/stores/OrganisationStore';
   import { useRollenartStore, type RollenartListLms, type RollenartStore } from '@/stores/RollenartStore';
@@ -67,7 +67,7 @@ import LayoutCard from '@/components/cards/LayoutCard.vue';
     await Promise.all(
       selectedRoles.value.map(async (chosenRole: string | null, index: number) => {
         const erwInPortalRole: RolleNameIdResponse | undefined = dynamicErWInPortalRoles.value[index];
-        if (!erwInPortalRole || !chosenRole) return;
+        if (!erwInPortalRole) return;
 
         // Find existing mapping for this rolleId
         const existingMapping: RollenMapping | undefined = existingRollenMapping.value.find(
@@ -76,16 +76,21 @@ import LayoutCard from '@/components/cards/LayoutCard.vue';
         );
 
         if (existingMapping) {
-          // Update if mapToLmsRolle has changed
-          if (existingMapping.mapToLmsRolle !== chosenRole) {
-            await rollenMappingStore.updateRollenMapping(existingMapping.id, chosenRole);
+          if (!chosenRole) {
+            // If chosenRole is null, delete the existing mapping
+            await rollenMappingStore.deleteRollenMappingById(existingMapping.id);
+          } else {
+            // Update if mapToLmsRolle has changed
+            if (existingMapping.mapToLmsRolle !== chosenRole) {
+              await rollenMappingStore.updateRollenMapping(existingMapping.id, chosenRole);
+            }
           }
         } else {
           // Create new mapping
           await rollenMappingStore.createRollenMapping({
             rolleId: erwInPortalRole.id,
             serviceProviderId: serviceProvider.id,
-            mapToLmsRolle: chosenRole,
+            mapToLmsRolle: chosenRole ? chosenRole : '',
           });
         }
       }),
@@ -108,7 +113,14 @@ import LayoutCard from '@/components/cards/LayoutCard.vue';
 
       await rolleStore.getRollenByServiceProviderId(chosenServiceProvider.value.id);
       dynamicErWInPortalRoles.value = rolleStore.rollenRetrievedByServiceProvider;
-      selectedRoles.value = Array(retrievedRoles.value.length).fill(null);
+      // fill selectedRoles value based on existing mappings
+      selectedRoles.value = dynamicErWInPortalRoles.value.map((role: RolleNameIdResponse) => {
+        const existingMapping: RollenMapping | undefined = existingRollenMapping.value.find(
+          (mapping: RollenMapping) =>
+            mapping.rolleId === role.id && mapping.serviceProviderId === chosenServiceProvider.value.id,
+        );
+        return existingMapping ? existingMapping.mapToLmsRolle : null;
+      });
     },
     { immediate: true },
   );
@@ -137,9 +149,11 @@ import LayoutCard from '@/components/cards/LayoutCard.vue';
       >
         <thead>
           <tr>
-            <th><strong>ErWIn-Portal</strong></th>
             <th>
               <strong>{{ selectedInstance || '...' }}</strong>
+            </th>
+            <th>
+              <strong>ErWIn-Portal</strong>
             </th>
           </tr>
         </thead>

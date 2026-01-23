@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { defineStore, type Store, type StoreDefinition } from 'pinia';
 import { type AxiosResponse } from 'axios';
 import { getResponseErrorCode } from '@/utils/errorHandlers';
@@ -205,7 +204,6 @@ export const useRolleStore: StoreDefinition<'rolleStore', RolleState, RolleGette
       try {
         const response: AxiosResponse<RolleNameIdResponse[]> =
           await rolleApi.rolleControllerGetRollenByServiceProviderId(serviceProviderId);
-        console.log('Rollen retrieved by Service Provider ID:', response.data);
         this.rollenRetrievedByServiceProvider = response.data;
       } catch (error) {
         this.errorCode = getResponseErrorCode(error, 'ROLLE_STORE_ERROR');
