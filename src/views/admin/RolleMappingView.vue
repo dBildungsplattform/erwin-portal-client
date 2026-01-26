@@ -150,10 +150,10 @@
         <thead>
           <tr>
             <th>
-              <strong>{{ selectedInstance || '...' }}</strong>
+              <strong>ErWIn-Portal</strong>
             </th>
             <th>
-              <strong>ErWIn-Portal</strong>
+              <strong>{{ selectedInstance || '...' }}</strong>
             </th>
           </tr>
         </thead>
