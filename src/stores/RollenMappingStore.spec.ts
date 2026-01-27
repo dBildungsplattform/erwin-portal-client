@@ -1,0 +1,343 @@
+import ApiService from '@/services/ApiService';
+import * as errorHandlers from '@/utils/errorHandlers';
+import MockAdapter from 'axios-mock-adapter';
+import { createPinia, setActivePinia } from 'pinia';
+import { beforeEach, describe, expect, it, type MockInstance } from 'vitest';
+import { useRollenMappingStore, type RollenMapping, type RollenMappingStore } from './RollenMappingStore';
+
+const mockadapter: MockAdapter = new MockAdapter(ApiService);
+const getResponseErrorCodeMock: MockInstance<(error: unknown, defaultErrorCode: string) => string> = vi
+  .spyOn(errorHandlers, 'getResponseErrorCode')
+  .mockImplementation((_error: unknown, defaultErrorCode: string) => {
+    return defaultErrorCode || 'UNSPECIFIED_ERROR';
+  });
+
+describe('rollenMappingStore', () => {
+  let rollenMappingStore: RollenMappingStore;
+
+  beforeEach(() => {
+    setActivePinia(createPinia());
+    rollenMappingStore = useRollenMappingStore();
+    mockadapter.reset();
+    getResponseErrorCodeMock.mockClear();
+  });
+
+  it('should initialize state correctly', () => {
+    expect(rollenMappingStore.createdRollenMapping).toEqual(null);
+    expect(rollenMappingStore.updatedRollenMapping).toEqual(null);
+    expect(rollenMappingStore.allRollenMappings).toEqual([]);
+    expect(rollenMappingStore.errorCode).toEqual('');
+    expect(rollenMappingStore.loading).toBe(false);
+    expect(rollenMappingStore.totalRollenMappings).toBe(0);
+  });
+
+  describe('createRollenMapping', () => {
+    it('should create rollenMapping and update state', async () => {
+      const mockResponse: RollenMapping = {
+        id: 'm1',
+        rolleId: 'r1',
+        serviceProviderId: 'sp1',
+        mapToLmsRolle: 'LEHRER',
+      };
+      mockadapter.onPost(/.*/).replyOnce(200, mockResponse);
+
+      const promise: Promise<RollenMapping> = rollenMappingStore.createRollenMapping({
+        rolleId: 'r1',
+        serviceProviderId: 'sp1',
+        mapToLmsRolle: 'LEHRER',
+      });
+
+      expect(rollenMappingStore.loading).toBe(true);
+      const result: RollenMapping = await promise;
+      expect(result).toEqual(mockResponse);
+      expect(rollenMappingStore.createdRollenMapping).toEqual(mockResponse);
+      expect(rollenMappingStore.errorCode).toEqual('');
+      expect(rollenMappingStore.loading).toBe(false);
+    });
+
+    it('should handle string error', async () => {
+      mockadapter.onPost(/.*/).replyOnce(500, { i18nKey: 'ROLLENMAPPING_CREATE_ERROR' });
+
+      const promise: Promise<RollenMapping> = rollenMappingStore.createRollenMapping({
+        rolleId: 'r1',
+        serviceProviderId: 'sp1',
+        mapToLmsRolle: 'LEHRER',
+      });
+
+      expect(rollenMappingStore.loading).toBe(true);
+      await expect(promise).rejects.toEqual('ROLLENMAPPING_CREATE_ERROR');
+      expect(rollenMappingStore.errorCode).toEqual('ROLLENMAPPING_CREATE_ERROR');
+      expect(rollenMappingStore.createdRollenMapping).toEqual(null);
+      expect(rollenMappingStore.loading).toBe(false);
+    });
+
+    it('should handle error code', async () => {
+      mockadapter.onPost(/.*/).replyOnce(500, { i18nKey: 'SOME_MOCK_SERVER_ERROR' });
+
+      const promise: Promise<RollenMapping> = rollenMappingStore.createRollenMapping({
+        rolleId: 'r1',
+        serviceProviderId: 'sp1',
+        mapToLmsRolle: 'LEHRER',
+      });
+
+      expect(rollenMappingStore.loading).toBe(true);
+      await expect(promise).rejects.toEqual('ROLLENMAPPING_CREATE_ERROR');
+      expect(rollenMappingStore.errorCode).toEqual('ROLLENMAPPING_CREATE_ERROR');
+      expect(rollenMappingStore.createdRollenMapping).toEqual(null);
+      expect(rollenMappingStore.loading).toBe(false);
+    });
+  });
+
+  describe('getAllRollenMappings', () => {
+    it('should load rollenMappings and update state', async () => {
+      const mockResponse: RollenMapping[] = [
+        { id: 'm1', rolleId: 'r1', serviceProviderId: 'sp1', mapToLmsRolle: 'LEHRER' },
+        { id: 'm2', rolleId: 'r2', serviceProviderId: 'sp2', mapToLmsRolle: 'SCHUELER' },
+      ];
+      mockadapter.onGet(/.*/).replyOnce(200, mockResponse);
+
+      const promise: Promise<void> = rollenMappingStore.getAllRollenMappings();
+      expect(rollenMappingStore.loading).toBe(true);
+      await promise;
+      expect(rollenMappingStore.allRollenMappings).toEqual(mockResponse);
+      expect(rollenMappingStore.totalRollenMappings).toBe(2);
+      expect(rollenMappingStore.errorCode).toEqual('');
+      expect(rollenMappingStore.loading).toBe(false);
+    });
+
+    it('should handle string error', async () => {
+      const promise: Promise<void> = rollenMappingStore.getAllRollenMappings();
+      expect(rollenMappingStore.loading).toBe(true);
+      await promise;
+      expect(rollenMappingStore.errorCode).toEqual('ROLLENMAPPING_LIST_ERROR');
+      expect(rollenMappingStore.loading).toBe(false);
+    });
+
+    it('should handle error code', async () => {
+      const promise: Promise<void> = rollenMappingStore.getAllRollenMappings();
+      expect(rollenMappingStore.loading).toBe(true);
+      await promise;
+      expect(rollenMappingStore.errorCode).toEqual('ROLLENMAPPING_LIST_ERROR');
+      expect(rollenMappingStore.loading).toBe(false);
+    });
+
+    it('should handle empty list', async () => {
+      await rollenMappingStore.getAllRollenMappings();
+      expect(rollenMappingStore.allRollenMappings).toEqual([]);
+      expect(rollenMappingStore.totalRollenMappings).toBe(0);
+      expect(rollenMappingStore.errorCode).toEqual('ROLLENMAPPING_LIST_ERROR');
+    });
+  });
+
+  describe('getRollenMappingsForServiceProvider', () => {
+    it('should load mappings for service provider and update state', async () => {
+      const mockResponse: RollenMapping[] = [
+        { id: 'm1', rolleId: 'r1', serviceProviderId: 'sp1', mapToLmsRolle: 'LEHRER' },
+      ];
+      mockadapter.onGet(/.*/).replyOnce(200, mockResponse);
+
+      const promise: Promise<void> = rollenMappingStore.getRollenMappingsForServiceProvider('sp1');
+      expect(rollenMappingStore.loading).toBe(true);
+      await promise;
+      expect(rollenMappingStore.allRollenMappings).toEqual(mockResponse);
+      expect(rollenMappingStore.totalRollenMappings).toBe(1);
+      expect(rollenMappingStore.errorCode).toEqual('');
+      expect(rollenMappingStore.loading).toBe(false);
+    });
+
+    it('should handle string error', async () => {
+      mockadapter.onGet(/.*/).replyOnce(500, { i18nKey: 'ROLLENMAPPING_LIST_ERROR' });
+
+      const promise: Promise<void> = rollenMappingStore.getRollenMappingsForServiceProvider('sp1');
+      expect(rollenMappingStore.loading).toBe(true);
+      await promise;
+      expect(rollenMappingStore.errorCode).toEqual('ROLLENMAPPING_LIST_ERROR');
+      expect(rollenMappingStore.loading).toBe(false);
+    });
+
+    it('should handle error code', async () => {
+      const promise: Promise<void> = rollenMappingStore.getRollenMappingsForServiceProvider('sp1');
+      expect(rollenMappingStore.loading).toBe(true);
+      await promise;
+      expect(rollenMappingStore.errorCode).toEqual('ROLLENMAPPING_LIST_ERROR');
+      expect(rollenMappingStore.loading).toBe(false);
+    });
+
+    it('should handle empty list for service provider', async () => {
+      await rollenMappingStore.getRollenMappingsForServiceProvider('sp1');
+      expect(rollenMappingStore.allRollenMappings).toEqual([]);
+      expect(rollenMappingStore.totalRollenMappings).toBe(0);
+      expect(rollenMappingStore.errorCode).toEqual('ROLLENMAPPING_LIST_ERROR');
+    });
+  });
+
+  describe('getRollenMappingById', () => {
+    it('should load by id and return mapping', async () => {
+      const mockResponse: RollenMapping = {
+        id: 'm1',
+        rolleId: 'r1',
+        serviceProviderId: 'sp1',
+        mapToLmsRolle: 'LEHRER',
+      };
+      mockadapter.onGet(/.*/).replyOnce(200, mockResponse);
+
+      const promise: Promise<RollenMapping> = rollenMappingStore.getRollenMappingById('m1');
+      expect(rollenMappingStore.loading).toBe(true);
+      const data: RollenMapping = await promise;
+      expect(data).toEqual(mockResponse);
+      expect(rollenMappingStore.errorCode).toEqual('');
+      expect(rollenMappingStore.loading).toBe(false);
+    });
+
+    it('should handle string error', async () => {
+      const promise: Promise<RollenMapping> = rollenMappingStore.getRollenMappingById('m1');
+      expect(rollenMappingStore.loading).toBe(true);
+      await promise.catch(() => undefined);
+      expect(rollenMappingStore.errorCode).toEqual('ROLLENMAPPING_FETCH_ERROR');
+      expect(rollenMappingStore.loading).toBe(false);
+    });
+
+    it('should handle error code', async () => {
+      const promise: Promise<RollenMapping> = rollenMappingStore.getRollenMappingById('m1');
+      expect(rollenMappingStore.loading).toBe(true);
+      await promise.catch(() => undefined);
+      expect(rollenMappingStore.errorCode).toEqual('ROLLENMAPPING_FETCH_ERROR');
+      expect(rollenMappingStore.loading).toBe(false);
+    });
+  });
+
+  describe('updateRollenMapping', () => {
+    it('should update mapping and set updatedRollenMapping', async () => {
+      const mockResponse: RollenMapping = {
+        id: 'm1',
+        rolleId: 'r1',
+        serviceProviderId: 'sp1',
+        mapToLmsRolle: 'SCHUELER',
+      };
+      mockadapter.onPut(/.*/).replyOnce(200, mockResponse);
+
+      const promise: Promise<void> = rollenMappingStore.updateRollenMapping('m1', 'SCHUELER');
+      expect(rollenMappingStore.loading).toBe(true);
+      await promise;
+      expect(rollenMappingStore.updatedRollenMapping).toEqual(mockResponse);
+      expect(rollenMappingStore.errorCode).toEqual('');
+      expect(rollenMappingStore.loading).toBe(false);
+    });
+
+    it('should handle string error on update', async () => {
+      mockadapter.onPut(/.*/).replyOnce(500, { i18nKey: 'ROLLENMAPPING_UPDATE_ERROR' });
+
+      const promise: Promise<void> = rollenMappingStore.updateRollenMapping('m1', 'SCHUELER');
+      expect(rollenMappingStore.loading).toBe(true);
+      await promise;
+      expect(rollenMappingStore.errorCode).toEqual('ROLLENMAPPING_UPDATE_ERROR');
+      expect(rollenMappingStore.loading).toBe(false);
+    });
+
+    it('should handle error code on update', async () => {
+      const promise: Promise<void> = rollenMappingStore.updateRollenMapping('m1', 'SCHUELER');
+      expect(rollenMappingStore.loading).toBe(true);
+      await promise;
+      expect(rollenMappingStore.errorCode).toEqual('ROLLENMAPPING_UPDATE_ERROR');
+      expect(rollenMappingStore.loading).toBe(false);
+    });
+
+    it('should not change updatedRollenMapping on update error', async () => {
+      rollenMappingStore.updatedRollenMapping = {
+        id: 'old',
+        rolleId: 'rOld',
+        serviceProviderId: 'spOld',
+        mapToLmsRolle: 'LEHRER',
+      };
+      mockadapter.onPut(/.*/).replyOnce(500, { i18nKey: 'UPDATE_FAILED' });
+      await rollenMappingStore.updateRollenMapping('m1', 'SCHUELER');
+      expect(rollenMappingStore.updatedRollenMapping).toEqual({
+        id: 'old',
+        rolleId: 'rOld',
+        serviceProviderId: 'spOld',
+        mapToLmsRolle: 'LEHRER',
+      });
+    });
+  });
+
+  describe('deleteRollenMappingById', () => {
+    it('should delete mapping and keep state consistent', async () => {
+      mockadapter.onDelete(/.*/).replyOnce(200);
+
+      const promise: Promise<void> = rollenMappingStore.deleteRollenMappingById('m1');
+      expect(rollenMappingStore.loading).toBe(true);
+      await promise;
+      expect(rollenMappingStore.errorCode).toEqual('');
+      expect(rollenMappingStore.loading).toBe(false);
+    });
+
+    it('should handle string error on delete', async () => {
+      mockadapter.onDelete(/.*/).replyOnce(500, { i18nKey: 'ROLLENMAPPING_DELETE_ERROR' });
+
+      const promise: Promise<void> = rollenMappingStore.deleteRollenMappingById('m1');
+      expect(rollenMappingStore.loading).toBe(true);
+      await promise;
+      expect(rollenMappingStore.errorCode).toEqual('ROLLENMAPPING_DELETE_ERROR');
+      expect(rollenMappingStore.loading).toBe(false);
+    });
+
+    it('should handle error code on delete', async () => {
+      const promise: Promise<void> = rollenMappingStore.deleteRollenMappingById('m1');
+      expect(rollenMappingStore.loading).toBe(true);
+      await promise;
+      expect(rollenMappingStore.errorCode).toEqual('ROLLENMAPPING_DELETE_ERROR');
+      expect(rollenMappingStore.loading).toBe(false);
+    });
+  });
+
+  describe('getMappingForRolleAndServiceProvider', () => {
+    it('should return correct mapping for given rolleId and serviceProviderId and mapToLmsRolle', async () => {
+      const mockResponse1: RollenMapping = {
+        id: 'm1',
+        rolleId: 'r1',
+        serviceProviderId: 'sp1',
+        mapToLmsRolle: 'LEHRER',
+      };
+      mockadapter.onPost(/.*/).reply(200, mockResponse1);
+      const mapping1: RollenMapping | null = await rollenMappingStore.getMappingForRolleAndServiceProvider(
+        'r1',
+        'sp1',
+        'LEHRER',
+      );
+
+      expect(mapping1).toEqual(mockResponse1);
+
+      const mockResponse2: RollenMapping = {
+        id: 'm2',
+        rolleId: 'r1',
+        serviceProviderId: 'sp1',
+        mapToLmsRolle: '',
+      };
+      mockadapter.onPost(/.*/).reply(200, mockResponse2);
+      const mapping2: RollenMapping | null = await rollenMappingStore.getMappingForRolleAndServiceProvider(
+        'r1',
+        'sp1',
+        '',
+      );
+
+      expect(mapping2).toEqual(mockResponse2);
+    });
+
+    it('should throw invalid RollenMapping Response error', async () => {
+      const invalidResponse: RollenMapping = {
+        id: 'm2',
+        rolleId: undefined as unknown as string,
+        serviceProviderId: 'sp1',
+        mapToLmsRolle: '',
+      };
+      mockadapter.onAny(/.*/).reply(200, invalidResponse);
+      await expect(
+        rollenMappingStore.getMappingForRolleAndServiceProvider(
+          invalidResponse.id,
+          invalidResponse.rolleId,
+          invalidResponse.serviceProviderId,
+        ),
+      ).rejects.toContain('ROLLENMAPPING_FETCH_ERROR');
+    });
+  });
+});

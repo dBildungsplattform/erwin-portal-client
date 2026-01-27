@@ -336,6 +336,11 @@
       "loadingErrorTitle": "Fehler beim Laden der Rolle",
       "management": "Rollenverwaltung",
       "mapping": "Rollenmapping",
+      "ROLLENMAPPING_CREATE_ERROR": "Erstellung von Rollenmapping fehlgeschlagen",
+      "ROLLENMAPPING_DELETE_ERROR": "Rollenmapping könnte nicht gelöscht werden",
+      "ROLLENMAPPING_UPDATE_ERROR": "Rollenmapping könnte nicht aktualisiert werden",
+      "ROLLENMAPPING_LIST_ERROR": "Fehler beim Laden Rollenmapping",
+      "ROLLENMAPPING_FETCH_ERROR": "Fehler beim Abruf von Rollenmapping Daten",
       "showMapping": "Alle Rollen anzeigen",
       "mappingFrontBackEnd": {
         "systemrechte": {
