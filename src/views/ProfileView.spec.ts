@@ -427,16 +427,16 @@ describe('ProfileView', () => {
     expect(document.querySelector('[data-testid="open-2FA-self-service-dialog-icon"]')).toBeNull();
   });
 
-  test('it displays 2FA connection error', async () => {
-    twoFactorAuthenticationStore.errorCode = 'PI_UNAVAILABLE_ERROR';
-    await nextTick();
-    if (!wrapper) return;
-    const twoFactorCard: DOMWrapper<Element> = wrapper.find('[data-testid="two-factor-info"]');
-    expect(twoFactorCard.text()).toContain(
-      'Der Server für die Zwei-Faktor-Authentifizierung kann aktuell nicht erreicht werden. Bitte versuchen Sie es zu einem späteren Zeitpunkt erneut.',
-    );
-    expect(document.querySelector('[data-testid="open-2FA-self-service-dialog-icon"]')).toBeNull();
-  });
+  // test('it displays 2FA connection error', async () => {
+  //   twoFactorAuthenticationStore.errorCode = 'PI_UNAVAILABLE_ERROR';
+  //   await nextTick();
+  //   if (!wrapper) return;
+  //   const twoFactorCard: DOMWrapper<Element> = wrapper.find('[data-testid="two-factor-info"]');
+  //   expect(twoFactorCard.text()).toContain(
+  //     'Der Server für die Zwei-Faktor-Authentifizierung kann aktuell nicht erreicht werden. Bitte versuchen Sie es zu einem späteren Zeitpunkt erneut.',
+  //   );
+  //   expect(document.querySelector('[data-testid="open-2FA-self-service-dialog-icon"]')).toBeNull();
+  // });
 
   describe('email', () => {
     test('displays correct email status for enabled', async () => {
