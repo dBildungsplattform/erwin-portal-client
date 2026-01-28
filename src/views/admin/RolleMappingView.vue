@@ -22,7 +22,7 @@
   const rolleStore: RolleStore = useRolleStore();
   const rollenMappingStore: RollenMappingStore = useRollenMappingStore();
   const dynamicErWInPortalRoles: Ref<RolleNameIdResponse[]> = ref([]);
-  const chosenServiceProvider: Ref<ServiceProvider> = ref({} as ServiceProvider);
+  const chosenServiceProvider: Ref<ServiceProvider | null> = ref(null);
   const existingRollenMapping: Ref<RollenMapping[]> = ref([]);
 
   const retrievedRoles: Ref<string[]> = ref([]);
@@ -61,7 +61,8 @@
   });
 
   async function saveChosenRolesForMapping(): Promise<void> {
-    const serviceProvider: ServiceProvider = chosenServiceProvider.value;
+    const serviceProvider: ServiceProvider | null = chosenServiceProvider.value;
+    if (!serviceProvider || !serviceProvider.id) return;
 
     // Iterate over each selected role and handle create or update of rollenmapping
     await Promise.all(
@@ -104,9 +105,17 @@
 
       await serviceProviderStore.getAllServiceProviders();
 
-      chosenServiceProvider.value = serviceProviderStore.allServiceProviders.find(
+      const foundSp: ServiceProvider | undefined = serviceProviderStore.allServiceProviders.find(
         (sp: ServiceProvider) => sp.name.toLowerCase() === instanceLabel.toLowerCase(),
-      ) as ServiceProvider;
+      );
+      chosenServiceProvider.value = foundSp ?? null;
+
+      if (!chosenServiceProvider.value || !chosenServiceProvider.value.id) {
+        existingRollenMapping.value = [];
+        dynamicErWInPortalRoles.value = [];
+        selectedRoles.value = [];
+        return;
+      }
 
       await rollenMappingStore.getRollenMappingsForServiceProvider(chosenServiceProvider.value.id);
       existingRollenMapping.value = rollenMappingStore.allRollenMappings;
@@ -117,7 +126,7 @@
       selectedRoles.value = dynamicErWInPortalRoles.value.map((role: RolleNameIdResponse) => {
         const existingMapping: RollenMapping | undefined = existingRollenMapping.value.find(
           (mapping: RollenMapping) =>
-            mapping.rolleId === role.id && mapping.serviceProviderId === chosenServiceProvider.value.id,
+            mapping.rolleId === role.id && mapping.serviceProviderId === chosenServiceProvider.value!.id,
         );
         return existingMapping ? existingMapping.mapToLmsRolle : null;
       });
