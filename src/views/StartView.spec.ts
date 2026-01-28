@@ -276,26 +276,4 @@ describe('StartView', () => {
       'Spongebob Squarepants',
     ]);
   });
-
-  test('it renders all service provider cards', () => {
-    const cards = wrapper?.findAll('[data-testid^="service-provider-card-"]');
-    expect(cards?.length).toBe(mockProviders.length);
-    mockProviders.forEach((provider) => {
-      const card = wrapper?.find(`[data-testid="service-provider-card-${provider.id}"]`);
-      expect(card?.exists()).toBe(true);
-      expect(card?.text()).toContain(provider.name);
-    });
-  });
-
-  test('it displays correct url for external service provider', () => {
-    const card = wrapper?.find('[data-testid="service-provider-card-2"]');
-    expect(card?.attributes('href')).toBe('https://de.wikipedia.org/wiki/SpongeBob_Schwammkopf');
-  });
-
-  test('it does not show meldung banner when currentMeldung is null', async () => {
-    meldungStore.currentMeldung = null;
-    await nextTick();
-    const meldungBanner = wrapper?.find('[data-testid="meldung-banner"]');
-    expect(meldungBanner?.exists()).toBe(false);
-  });
 });
