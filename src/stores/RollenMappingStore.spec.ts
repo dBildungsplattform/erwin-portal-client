@@ -339,5 +339,31 @@ describe('rollenMappingStore', () => {
         ),
       ).rejects.toContain('ROLLENMAPPING_FETCH_ERROR');
     });
+
+    it('should throw on invalid API response (missing fields) and set errorCode', async () => {
+      const invalidResponse: Partial<RollenMapping> = {
+        id: 'rm-1',
+        serviceProviderId: 'sp-1',
+        mapToLmsRolle: 'LEARNER',
+      };
+      mockadapter.onAny().reply(200, invalidResponse);
+
+      await expect(rollenMappingStore.getMappingForRolleAndServiceProvider('rolle-1', 'sp-1', 'LEARNER')).rejects.toBe(
+        'ROLLENMAPPING_FETCH_ERROR',
+      );
+
+      expect(getResponseErrorCodeMock).toHaveBeenCalledTimes(1);
+      const firstCall: [unknown, string] | undefined = getResponseErrorCodeMock.mock.calls[0] as
+        | [unknown, string]
+        | undefined;
+      expect(firstCall).toBeDefined();
+      const [caughtError, defaultCode]: [unknown, string] = firstCall!;
+      expect(caughtError).toBeInstanceOf(Error);
+      expect((caughtError as Error).message).toContain('Invalid RollenMapping response: missing required properties');
+      expect(defaultCode).toBe('ROLLENMAPPING_FETCH_ERROR');
+
+      expect(rollenMappingStore.errorCode).toBe('ROLLENMAPPING_FETCH_ERROR');
+      expect(rollenMappingStore.loading).toBe(false);
+    });
   });
 });
