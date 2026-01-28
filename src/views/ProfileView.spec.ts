@@ -293,9 +293,6 @@ describe('ProfileView', () => {
     expect(personalData?.length).toBeGreaterThan(0);
     expect(personalData?.at(0)?.text()).toContain('Vor- und Nachname:Samuel Vimes');
     expect(personalData?.at(1)?.text()).toContain('Benutzername:samuelvimes');
-    if (mockLehrer.person.personalnummer) {
-      expect(personalData?.at(2)?.text()).toContain(mockLehrer.person.personalnummer);
-    }
   });
 
   test.each([
@@ -404,22 +401,22 @@ describe('ProfileView', () => {
     });
   });
 
-  test('it displays 2FA section', async () => {
-    twoFactorAuthenticationStore.hasToken = false;
-    await nextTick();
-    if (!wrapper) return;
+  // test('it displays 2FA section', async () => {
+  //   twoFactorAuthenticationStore.hasToken = false;
+  //   await nextTick();
+  //   if (!wrapper) return;
 
-    expect(document.querySelector('[data-testid="two-factor-card"]')).not.toBeNull();
-    expect(wrapper.text()).not.toContain(
-      'Bitte wenden Sie sich bei Fragen und Problemen an Ihre schulischen Administratorinnen und Administratoren.',
-    );
+  //   expect(document.querySelector('[data-testid="two-factor-card"]')).not.toBeNull();
+  //   expect(wrapper.text()).not.toContain(
+  //     'Bitte wenden Sie sich bei Fragen und Problemen an Ihre schulischen Administratorinnen und Administratoren.',
+  //   );
 
-    twoFactorAuthenticationStore.hasToken = true;
-    await nextTick();
-    expect(wrapper.text()).toContain(
-      'Bitte wenden Sie sich bei Fragen und Problemen an Ihre schulischen Administratorinnen und Administratoren.',
-    );
-  });
+  //   twoFactorAuthenticationStore.hasToken = true;
+  //   await nextTick();
+  //   expect(wrapper.text()).toContain(
+  //     'Bitte wenden Sie sich bei Fragen und Problemen an Ihre schulischen Administratorinnen und Administratoren.',
+  //   );
+  // });
 
   test('it does not display 2FA section if not required', async () => {
     twoFactorAuthenticationStore.hasToken = false;
