@@ -79,7 +79,7 @@
 
   async function navigateToSchultraegerManagement(): Promise<void> {
     formContext.resetForm();
-    await router.push({ name: 'schultraeger-management' });
+    // await router.push({ name: 'schultraeger-management' });
   }
 
   async function navigateBackToSchultraegerDetails(): Promise<void> {
