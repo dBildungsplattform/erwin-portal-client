@@ -203,8 +203,8 @@ beforeEach(async () => {
     routes,
   });
 
-  router.push({ name: 'schultraeger-details', params: { id: '2' } });
-  await router.isReady();
+  // router.push({ name: 'schultraeger-details', params: { id: '2' } });
+  // await router.isReady();
 
   wrapper = mountComponent();
 });

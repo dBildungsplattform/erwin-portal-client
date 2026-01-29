@@ -121,6 +121,7 @@ const routes: readonly RouteRecordRaw[] = [
       requiresPermission: 'rollenverwaltung',
     },
   },
+  /*
   {
     path: '/admin/schulen/new',
     name: 'create-schule',
@@ -132,6 +133,7 @@ const routes: readonly RouteRecordRaw[] = [
       requiresPermission: 'schulverwaltung',
     },
   },
+  */
   {
     path: '/admin/schulen',
     name: 'schule-management',
@@ -143,6 +145,7 @@ const routes: readonly RouteRecordRaw[] = [
       requiresPermission: 'schulverwaltung',
     },
   },
+  /*
   {
     path: '/admin/schultraeger',
     name: 'schultraeger-management',
@@ -187,6 +190,7 @@ const routes: readonly RouteRecordRaw[] = [
       requiresPermission: ['portalverwaltung', 'hinweisebearbeiten'],
     },
   },
+  */
   {
     path: '/start',
     name: 'start',

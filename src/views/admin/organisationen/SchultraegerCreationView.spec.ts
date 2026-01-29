@@ -100,8 +100,8 @@ beforeEach(async () => {
     routes,
   });
 
-  router.push({ name: 'create-schultraeger' });
-  await router.isReady();
+  // router.push({ name: 'create-schultraeger' });
+  // await router.isReady();
 
   wrapper = mountComponent();
 });
