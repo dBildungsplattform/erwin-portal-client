@@ -6,7 +6,7 @@ import { beforeEach, describe, expect, it, type MockInstance } from 'vitest';
 import { useRollenMappingStore, type RollenMapping, type RollenMappingStore } from './RollenMappingStore';
 
 const mockadapter: MockAdapter = new MockAdapter(ApiService);
-const getResponseErrorCodeMock: MockInstance<(error: unknown, defaultErrorCode: string) => string> = vi
+const getResponseErrorCodeMock: MockInstance = vi
   .spyOn(errorHandlers, 'getResponseErrorCode')
   .mockImplementation((_error: unknown, defaultErrorCode: string) => {
     return defaultErrorCode || 'UNSPECIFIED_ERROR';
@@ -56,8 +56,6 @@ describe('rollenMappingStore', () => {
     });
 
     it('should handle string error', async () => {
-      mockadapter.onPost(/.*/).replyOnce(500, { i18nKey: 'ROLLENMAPPING_CREATE_ERROR' });
-
       const promise: Promise<RollenMapping> = rollenMappingStore.createRollenMapping({
         rolleId: 'r1',
         serviceProviderId: 'sp1',
@@ -72,8 +70,6 @@ describe('rollenMappingStore', () => {
     });
 
     it('should handle error code', async () => {
-      mockadapter.onPost(/.*/).replyOnce(500, { i18nKey: 'SOME_MOCK_SERVER_ERROR' });
-
       const promise: Promise<RollenMapping> = rollenMappingStore.createRollenMapping({
         rolleId: 'r1',
         serviceProviderId: 'sp1',
@@ -146,8 +142,6 @@ describe('rollenMappingStore', () => {
     });
 
     it('should handle string error', async () => {
-      mockadapter.onGet(/.*/).replyOnce(500, { i18nKey: 'ROLLENMAPPING_LIST_ERROR' });
-
       const promise: Promise<void> = rollenMappingStore.getRollenMappingsForServiceProvider('sp1');
       expect(rollenMappingStore.loading).toBe(true);
       await promise;
@@ -225,8 +219,6 @@ describe('rollenMappingStore', () => {
     });
 
     it('should handle string error on update', async () => {
-      mockadapter.onPut(/.*/).replyOnce(500, { i18nKey: 'ROLLENMAPPING_UPDATE_ERROR' });
-
       const promise: Promise<void> = rollenMappingStore.updateRollenMapping('m1', 'SCHUELER');
       expect(rollenMappingStore.loading).toBe(true);
       await promise;
@@ -272,8 +264,6 @@ describe('rollenMappingStore', () => {
     });
 
     it('should handle string error on delete', async () => {
-      mockadapter.onDelete(/.*/).replyOnce(500, { i18nKey: 'ROLLENMAPPING_DELETE_ERROR' });
-
       const promise: Promise<void> = rollenMappingStore.deleteRollenMappingById('m1');
       expect(rollenMappingStore.loading).toBe(true);
       await promise;
