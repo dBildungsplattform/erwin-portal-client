@@ -178,6 +178,63 @@ const routes: readonly RouteRecordRaw[] = [
       requiresPermission: 'rollenverwaltung',
     },
   },
+  /*
+  {
+    path: '/admin/schultraeger',
+    name: 'schultraeger-management',
+    component: () => import('../views/admin/organisationen/SchultraegerManagementView.vue'),
+    meta: {
+      layout: 'AdminLayout',
+      requiresAuth: true,
+      requiredStepUpLevel: StepUpLevel.GOLD,
+      requiresPermission: 'schultraegerverwaltung',
+    },
+  },
+  {
+    path: '/admin/schultraeger/new',
+    name: 'create-schultraeger',
+    component: () => import('../views/admin/organisationen/SchultraegerCreationView.vue'),
+    meta: {
+      layout: 'AdminLayout',
+      requiresAuth: true,
+      requiredStepUpLevel: StepUpLevel.GOLD,
+      requiresPermission: 'schultraegerverwaltung',
+    },
+  },
+  {
+    path: '/admin/schultraeger/:id',
+    name: 'schultraeger-details',
+    component: () => import('../views/admin/organisationen/SchultraegerDetailsView.vue'),
+    meta: {
+      layout: 'AdminLayout',
+      requiresAuth: true,
+      requiredStepUpLevel: StepUpLevel.GOLD,
+      requiresPermission: 'schultraegerverwaltung',
+    },
+  },
+  {
+    path: '/admin/hinweise/new',
+    name: 'hinweise-creation',
+    component: () => import('../views/admin/HinweiseCreationView.vue'),
+    meta: {
+      layout: 'AdminLayout',
+      requiresAuth: true,
+      requiredStepUpLevel: StepUpLevel.GOLD,
+      requiresPermission: ['portalverwaltung', 'hinweisebearbeiten'],
+    },
+  },
+  {
+    path: '/admin/schulen/new',
+    name: 'create-schule',
+    component: () => import('../views/admin/organisationen/SchuleCreationView.vue'),
+    meta: {
+      layout: 'AdminLayout',
+      requiresAuth: true,
+      requiredStepUpLevel: StepUpLevel.GOLD,
+      requiresPermission: 'schulverwaltung',
+    },
+  },
+  */
 ];
 
 export default routes;

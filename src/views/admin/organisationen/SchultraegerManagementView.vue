@@ -1,93 +1,94 @@
 <script setup lang="ts">
-  import { onMounted, ref, type Ref } from 'vue';
-  import ResultTable, { type TableRow } from '@/components/admin/ResultTable.vue';
-  import LayoutCard from '@/components/cards/LayoutCard.vue';
-  import { type Composer, useI18n } from 'vue-i18n';
-  import type { VDataTableServer } from 'vuetify/lib/components/index.mjs';
-  import {
-    OrganisationsTyp,
-    useOrganisationStore,
-    type Organisation,
-    type OrganisationStore,
-    type SchultraegerTableItem,
-  } from '@/stores/OrganisationStore';
-  import { type SearchFilterStore, useSearchFilterStore } from '@/stores/SearchFilterStore';
-  import SpshAlert from '@/components/alert/SpshAlert.vue';
-  import { onBeforeRouteLeave, useRouter, type Router } from 'vue-router';
+  // import { onMounted, ref, type Ref } from 'vue';
+  // import ResultTable, { type TableRow } from '@/components/admin/ResultTable.vue';
+  // import LayoutCard from '@/components/cards/LayoutCard.vue';
+  // import { type Composer, useI18n } from 'vue-i18n';
+  // import type { VDataTableServer } from 'vuetify/lib/components/index.mjs';
+  // import {
+  //   OrganisationsTyp,
+  //   useOrganisationStore,
+  //   type Organisation,
+  //   type OrganisationStore,
+  //   type SchultraegerTableItem,
+  // } from '@/stores/OrganisationStore';
+  // import { type SearchFilterStore, useSearchFilterStore } from '@/stores/SearchFilterStore';
+  // import SpshAlert from '@/components/alert/SpshAlert.vue';
+  // import { onBeforeRouteLeave, useRouter, type Router } from 'vue-router';
 
-  const organisationStore: OrganisationStore = useOrganisationStore();
-  const searchFilterStore: SearchFilterStore = useSearchFilterStore();
+  // const organisationStore: OrganisationStore = useOrganisationStore();
+  // const searchFilterStore: SearchFilterStore = useSearchFilterStore();
 
-  const router: Router = useRouter();
+  // const router: Router = useRouter();
 
-  const { t }: Composer = useI18n({ useScope: 'global' });
+  // const { t }: Composer = useI18n({ useScope: 'global' });
 
-  type ReadonlyHeaders = InstanceType<typeof VDataTableServer>['headers'];
-  const headers: ReadonlyHeaders = [
-    {
-      title: t('admin.schultraeger.schultraegername'),
-      key: 'name',
-      align: 'start',
-    },
-    { title: t('admin.schultraeger.assignedSchulen'), key: 'schuleDetails', align: 'start' },
-  ];
+  // type ReadonlyHeaders = InstanceType<typeof VDataTableServer>['headers'];
+  // const headers: ReadonlyHeaders = [
+  //   {
+  //     title: t('admin.schultraeger.schultraegername'),
+  //     key: 'name',
+  //     align: 'start',
+  //   },
+  //   { title: t('admin.schultraeger.assignedSchulen'), key: 'schuleDetails', align: 'start' },
+  // ];
 
-  const allSchultraeger: Ref<Array<Organisation>> = ref([]);
+  // const allSchultraeger: Ref<Array<Organisation>> = ref([]);
 
-  async function fetchSchultraeger(): Promise<void> {
-    await organisationStore.getAllOrganisationen({
-      offset: (searchFilterStore.schultraegerPage - 1) * searchFilterStore.schulentraegerPerPage,
-      limit: searchFilterStore.schulentraegerPerPage,
-      includeTyp: OrganisationsTyp.Traeger,
-      systemrechte: ['SCHULTRAEGER_VERWALTEN'],
-    });
-  }
+  // async function fetchSchultraeger(): Promise<void> {
+  //   await organisationStore.getAllOrganisationen({
+  //     offset: (searchFilterStore.schultraegerPage - 1) * searchFilterStore.schulentraegerPerPage,
+  //     limit: searchFilterStore.schulentraegerPerPage,
+  //     includeTyp: OrganisationsTyp.Traeger,
+  //     systemrechte: ['SCHULTRAEGER_VERWALTEN'],
+  //   });
+  // }
 
-  function getPaginatedSchultraeger(page: number): void {
-    searchFilterStore.schultraegerPage = page;
-    fetchSchultraeger();
-  }
+  // function getPaginatedSchultraeger(page: number): void {
+  //   searchFilterStore.schultraegerPage = page;
+  //   fetchSchultraeger();
+  // }
 
-  function getPaginatedSchultraegerWithLimit(limit: number): void {
-    /* reset page to 1 if entries are equal to or less than selected limit */
-    if (organisationStore.totalOrganisationen <= limit) {
-      searchFilterStore.schultraegerPage = 1;
-    }
+  // function getPaginatedSchultraegerWithLimit(limit: number): void {
+  //   /* reset page to 1 if entries are equal to or less than selected limit */
+  //   if (organisationStore.totalOrganisationen <= limit) {
+  //     searchFilterStore.schultraegerPage = 1;
+  //   }
 
-    searchFilterStore.schulentraegerPerPage = limit;
-    fetchSchultraeger();
-  }
+  //   searchFilterStore.schulentraegerPerPage = limit;
+  //   fetchSchultraeger();
+  // }
 
-  const handleAlertClose = (): void => {
-    organisationStore.errorCode = '';
-    router.go(0);
-  };
+  // const handleAlertClose = (): void => {
+  //   organisationStore.errorCode = '';
+  //   router.go(0);
+  // };
 
-  function navigateToSchultraegerDetails(_$event: PointerEvent, { item }: { item: SchultraegerTableItem }): void {
-    router.push({ name: 'schultraeger-details', params: { id: item.id } });
-  }
+  // function navigateToSchultraegerDetails(_$event: PointerEvent, { item }: { item: SchultraegerTableItem }): void {
+  //   router.push({ name: 'schultraeger-details', params: { id: item.id } });
+  // }
 
-  onMounted(async () => {
-    await fetchSchultraeger();
-    allSchultraeger.value = organisationStore.allSchultraeger;
-  });
+  // onMounted(async () => {
+  //   await fetchSchultraeger();
+  //   allSchultraeger.value = organisationStore.allSchultraeger;
+  // });
 
-  onBeforeRouteLeave(async () => {
-    organisationStore.errorCode = '';
-  });
+  // onBeforeRouteLeave(async () => {
+  //   organisationStore.errorCode = '';
+  // });
 </script>
 
 <template>
-  <div class="admin">
+  <div></div>
+  <!-- <div class="admin">
     <h1
       class="text-center headline"
       data-testid="admin-headline"
     >
       {{ $t('admin.headline') }}
     </h1>
-    <LayoutCard :header="$t('admin.schultraeger.management')">
-      <!-- Error Message Display -->
-      <SpshAlert
+    <LayoutCard :header="$t('admin.schultraeger.management')"> -->
+  <!-- Error Message Display -->
+  <!-- <SpshAlert
         :model-value="!!organisationStore.errorCode"
         :title="
           organisationStore.errorCode === 'UNSPECIFIED_ERROR'
@@ -149,7 +150,7 @@
         </ResultTable>
       </template>
     </LayoutCard>
-  </div>
+  </div> -->
 </template>
 
 <style></style>

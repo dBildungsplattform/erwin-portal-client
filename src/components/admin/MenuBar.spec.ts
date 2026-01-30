@@ -133,6 +133,14 @@ describe('MenuBar', () => {
 
       expect(wrapper?.find('[data-testid="schule-management-title"]').exists()).toBe(hasPermission);
       expect(wrapper?.find('[data-testid="schule-management-menu-item"]').exists()).toBe(hasPermission);
+      // expect(wrapper?.find('[data-testid="schule-creation-menu-item"]').exists()).toBe(hasPermission);
+
+      // expect(wrapper?.find('[data-testid="schultraeger-creation-menu-item"]').exists()).toBe(hasPermission);
+
+      // expect(wrapper?.find('[data-testid="schultraeger-management-title"]').exists()).toBe(hasPermission);
+
+      // expect(wrapper?.find('[data-testid="portal-management-title"]').exists()).toBe(hasPermission);
+      // expect(wrapper?.find('[data-testid="hinweise-edit-menu-item"]').exists()).toBe(hasPermission);
     },
   );
 
