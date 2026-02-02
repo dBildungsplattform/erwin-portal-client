@@ -293,7 +293,7 @@ describe('ProfileView', () => {
     expect(personalData?.length).toBeGreaterThan(0);
     expect(personalData?.at(0)?.text()).toContain('Vor- und Nachname:Samuel Vimes');
     expect(personalData?.at(1)?.text()).toContain('Benutzername:samuelvimes');
-    
+
     // not needed for ErWIn Portal
 
     // if (mockLehrer.person.personalnummer) {
@@ -407,6 +407,8 @@ describe('ProfileView', () => {
     });
   });
 
+  // not needed for ErWIn Portal
+
   // test('it displays 2FA section', async () => {
   //   twoFactorAuthenticationStore.hasToken = false;
   //   await nextTick();
@@ -432,6 +434,8 @@ describe('ProfileView', () => {
     expect(document.querySelector('[data-testid="two-factor-card"]')).toBeNull();
     expect(document.querySelector('[data-testid="open-2FA-self-service-dialog-icon"]')).toBeNull();
   });
+
+  // not needed for ErWIn Portal
 
   // test('it displays 2FA connection error', async () => {
   //   twoFactorAuthenticationStore.errorCode = 'PI_UNAVAILABLE_ERROR';
