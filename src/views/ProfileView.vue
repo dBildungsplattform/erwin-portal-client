@@ -306,6 +306,8 @@
     }).format(date);
   });
 
+  // not needed for ErWIn Portal
+  
   // const twoFactorAuthError: ComputedRef<string> = computed(() => {
   //   // Early return if loading
   //   if (twoFactorAuthenticationStore.loading) return '';
@@ -615,6 +617,9 @@
             ></v-progress-circular>
           </v-row>
         </template>
+
+        <!-- not needed for ErWIn Portal -->
+        
         <!-- <LayoutCard
           v-else-if="twoFactorAuthenticationStore.required"
           :headline-test-id="'two-factor-card'"

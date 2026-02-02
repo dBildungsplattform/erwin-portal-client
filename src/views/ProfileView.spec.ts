@@ -293,6 +293,12 @@ describe('ProfileView', () => {
     expect(personalData?.length).toBeGreaterThan(0);
     expect(personalData?.at(0)?.text()).toContain('Vor- und Nachname:Samuel Vimes');
     expect(personalData?.at(1)?.text()).toContain('Benutzername:samuelvimes');
+    
+    // not needed for ErWIn Portal
+
+    // if (mockLehrer.person.personalnummer) {
+    //   expect(personalData?.at(2)?.text()).toContain(mockLehrer.person.personalnummer);
+    // }
   });
 
   test.each([
