@@ -178,7 +178,7 @@ describe('RolleMappingView.vue', () => {
     rows?.forEach((row: DOMWrapper<Element>, i: number) => {
       expect(row.find('td:first-child').text()).toBe(expectedRoles[i]);
     });
-    expect(wrapper?.find('th:nth-child(2) strong').text()).toBe(orgs[0]!.name);
+    expect(wrapper?.find('th:nth-child(3) strong').text()).toBe(orgs[0]!.name);
   });
 
   test('initializes LMS column header from route query on mount', async () => {
@@ -218,7 +218,7 @@ describe('RolleMappingView.vue', () => {
     });
     await flushPromises();
 
-    expect(local.find('th:nth-child(2) strong').text()).toBe(orgs[1]!.name);
+    expect(local.find('th:nth-child(3) strong').text()).toBe(orgs[1]!.name);
     local.unmount();
   });
 
@@ -252,7 +252,7 @@ describe('RolleMappingView.vue', () => {
     });
     await flushPromises();
 
-    expect(local.find('th:nth-child(2) strong').text()).toBe('...');
+    expect(local.find('th:nth-child(3) strong').text()).toBe('...');
     local.unmount();
   });
 

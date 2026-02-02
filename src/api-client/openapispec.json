@@ -2920,7 +2920,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/RolleNameIdResponse"
+                    "$ref": "#/components/schemas/RollenMappingRolleResponse"
                   }
                 }
               }
@@ -7694,7 +7694,7 @@
           "version"
         ]
       },
-      "RolleNameIdResponse": {
+      "RollenMappingRolleResponse": {
         "type": "object",
         "properties": {
           "id": {
@@ -7702,11 +7702,15 @@
           },
           "name": {
             "type": "string"
+          },
+          "rollenart": {
+            "type": "string"
           }
         },
         "required": [
           "id",
-          "name"
+          "name",
+          "rollenart"
         ]
       },
       "ServiceProviderSystem": {

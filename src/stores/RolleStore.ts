@@ -13,7 +13,7 @@ import {
   type RolleWithServiceProvidersResponse,
   type ServiceProviderResponse,
   type UpdateRolleBodyParams,
-  type RolleNameIdResponse,
+  type RollenMappingRolleResponse,
 } from '../api-client/generated/api';
 import axiosApiInstance from '@/services/ApiService';
 import type { ServiceProvider } from './ServiceProviderStore';
@@ -25,7 +25,7 @@ type RolleState = {
   updatedRolle: RolleWithServiceProvidersResponse | null;
   currentRolle: Rolle | null;
   allRollen: Array<RolleResponse>;
-  rollenRetrievedByServiceProvider: Array<RolleNameIdResponse>;
+  rollenRetrievedByServiceProvider: Array<RollenMappingRolleResponse>;
   errorCode: string;
   loading: boolean;
   totalRollen: number;
@@ -202,7 +202,7 @@ export const useRolleStore: StoreDefinition<'rolleStore', RolleState, RolleGette
       this.loading = true;
       this.errorCode = '';
       try {
-        const response: AxiosResponse<RolleNameIdResponse[]> =
+        const response: AxiosResponse<RollenMappingRolleResponse[]> =
           await rolleApi.rolleControllerGetRollenByServiceProviderId(serviceProviderId);
         this.rollenRetrievedByServiceProvider = response.data;
       } catch (error) {

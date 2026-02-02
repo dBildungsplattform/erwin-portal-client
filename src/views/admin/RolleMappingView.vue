@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import type { RolleNameIdResponse } from '@/api-client/generated';
+  import type { RollenMappingRolleResponse } from '@/api-client/generated';
   import LayoutCard from '@/components/cards/LayoutCard.vue';
   import { erWInPortalRoles } from '@/enums/user-roles';
   import { useOrganisationStore, type Organisation, type OrganisationStore } from '@/stores/OrganisationStore';
@@ -21,7 +21,7 @@
   const serviceProviderStore: ServiceProviderStore = useServiceProviderStore();
   const rolleStore: RolleStore = useRolleStore();
   const rollenMappingStore: RollenMappingStore = useRollenMappingStore();
-  const dynamicErWInPortalRoles: Ref<RolleNameIdResponse[]> = ref([]);
+  const dynamicErWInPortalRoles: Ref<RollenMappingRolleResponse[]> = ref([]);
   const chosenServiceProvider: Ref<ServiceProvider | null> = ref(null);
   const existingRollenMapping: Ref<RollenMapping[]> = ref([]);
 
@@ -67,7 +67,7 @@
     // Iterate over each selected role and handle create or update of rollenmapping
     await Promise.all(
       selectedRoles.value.map(async (chosenRole: string | null, index: number) => {
-        const erwInPortalRole: RolleNameIdResponse | undefined = dynamicErWInPortalRoles.value[index];
+        const erwInPortalRole: RollenMappingRolleResponse | undefined = dynamicErWInPortalRoles.value[index];
         if (!erwInPortalRole) return;
 
         // Find existing mapping for this rolleId
@@ -76,26 +76,25 @@
             mapping.rolleId === erwInPortalRole.id && mapping.serviceProviderId === serviceProvider.id,
         );
 
-        if (existingMapping) {
-          if (!chosenRole && existingMapping.id) {
-            // If chosenRole is null, delete the existing mapping
-            await rollenMappingStore.deleteRollenMappingById(existingMapping.id);
-          } else {
-            // Update if mapToLmsRolle has changed
-            if (chosenRole && existingMapping.mapToLmsRolle !== chosenRole) {
-              await rollenMappingStore.updateRollenMapping(existingMapping.id, chosenRole);
-            }
-          }
-        } else {
-          // Create new mapping
+        if (chosenRole && !existingMapping) {
+          // create
           await rollenMappingStore.createRollenMapping({
             rolleId: erwInPortalRole.id,
             serviceProviderId: serviceProvider.id,
-            mapToLmsRolle: chosenRole ? chosenRole : '',
+            mapToLmsRolle: chosenRole,
           });
+        } else if (chosenRole && existingMapping && existingMapping.mapToLmsRolle !== chosenRole) {
+          // update
+          await rollenMappingStore.updateRollenMapping(existingMapping.id, chosenRole);
+        } else if (!chosenRole && existingMapping?.id) {
+          // delete
+          await rollenMappingStore.deleteRollenMappingById(existingMapping.id);
         }
       }),
     );
+    // Refresh existing mappings
+    await rollenMappingStore.getRollenMappingsForServiceProvider(serviceProvider.id);
+    existingRollenMapping.value = rollenMappingStore.allRollenMappings;
   }
 
   watch(
@@ -123,7 +122,7 @@
       await rolleStore.getRollenByServiceProviderId(chosenServiceProvider.value.id);
       dynamicErWInPortalRoles.value = rolleStore.rollenRetrievedByServiceProvider;
       // fill selectedRoles value based on existing mappings
-      selectedRoles.value = dynamicErWInPortalRoles.value.map((role: RolleNameIdResponse) => {
+      selectedRoles.value = dynamicErWInPortalRoles.value.map((role: RollenMappingRolleResponse) => {
         const existingMapping: RollenMapping | undefined = existingRollenMapping.value.find(
           (mapping: RollenMapping) =>
             mapping.rolleId === role.id && mapping.serviceProviderId === chosenServiceProvider.value!.id,
@@ -162,6 +161,9 @@
               <strong>ErWIn-Portal</strong>
             </th>
             <th>
+              <strong>RollenArt</strong>
+            </th>
+            <th>
               <strong>{{ selectedInstance || '...' }}</strong>
             </th>
           </tr>
@@ -172,6 +174,7 @@
             :key="index"
           >
             <td>{{ role.name }}</td>
+            <td>{{ role.rollenart }}</td>
             <td class="align-start">
               <v-select
                 v-model="selectedRoles[index]"
