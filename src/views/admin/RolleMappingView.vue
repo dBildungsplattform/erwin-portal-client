@@ -77,12 +77,12 @@
         );
 
         if (existingMapping) {
-          if (!chosenRole) {
+          if (!chosenRole && existingMapping.id) {
             // If chosenRole is null, delete the existing mapping
             await rollenMappingStore.deleteRollenMappingById(existingMapping.id);
           } else {
             // Update if mapToLmsRolle has changed
-            if (existingMapping.mapToLmsRolle !== chosenRole) {
+            if (chosenRole && existingMapping.mapToLmsRolle !== chosenRole) {
               await rollenMappingStore.updateRollenMapping(existingMapping.id, chosenRole);
             }
           }
