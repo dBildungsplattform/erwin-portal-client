@@ -179,7 +179,6 @@
 </script>
 
 <template>
-  <div></div>
   <div class="admin">
     <h1
       class="text-center headline"
@@ -395,7 +394,3 @@
 </template>
 
 <style></style>
-
-<!-- <script setup lang="ts"></script> -->
-<!-- <template></template> -->
-<!-- <style></style> -->

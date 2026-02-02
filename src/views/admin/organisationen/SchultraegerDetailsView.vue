@@ -230,7 +230,6 @@
 </script>
 
 <template>
-  <div></div>
   <div class="admin">
     <h1
       class="text-center headline"

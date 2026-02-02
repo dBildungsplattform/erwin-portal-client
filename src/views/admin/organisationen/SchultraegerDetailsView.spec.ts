@@ -352,7 +352,7 @@ describe('SchultraegerDetailsView', () => {
       window.dispatchEvent(event);
 
       if (isFormDirty) expect(spy).toHaveBeenCalled();
-      // else expect(spy).not.toHaveBeenCalledOnce();
+      else expect(spy).not.toHaveBeenCalledOnce();
     });
   });
 });
