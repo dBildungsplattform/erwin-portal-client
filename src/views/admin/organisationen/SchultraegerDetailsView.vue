@@ -1,237 +1,237 @@
 <script setup lang="ts">
-  // import { computed, onBeforeMount, onUnmounted, ref, type ComputedRef, type Ref } from 'vue';
-  // import { useI18n, type Composer } from 'vue-i18n';
-  // import {
-  //   type Router,
-  //   useRouter,
-  //   onBeforeRouteLeave,
-  //   type RouteLocationNormalized,
-  //   type NavigationGuardNext,
-  //   type RouteLocationNormalizedLoaded,
-  //   useRoute,
-  // } from 'vue-router';
-  // import { useDisplay } from 'vuetify';
-  // import {
-  //   OrganisationsTyp,
-  //   type SchultraegerFormType,
-  //   useOrganisationStore,
-  //   type Organisation,
-  //   type OrganisationStore,
-  //   SchuleType,
-  // } from '@/stores/OrganisationStore';
-  // import { useForm, type TypedSchema, type FormContext } from 'vee-validate';
-  // import {
-  //   getDirtyState,
-  //   getSchultraegerFieldDefinitions,
-  //   getValidationSchema,
-  //   type SchultraegerFieldDefinitions,
-  // } from '@/utils/validationSchultraeger';
-  // import SpshAlert from '@/components/alert/SpshAlert.vue';
-  // import LayoutCard from '@/components/cards/LayoutCard.vue';
-  // import SchultraegerForm from '@/components/admin/schultraeger/SchultraegerForm.vue';
-  // import RelationshipAssign from '@/components/admin/RelationshipAssign.vue';
-  // import SchultraegerSuccessTemplate from '@/components/admin/schultraeger/SchultraegerSuccessTemplate.vue';
-  // import SpshTooltip from '@/components/admin/SpshTooltip.vue';
+  import { computed, onBeforeMount, onUnmounted, ref, type ComputedRef, type Ref } from 'vue';
+  import { useI18n, type Composer } from 'vue-i18n';
+  import {
+    onBeforeRouteLeave,
+    type RouteLocationNormalized,
+    type NavigationGuardNext,
+    type RouteLocationNormalizedLoaded,
+    useRoute,
+  } from 'vue-router';
+  import { useDisplay } from 'vuetify';
+  import {
+    OrganisationsTyp,
+    type SchultraegerFormType,
+    useOrganisationStore,
+    type Organisation,
+    type OrganisationStore,
+    SchuleType,
+  } from '@/stores/OrganisationStore';
+  import { useForm, type TypedSchema, type FormContext } from 'vee-validate';
+  import {
+    getDirtyState,
+    getSchultraegerFieldDefinitions,
+    getValidationSchema,
+    type SchultraegerFieldDefinitions,
+  } from '@/utils/validationSchultraeger';
+  import SpshAlert from '@/components/alert/SpshAlert.vue';
+  import LayoutCard from '@/components/cards/LayoutCard.vue';
+  import SchultraegerForm from '@/components/admin/schultraeger/SchultraegerForm.vue';
+  import RelationshipAssign from '@/components/admin/RelationshipAssign.vue';
+  import SchultraegerSuccessTemplate from '@/components/admin/schultraeger/SchultraegerSuccessTemplate.vue';
+  import SpshTooltip from '@/components/admin/SpshTooltip.vue';
 
-  // const { mdAndDown }: { mdAndDown: Ref<boolean> } = useDisplay();
+  const { mdAndDown }: { mdAndDown: Ref<boolean> } = useDisplay();
 
-  // const { t }: Composer = useI18n({ useScope: 'global' });
-  // const validationSchema: TypedSchema = getValidationSchema(t);
+  const { t }: Composer = useI18n({ useScope: 'global' });
+  const validationSchema: TypedSchema = getValidationSchema(t);
   // const router: Router = useRouter();
-  // const route: RouteLocationNormalizedLoaded = useRoute();
-  // const organisationStore: OrganisationStore = useOrganisationStore();
+  const route: RouteLocationNormalizedLoaded = useRoute();
+  const organisationStore: OrganisationStore = useOrganisationStore();
 
-  // const currentSchultraegerId: string = route.params['id'] as string;
+  const currentSchultraegerId: string = route.params['id'] as string;
 
-  // const assignableSchulen: Ref<Array<string>> = ref([]);
-  // const assignedSchulen: Ref<Array<Organisation>> = ref([]);
-  // const unassignedSchulen: Ref<Array<Organisation>> = ref([]);
+  const assignableSchulen: Ref<Array<string>> = ref([]);
+  const assignedSchulen: Ref<Array<Organisation>> = ref([]);
+  const unassignedSchulen: Ref<Array<Organisation>> = ref([]);
 
-  // const progress: Ref<number> = ref<number>(0);
-  // const successMessage: Ref<string> = ref<string>('');
+  const progress: Ref<number> = ref<number>(0);
+  const successMessage: Ref<string> = ref<string>('');
 
-  // const formContext: FormContext<SchultraegerFormType, SchultraegerFormType> = useForm<SchultraegerFormType>({
-  //   validationSchema,
-  // });
+  const formContext: FormContext<SchultraegerFormType, SchultraegerFormType> = useForm<SchultraegerFormType>({
+    validationSchema,
+  });
 
-  // const {
-  //   selectedSchultraegerform,
-  //   selectedSchultraegername,
-  //   selectedSchultraegernameProps,
-  // }: SchultraegerFieldDefinitions = getSchultraegerFieldDefinitions(formContext);
+  const {
+    selectedSchultraegerform,
+    selectedSchultraegername,
+    selectedSchultraegernameProps,
+  }: SchultraegerFieldDefinitions = getSchultraegerFieldDefinitions(formContext);
 
-  // const rootChildSchultraegerList: ComputedRef<Organisation[]> = computed(() => {
-  //   return organisationStore.schultraeger;
-  // });
+  const rootChildSchultraegerList: ComputedRef<Organisation[]> = computed(() => {
+    return organisationStore.schultraeger;
+  });
 
-  // const isFormDirty: ComputedRef<boolean> = computed(() => getDirtyState(formContext));
-  // const showUnsavedChangesDialog: Ref<boolean> = ref(false);
-  // let blockedNext: () => void = () => {};
+  const isFormDirty: ComputedRef<boolean> = computed(() => getDirtyState(formContext));
+  const showUnsavedChangesDialog: Ref<boolean> = ref(false);
+  let blockedNext: () => void = () => {};
 
-  // function handleConfirmUnsavedChanges(): void {
-  //   showUnsavedChangesDialog.value = false;
-  //   blockedNext();
-  //   organisationStore.errorCode = '';
-  // }
+  function handleConfirmUnsavedChanges(): void {
+    showUnsavedChangesDialog.value = false;
+    blockedNext();
+    organisationStore.errorCode = '';
+  }
 
-  // const noUnassignedSchulenFoundText: Ref<string> = ref(t('admin.schultraeger.unassignedSchulenDefaultText'));
-  // const noAssignedSchulenFoundText: Ref<string> = ref('');
+  const noUnassignedSchulenFoundText: Ref<string> = ref(t('admin.schultraeger.unassignedSchulenDefaultText'));
+  const noAssignedSchulenFoundText: Ref<string> = ref('');
 
-  // async function navigateToSchultraegerManagement(): Promise<void> {
-  //   formContext.resetForm();
-  //   await router.push({ name: 'schultraeger-management' });
-  // }
+  async function navigateToSchultraegerManagement(): Promise<void> {
+    formContext.resetForm();
+    // routers commented out not needed ErWIn Portal
+    // await router.push({ name: 'schultraeger-management' });
+  }
 
-  // async function navigateBackToSchultraegerDetails(): Promise<void> {
-  //   formContext.resetForm();
-  //   await router.push({ name: 'schultraeger-details' }).then(() => {
-  //     router.go(0);
-  //   });
-  // }
+  async function navigateBackToSchultraegerDetails(): Promise<void> {
+    formContext.resetForm();
+    // routers commented out not needed ErWIn Portal
+    // await router.push({ name: 'schultraeger-details' }).then(() => {
+    //   router.go(0);
+    // });
+  }
 
-  // function preventNavigation(event: BeforeUnloadEvent): void {
-  //   if (!isFormDirty.value) return;
-  //   event.preventDefault();
-  //   /* Chrome requires returnValue to be set. */
-  //   event.returnValue = '';
-  // }
+  function preventNavigation(event: BeforeUnloadEvent): void {
+    if (!isFormDirty.value) return;
+    event.preventDefault();
+    /* Chrome requires returnValue to be set. */
+    event.returnValue = '';
+  }
 
-  // const onSubmit: (e?: Event | undefined) => Promise<Promise<void> | undefined> = formContext.handleSubmit(async () => {
-  //   if (
-  //     selectedSchultraegername.value &&
-  //     selectedSchultraegername.value !== organisationStore.currentOrganisation?.name
-  //   ) {
-  //     await organisationStore.updateOrganisationById(
-  //       currentSchultraegerId,
-  //       selectedSchultraegername.value,
-  //       OrganisationsTyp.Traeger,
-  //     );
-  //   }
+  const onSubmit: (e?: Event | undefined) => Promise<Promise<void> | undefined> = formContext.handleSubmit(async () => {
+    if (
+      selectedSchultraegername.value &&
+      selectedSchultraegername.value !== organisationStore.currentOrganisation?.name
+    ) {
+      await organisationStore.updateOrganisationById(
+        currentSchultraegerId,
+        selectedSchultraegername.value,
+        OrganisationsTyp.Traeger,
+      );
+    }
 
-  //   /* Reset success message and progress bar before processing items */
-  //   successMessage.value = '';
-  //   progress.value = 0;
+    /* Reset success message and progress bar before processing items */
+    successMessage.value = '';
+    progress.value = 0;
 
-  //   if (assignableSchulen.value.length > 0) {
-  //     for (let index: number = 0; index < assignableSchulen.value.length; index++) {
-  //       const schuleId: string = assignableSchulen.value[index]!;
+    if (assignableSchulen.value.length > 0) {
+      for (let index: number = 0; index < assignableSchulen.value.length; index++) {
+        const schuleId: string = assignableSchulen.value[index]!;
 
-  //       await organisationStore.assignSchuleToTraeger(currentSchultraegerId, { organisationId: schuleId });
+        await organisationStore.assignSchuleToTraeger(currentSchultraegerId, { organisationId: schuleId });
 
-  //       /* Update progress for each item processed */
-  //       progress.value = Math.ceil(((index + 1) / assignableSchulen.value.length) * 100);
-  //     }
+        /* Update progress for each item processed */
+        progress.value = Math.ceil(((index + 1) / assignableSchulen.value.length) * 100);
+      }
 
-  //     /* Show success message only after all items have been processed */
-  //     if (!organisationStore.errorCode) {
-  //       successMessage.value = t('admin.schultraeger.schulenAssignedSuccessfully');
-  //     }
-  //   }
-  // });
+      /* Show success message only after all items have been processed */
+      if (!organisationStore.errorCode) {
+        successMessage.value = t('admin.schultraeger.schulenAssignedSuccessfully');
+      }
+    }
+  });
 
-  // function addAssignableSchule(schule: Organisation): void {
-  //   assignableSchulen.value.push(schule.id);
-  //   assignedSchulen.value = [schule, ...assignedSchulen.value];
-  //   unassignedSchulen.value = unassignedSchulen.value.filter((item: Organisation) => item.id !== schule.id);
-  // }
+  function addAssignableSchule(schule: Organisation): void {
+    assignableSchulen.value.push(schule.id);
+    assignedSchulen.value = [schule, ...assignedSchulen.value];
+    unassignedSchulen.value = unassignedSchulen.value.filter((item: Organisation) => item.id !== schule.id);
+  }
 
-  // // This method will search for both assigned or unassigned Schulen depending on the parameter "type" which could be either 'assigned' or 'unassigned'.
-  // async function searchSchulen(searchString: string, type: SchuleType): Promise<void> {
-  //   if (!organisationStore.currentOrganisation) return;
+  // This method will search for both assigned or unassigned Schulen depending on the parameter "type" which could be either 'assigned' or 'unassigned'.
+  async function searchSchulen(searchString: string, type: SchuleType): Promise<void> {
+    if (!organisationStore.currentOrganisation) return;
 
-  //   await organisationStore.fetchSchulen(
-  //     {
-  //       searchString,
-  //       zugehoerigZu: type === SchuleType.ASSIGNED ? [currentSchultraegerId] : undefined,
-  //       limit: type === SchuleType.UNASSIGNED ? 50 : undefined,
-  //     },
-  //     type,
-  //   );
+    await organisationStore.fetchSchulen(
+      {
+        searchString,
+        zugehoerigZu: type === SchuleType.ASSIGNED ? [currentSchultraegerId] : undefined,
+        limit: type === SchuleType.UNASSIGNED ? 50 : undefined,
+      },
+      type,
+    );
 
-  //   if (type === SchuleType.ASSIGNED) {
-  //     assignedSchulen.value = organisationStore.schulenFromTraeger;
-  //     noAssignedSchulenFoundText.value =
-  //       assignedSchulen.value.length === 0 ? t('admin.schultraeger.noSchulenAssigned') : '';
-  //   } else {
-  //     const currentOrganisationParentId: string | null | undefined = organisationStore.currentOrganisation.zugehoerigZu;
+    if (type === SchuleType.ASSIGNED) {
+      assignedSchulen.value = organisationStore.schulenFromTraeger;
+      noAssignedSchulenFoundText.value =
+        assignedSchulen.value.length === 0 ? t('admin.schultraeger.noSchulenAssigned') : '';
+    } else {
+      const currentOrganisationParentId: string | null | undefined = organisationStore.currentOrganisation.zugehoerigZu;
 
-  //     // Filter unassigned Schulen to only include those having the same parent (zugehoerigZu) as the current Schultraeger
-  //     unassignedSchulen.value = organisationStore.schulenWithoutTraeger.filter(
-  //       (schule: Organisation) => schule.zugehoerigZu === currentOrganisationParentId,
-  //     );
+      // Filter unassigned Schulen to only include those having the same parent (zugehoerigZu) as the current Schultraeger
+      unassignedSchulen.value = organisationStore.schulenWithoutTraeger.filter(
+        (schule: Organisation) => schule.zugehoerigZu === currentOrganisationParentId,
+      );
 
-  //     // If no search string is given then ask for Input first
-  //     if (!searchString) {
-  //       unassignedSchulen.value = [];
-  //       noUnassignedSchulenFoundText.value = t('admin.schultraeger.unassignedSchulenDefaultText');
-  //       return;
-  //     }
+      // If no search string is given then ask for Input first
+      if (!searchString) {
+        unassignedSchulen.value = [];
+        noUnassignedSchulenFoundText.value = t('admin.schultraeger.unassignedSchulenDefaultText');
+        return;
+      }
 
-  //     // After assigning the Schule to the Schultraeger, remove it from the unassigned Schulen
-  //     if (assignableSchulen.value.length > 0) {
-  //       unassignedSchulen.value = unassignedSchulen.value.filter(
-  //         (schule: Organisation) => !assignableSchulen.value.includes(schule.id),
-  //       );
-  //     }
+      // After assigning the Schule to the Schultraeger, remove it from the unassigned Schulen
+      if (assignableSchulen.value.length > 0) {
+        unassignedSchulen.value = unassignedSchulen.value.filter(
+          (schule: Organisation) => !assignableSchulen.value.includes(schule.id),
+        );
+      }
 
-  //     // if input is given and no Schulen were found, show that there were none found
-  //     noUnassignedSchulenFoundText.value =
-  //       unassignedSchulen.value.length === 0 && searchString ? t('admin.schultraeger.noSchulenFound') : '';
-  //   }
-  // }
+      // if input is given and no Schulen were found, show that there were none found
+      noUnassignedSchulenFoundText.value =
+        unassignedSchulen.value.length === 0 && searchString ? t('admin.schultraeger.noSchulenFound') : '';
+    }
+  }
 
-  // onBeforeMount(async () => {
-  //   organisationStore.errorCode = '';
-  //   progress.value = 0;
-  //   successMessage.value = '';
+  onBeforeMount(async () => {
+    organisationStore.errorCode = '';
+    progress.value = 0;
+    successMessage.value = '';
 
-  //   await organisationStore.getRootKinderSchultraeger();
-  //   await organisationStore.getOrganisationById(currentSchultraegerId, OrganisationsTyp.Traeger);
-  //   await organisationStore.fetchSchulen(
-  //     {
-  //       searchString: '',
-  //       zugehoerigZu: [currentSchultraegerId],
-  //     },
-  //     SchuleType.ASSIGNED,
-  //   );
-  //   assignedSchulen.value = organisationStore.schulenFromTraeger;
+    await organisationStore.getRootKinderSchultraeger();
+    await organisationStore.getOrganisationById(currentSchultraegerId, OrganisationsTyp.Traeger);
+    await organisationStore.fetchSchulen(
+      {
+        searchString: '',
+        zugehoerigZu: [currentSchultraegerId],
+      },
+      SchuleType.ASSIGNED,
+    );
+    assignedSchulen.value = organisationStore.schulenFromTraeger;
 
-  //   // Set the initial values using the computed properties
-  //   if (rootChildSchultraegerList.value.length > 0) {
-  //     formContext.setFieldValue(
-  //       'selectedSchultraegerform',
-  //       rootChildSchultraegerList.value.find(
-  //         (schultraeger: Organisation) => schultraeger.id === organisationStore.currentOrganisation?.zugehoerigZu,
-  //       )?.id || '',
-  //     );
-  //   }
-  //   formContext.setFieldValue('selectedSchultraegername', organisationStore.currentOrganisation?.name);
+    // Set the initial values using the computed properties
+    if (rootChildSchultraegerList.value.length > 0) {
+      formContext.setFieldValue(
+        'selectedSchultraegerform',
+        rootChildSchultraegerList.value.find(
+          (schultraeger: Organisation) => schultraeger.id === organisationStore.currentOrganisation?.zugehoerigZu,
+        )?.id || '',
+      );
+    }
+    formContext.setFieldValue('selectedSchultraegername', organisationStore.currentOrganisation?.name);
 
-  //   /* listen for browser changes and prevent them when form is dirty */
-  //   window.addEventListener('beforeunload', preventNavigation);
-  // });
+    /* listen for browser changes and prevent them when form is dirty */
+    window.addEventListener('beforeunload', preventNavigation);
+  });
 
-  // onBeforeRouteLeave((_to: RouteLocationNormalized, _from: RouteLocationNormalized, next: NavigationGuardNext) => {
-  //   if (isFormDirty.value) {
-  //     showUnsavedChangesDialog.value = true;
-  //     blockedNext = next;
-  //   } else {
-  //     next();
-  //   }
-  // });
+  onBeforeRouteLeave((_to: RouteLocationNormalized, _from: RouteLocationNormalized, next: NavigationGuardNext) => {
+    if (isFormDirty.value) {
+      showUnsavedChangesDialog.value = true;
+      blockedNext = next;
+    } else {
+      next();
+    }
+  });
 
-  // onUnmounted(() => {
-  //   organisationStore.updatedOrganisation = null;
-  //   progress.value = 0;
-  //   successMessage.value = '';
-  //   organisationStore.errorCode = '';
-  //   window.removeEventListener('beforeunload', preventNavigation);
-  // });
+  onUnmounted(() => {
+    organisationStore.updatedOrganisation = null;
+    progress.value = 0;
+    successMessage.value = '';
+    organisationStore.errorCode = '';
+    window.removeEventListener('beforeunload', preventNavigation);
+  });
 </script>
 
 <template>
   <div></div>
-  <!-- <div class="admin">
+  <div class="admin">
     <h1
       class="text-center headline"
       data-testid="admin-headline"
@@ -244,9 +244,9 @@
       :header="$t('admin.schultraeger.edit')"
       :padded="true"
       :showCloseText="true"
-    > -->
-  <!-- The form to edit the current Schultraeger -->
-  <!-- <template v-if="organisationStore.currentOrganisation">
+    >
+      <!-- The form to edit the current Schultraeger -->
+      <template v-if="organisationStore.currentOrganisation">
         <SchultraegerForm
           v-if="progress === 0 && !organisationStore.updatedOrganisation"
           :errorCode="organisationStore.errorCode"
@@ -262,10 +262,10 @@
           :showUnsavedChangesDialog="showUnsavedChangesDialog"
           v-model:selectedSchultraegerform="selectedSchultraegerform"
           v-model:selectedSchultraegername="selectedSchultraegername"
-        > -->
-  <!-- Error Message Display if error on submit -->
-  <!-- To trigger unsaved changes dialog the alert has to be inside the form wrapper -->
-  <!-- <SpshAlert
+        >
+          <!-- Error Message Display if error on submit -->
+          <!-- To trigger unsaved changes dialog the alert has to be inside the form wrapper -->
+          <SpshAlert
             :model-value="!!organisationStore.errorCode"
             :title="$t('admin.schultraeger.schultraegerDetailsErrorTitle')"
             :type="'error'"
@@ -313,10 +313,10 @@
               </RelationshipAssign>
             </v-row>
           </v-container>
-        </v-container> -->
+        </v-container>
 
-  <!-- Result template on success after submit  -->
-  <!-- <template v-if="organisationStore.updatedOrganisation && !organisationStore.errorCode">
+        <!-- Result template on success after submit  -->
+        <template v-if="organisationStore.updatedOrganisation && !organisationStore.errorCode">
           <SchultraegerSuccessTemplate
             :successMessage="$t('admin.schultraeger.schultraegerUpdatedSuccessfully')"
             :followingDataChanged="$t('admin.followingDataCreated')"
@@ -335,10 +335,10 @@
             createAnotherButtonTestId="create-another-schultraeger-button"
             @onNavigateBackToSchultraegerManagement="navigateToSchultraegerManagement"
           />
-        </template> -->
+        </template>
 
-  <!-- Progress Bar -->
-  <!-- <div
+        <!-- Progress Bar -->
+        <div
           v-if="progress > 0 && !organisationStore.errorCode"
           class="mt-4"
         >
@@ -443,7 +443,7 @@
         </v-row>
       </template>
     </LayoutCard>
-  </div> -->
+  </div>
 </template>
 
 <style></style>

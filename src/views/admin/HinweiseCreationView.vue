@@ -1,128 +1,128 @@
 <script setup lang="ts">
-  // import LayoutCard from '@/components/cards/LayoutCard.vue';
-  // import { MeldungStatus, useMeldungStore, type Meldung, type MeldungStore } from '@/stores/MeldungStore';
-  // import { computed, onBeforeMount, onUnmounted, ref, type ComputedRef, type Ref } from 'vue';
-  // import { type Composer, useI18n } from 'vue-i18n';
-  // import {
-  //   onBeforeRouteLeave,
-  //   useRouter,
-  //   type NavigationGuardNext,
-  //   type RouteLocationNormalized,
-  //   type Router,
-  // } from 'vue-router';
-  // import { useDisplay } from 'vuetify';
-  // import SpshAlert from '@/components/alert/SpshAlert.vue';
-  // import { useForm, type BaseFieldProps, type FormContext, type TypedSchema } from 'vee-validate';
-  // import { object, string } from 'yup';
-  // import { toTypedSchema } from '@vee-validate/yup';
-  // import FormWrapper from '@/components/form/FormWrapper.vue';
+  import LayoutCard from '@/components/cards/LayoutCard.vue';
+  import { MeldungStatus, useMeldungStore, type Meldung, type MeldungStore } from '@/stores/MeldungStore';
+  import { computed, onBeforeMount, onUnmounted, ref, type ComputedRef, type Ref } from 'vue';
+  import { type Composer, useI18n } from 'vue-i18n';
+  import {
+    onBeforeRouteLeave,
+    useRouter,
+    type NavigationGuardNext,
+    type RouteLocationNormalized,
+    type Router,
+  } from 'vue-router';
+  import { useDisplay } from 'vuetify';
+  import SpshAlert from '@/components/alert/SpshAlert.vue';
+  import { useForm, type BaseFieldProps, type FormContext, type TypedSchema } from 'vee-validate';
+  import { object, string } from 'yup';
+  import { toTypedSchema } from '@vee-validate/yup';
+  import FormWrapper from '@/components/form/FormWrapper.vue';
 
-  // const router: Router = useRouter();
-  // const { t }: Composer = useI18n({ useScope: 'global' });
-  // const { smAndDown }: { smAndDown: Ref<boolean> } = useDisplay();
-  // const meldungStore: MeldungStore = useMeldungStore();
-  // const newsboxMeldung: ComputedRef<Meldung | undefined> = computed(() => meldungStore.meldungen[0]);
+  const router: Router = useRouter();
+  const { t }: Composer = useI18n({ useScope: 'global' });
+  const { smAndDown }: { smAndDown: Ref<boolean> } = useDisplay();
+  const meldungStore: MeldungStore = useMeldungStore();
+  const newsboxMeldung: ComputedRef<Meldung | undefined> = computed(() => meldungStore.meldungen[0]);
 
-  // const validationSchema: TypedSchema = toTypedSchema(
-  //   object({
-  //     meldungText: string().max(2000, t('admin.hinweise.rules.max')).min(1, t('admin.hinweise.rules.min')),
-  //   }),
-  // );
+  const validationSchema: TypedSchema = toTypedSchema(
+    object({
+      meldungText: string().max(2000, t('admin.hinweise.rules.max')).min(1, t('admin.hinweise.rules.min')),
+    }),
+  );
 
-  // const vuetifyConfig = (state: {
-  //   errors: Array<string>;
-  // }): { props: { error: boolean; 'error-messages': Array<string> } } => ({
-  //   props: {
-  //     error: !!state.errors.length,
-  //     'error-messages': state.errors,
-  //   },
-  // });
+  const vuetifyConfig = (state: {
+    errors: Array<string>;
+  }): { props: { error: boolean; 'error-messages': Array<string> } } => ({
+    props: {
+      error: !!state.errors.length,
+      'error-messages': state.errors,
+    },
+  });
 
-  // type NewsboxForm = {
-  //   meldungText: string;
-  // };
+  type NewsboxForm = {
+    meldungText: string;
+  };
 
-  // const { defineField, handleSubmit, resetForm }: FormContext = useForm<NewsboxForm>({
-  //   validationSchema,
-  //   validateOnMount: false,
-  // });
+  const { defineField, handleSubmit, resetForm }: FormContext = useForm<NewsboxForm>({
+    validationSchema,
+    validateOnMount: false,
+  });
 
-  // const [meldungText, meldungTextProps]: [
-  //   Ref<string>,
-  //   Ref<BaseFieldProps & { error: boolean; 'error-messages': Array<string> }>,
-  // ] = defineField('meldungText', vuetifyConfig);
+  const [meldungText, meldungTextProps]: [
+    Ref<string>,
+    Ref<BaseFieldProps & { error: boolean; 'error-messages': Array<string> }>,
+  ] = defineField('meldungText', vuetifyConfig);
 
-  // const publishOrUnpublishButton: ComputedRef<string> = computed(() => {
-  //   return !newsboxMeldung.value || newsboxMeldung.value.status == MeldungStatus.NICHT_VEROEFFENTLICHT
-  //     ? t('admin.hinweise.publish')
-  //     : t('admin.hinweise.publishEnd');
-  // });
+  const publishOrUnpublishButton: ComputedRef<string> = computed(() => {
+    return !newsboxMeldung.value || newsboxMeldung.value.status == MeldungStatus.NICHT_VEROEFFENTLICHT
+      ? t('admin.hinweise.publish')
+      : t('admin.hinweise.publishEnd');
+  });
 
-  // const showUnsavedChangesDialog: Ref<boolean> = ref(false);
-  // let blockedNext: () => void = () => {};
+  const showUnsavedChangesDialog: Ref<boolean> = ref(false);
+  let blockedNext: () => void = () => {};
 
-  // const onSubmit: (e?: Event | undefined) => Promise<Promise<void> | undefined> = handleSubmit(async () => {
-  //   await meldungStore.createOrUpdateMeldung({
-  //     ...newsboxMeldung.value,
-  //     text: meldungText.value,
-  //     status:
-  //       !newsboxMeldung.value || newsboxMeldung.value.status == MeldungStatus.NICHT_VEROEFFENTLICHT
-  //         ? MeldungStatus.VEROEFFENTLICHT
-  //         : MeldungStatus.NICHT_VEROEFFENTLICHT,
-  //   });
-  //   await meldungStore.getAllMeldungen();
-  // });
+  const onSubmit: (e?: Event | undefined) => Promise<Promise<void> | undefined> = handleSubmit(async () => {
+    await meldungStore.createOrUpdateMeldung({
+      ...newsboxMeldung.value,
+      text: meldungText.value,
+      status:
+        !newsboxMeldung.value || newsboxMeldung.value.status == MeldungStatus.NICHT_VEROEFFENTLICHT
+          ? MeldungStatus.VEROEFFENTLICHT
+          : MeldungStatus.NICHT_VEROEFFENTLICHT,
+    });
+    await meldungStore.getAllMeldungen();
+  });
 
-  // const onCloseDialog = (): void => {
-  //   window.history.go(-1);
-  // };
+  const onCloseDialog = (): void => {
+    window.history.go(-1);
+  };
 
-  // function handleConfirmUnsavedChanges(): void {
-  //   blockedNext();
-  //   meldungStore.errorCode = '';
-  // }
+  function handleConfirmUnsavedChanges(): void {
+    blockedNext();
+    meldungStore.errorCode = '';
+  }
 
-  // const refreshPage = (): void => {
-  //   router.go(0);
-  // };
+  const refreshPage = (): void => {
+    router.go(0);
+  };
 
-  // const formWasChanged = (): boolean => {
-  //   return meldungText.value !== newsboxMeldung.value?.text;
-  // };
+  const formWasChanged = (): boolean => {
+    return meldungText.value !== newsboxMeldung.value?.text;
+  };
 
-  // function preventNavigation(event: BeforeUnloadEvent): void {
-  //   if (formWasChanged()) return;
-  //   event.preventDefault();
-  //   /* Chrome requires returnValue to be set. */
-  //   event.returnValue = '';
-  // }
+  function preventNavigation(event: BeforeUnloadEvent): void {
+    if (formWasChanged()) return;
+    event.preventDefault();
+    /* Chrome requires returnValue to be set. */
+    event.returnValue = '';
+  }
 
-  // onBeforeMount(async () => {
-  //   await meldungStore.getAllMeldungen();
-  //   if (newsboxMeldung.value) {
-  //     meldungText.value = newsboxMeldung.value.text;
-  //   }
-  //   /* listen for browser changes and prevent them when form is dirty */
-  //   window.addEventListener('beforeunload', preventNavigation);
-  // });
+  onBeforeMount(async () => {
+    await meldungStore.getAllMeldungen();
+    if (newsboxMeldung.value) {
+      meldungText.value = newsboxMeldung.value.text;
+    }
+    /* listen for browser changes and prevent them when form is dirty */
+    window.addEventListener('beforeunload', preventNavigation);
+  });
 
-  // onBeforeRouteLeave((_to: RouteLocationNormalized, _from: RouteLocationNormalized, next: NavigationGuardNext) => {
-  //   if (formWasChanged()) {
-  //     showUnsavedChangesDialog.value = true;
-  //     blockedNext = next;
-  //   } else {
-  //     next();
-  //   }
-  // });
+  onBeforeRouteLeave((_to: RouteLocationNormalized, _from: RouteLocationNormalized, next: NavigationGuardNext) => {
+    if (formWasChanged()) {
+      showUnsavedChangesDialog.value = true;
+      blockedNext = next;
+    } else {
+      next();
+    }
+  });
 
-  // onUnmounted(() => {
-  //   window.removeEventListener('beforeunload', preventNavigation);
-  // });
+  onUnmounted(() => {
+    window.removeEventListener('beforeunload', preventNavigation);
+  });
 </script>
 
 <template>
   <div></div>
-  <!-- <div class="admin">
+  <div class="admin">
     <h1
       class="text-center headline"
       data-testid="admin-headline"
@@ -195,7 +195,7 @@
         </v-row>
       </FormWrapper>
     </LayoutCard>
-  </div> -->
+  </div>
 </template>
 
 <style></style>

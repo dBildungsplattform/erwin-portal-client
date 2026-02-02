@@ -61,13 +61,6 @@ export default defineConfig({
         inline: ['vuetify'],
       },
     },
-    exclude: [
-      'src/views/admin/HinweiseCreationView.spec.ts',
-      'src/views/admin/organisationen/SchultraegerManagementView.spec.ts',
-      'src/views/admin/organisationen/SchultraegerDetailsView.spec.ts',
-      'src/views/admin/organisationen/SchultraegerCreationView.spec.ts',
-      'src/views/admin/organisationen/SchuleCreationView.spec.ts',
-    ],
     environment: 'jsdom',
     globals: true,
     include: ['src/**/*.spec.ts'],

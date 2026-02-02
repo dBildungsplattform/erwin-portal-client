@@ -243,6 +243,7 @@
       ></v-list-item>
       -->
     </div>
+    <!-- Not needed for ErWIn Portal -->
     <!-- Schulträgerverwaltung -->
     <!--
     <div v-if="authStore.hasSchultraegerverwaltungPermission">
