@@ -9,13 +9,16 @@
     useOrganisationStore,
     type Organisation,
     type OrganisationStore,
+    type SchultraegerTableItem,
   } from '@/stores/OrganisationStore';
   import { type SearchFilterStore, useSearchFilterStore } from '@/stores/SearchFilterStore';
   import SpshAlert from '@/components/alert/SpshAlert.vue';
-  import { onBeforeRouteLeave } from 'vue-router';
+  import { onBeforeRouteLeave, useRouter, type Router } from 'vue-router';
 
   const organisationStore: OrganisationStore = useOrganisationStore();
   const searchFilterStore: SearchFilterStore = useSearchFilterStore();
+
+  const router: Router = useRouter();
 
   const { t }: Composer = useI18n({ useScope: 'global' });
 
@@ -57,12 +60,15 @@
 
   const handleAlertClose = (): void => {
     organisationStore.errorCode = '';
-    // router.go(0);
+    router.go(0);
   };
 
-  function navigateToSchultraegerDetails(_$event: PointerEvent): void {
-    //Not needed for ErWIn Portal
-    // router.push({ name: 'schultraeger-details', params: { id: item.id } });
+  function navigateToSchultraegerDetails(
+    _$event: PointerEvent,
+    { item: _item }: { item: SchultraegerTableItem },
+  ): void {
+    // routers commented out not needed ErWIn Portal
+    // router.push({ name: 'schultraeger-details', params: { id: _item.id } });
   }
 
   onMounted(async () => {
@@ -76,6 +82,7 @@
 </script>
 
 <template>
+  <div></div>
   <div class="admin">
     <h1
       class="text-center headline"
@@ -117,7 +124,10 @@
           :items="organisationStore.allSchultraeger || []"
           :loading="organisationStore.loading"
           :headers="headers"
-          @onHandleRowClick="(event: PointerEvent, item: TableRow<unknown>) => navigateToSchultraegerDetails(event)"
+          @onHandleRowClick="
+            (event: PointerEvent, item: TableRow<unknown>) =>
+              navigateToSchultraegerDetails(event, item as TableRow<SchultraegerTableItem>)
+          "
           item-value-path="id"
           @onItemsPerPageUpdate="getPaginatedSchultraegerWithLimit"
           @onPageUpdate="getPaginatedSchultraeger"
