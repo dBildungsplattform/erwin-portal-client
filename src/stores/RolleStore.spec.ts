@@ -7,7 +7,7 @@ import {
   RollenSystemRecht,
   type RolleResponse,
   type RolleWithServiceProvidersResponse,
-  type RolleNameIdResponse,
+  type RollenMappingRolleResponse,
 } from '../api-client/generated/api';
 import * as errorHandlers from '@/utils/errorHandlers';
 import { rejects } from 'assert';
@@ -273,7 +273,7 @@ describe('rolleStore', () => {
 
   describe('getRollenByServiceProviderId', () => {
     it('should load Rollen by Service Provider and update state', async () => {
-      const mockResponse: RolleNameIdResponse[] = [{ id: '1', name: 'Lehrer' }];
+      const mockResponse: RollenMappingRolleResponse[] = [{ id: '1', name: 'Lehrer', rollenart: 'LEHR' }];
 
       const requestSpy: MockInstance = vi.spyOn(ApiService, 'request').mockResolvedValueOnce({ data: mockResponse });
 
@@ -287,7 +287,7 @@ describe('rolleStore', () => {
     });
 
     it('should keep previous data on error', async () => {
-      const initialResponse: RolleNameIdResponse[] = [{ id: '2', name: 'Admin' }];
+      const initialResponse: RollenMappingRolleResponse[] = [{ id: '2', name: 'Admin', rollenart: 'ADMIN' }];
       const requestSpy: MockInstance = vi.spyOn(ApiService, 'request');
 
       requestSpy.mockResolvedValueOnce({ data: initialResponse });
