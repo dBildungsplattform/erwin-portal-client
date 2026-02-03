@@ -148,7 +148,7 @@ export const useRollenMappingStore: StoreDefinition<
             serviceProviderId,
             mapToLmsRolle,
           )) as AxiosResponse<RollenMapping>;
-        const data: Partial<RollenMapping> = response.data as Partial<RollenMapping>;
+        const data: Partial<RollenMapping> = response.data;
         if (!data.id || !data.rolleId || !data.serviceProviderId) {
           throw new Error('Invalid RollenMapping response: missing required properties');
         }
@@ -175,7 +175,7 @@ export const useRollenMappingStore: StoreDefinition<
           (await rollenMappingApi.rollenMappingControllerGetRollenMappingWithId(
             rollenMappingId,
           )) as AxiosResponse<RollenMapping>;
-        const data: RollenMapping = response.data as RollenMapping;
+        const data: RollenMapping = response.data;
         return data;
       } catch (error) {
         this.errorCode = getResponseErrorCode(error, 'ROLLENMAPPING_FETCH_ERROR');
@@ -194,7 +194,7 @@ export const useRollenMappingStore: StoreDefinition<
             rollenMappingId,
             mapToLmsRolle,
           )) as AxiosResponse<RollenMapping>;
-        const data: RollenMapping = response.data as RollenMapping;
+        const data: RollenMapping = response.data;
         this.updatedRollenMapping = data;
       } catch (error) {
         this.errorCode = getResponseErrorCode(error, 'ROLLENMAPPING_UPDATE_ERROR');

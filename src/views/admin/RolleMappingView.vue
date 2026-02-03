@@ -157,13 +157,13 @@
       >
         <thead>
           <tr>
-            <th>
+            <th scope="erWInPortalRolesCol">
               <strong>ErWIn-Portal</strong>
             </th>
-            <th>
+            <th scope="rollenArtCol">
               <strong>RollenArt</strong>
             </th>
-            <th>
+            <th scope="roleSelectionCol">
               <strong>{{ selectedInstance || '...' }}</strong>
             </th>
           </tr>
