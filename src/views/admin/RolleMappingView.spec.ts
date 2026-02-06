@@ -56,7 +56,15 @@ function stubLayoutCard(): { template: string } {
   };
 }
 
-describe('RolleMappingView.vue', () => {
+interface RolleMappingViewVm {
+  chosenServiceProvider: Partial<ServiceProvider> | null;
+  existingRollenMapping: Array<RollenMapping>;
+  dynamicErWInPortalRoles: Array<Partial<Rolle> & { rolleId?: string }>;
+  selectedRoles: (string | null)[];
+  saveChosenRolesForMapping: () => Promise<void>;
+}
+
+describe('RolleMappingView', () => {
   let organisationStore: OrganisationStore;
   let rollenartStore: RollenartStore;
   let serviceProviderStore: ServiceProviderStore;
@@ -169,6 +177,13 @@ describe('RolleMappingView.vue', () => {
     await flushPromises();
   });
 
+  afterEach(() => {
+    if (wrapper) {
+      wrapper.unmount();
+      wrapper = null;
+    }
+  });
+
   test('renders headline and table with rows for selected instance', async () => {
     expect(wrapper?.find('[data-testid="admin-headline"]').text()).toBe('Administrationsbereich');
     expect(wrapper?.find('[data-testid="rolle-table"]').exists()).toBe(true);
@@ -270,13 +285,8 @@ describe('RolleMappingView.vue', () => {
     await flushPromises();
 
     // Set selected roles: null for first (should delete), 'Admin' for second (should create)
-    const vm: {
-      selectedRoles: (string | null)[];
-      dynamicErWInPortalRoles: Array<Rolle>;
-    } = wrapper!.vm as unknown as {
-      selectedRoles: (string | null)[];
-      dynamicErWInPortalRoles: Array<Rolle>;
-    };
+
+    const vm: RolleMappingViewVm = wrapper!.vm as unknown as RolleMappingViewVm;
     vm.selectedRoles = [null, 'Admin', null, null, null];
     vm.dynamicErWInPortalRoles = dynamicRoles as Array<Rolle>;
 
@@ -312,19 +322,7 @@ describe('RolleMappingView.vue', () => {
       .spyOn(rollenMappingStore, 'deleteRollenMappingById')
       .mockResolvedValue();
 
-    const vm: {
-      chosenServiceProvider: Partial<ServiceProvider> | null;
-      existingRollenMapping: Array<RollenMapping>;
-      dynamicErWInPortalRoles: Array<Partial<Rolle> & { rolleId?: string }>;
-      selectedRoles: (string | null)[];
-      saveChosenRolesForMapping: () => Promise<void>;
-    } = wrapper!.vm as unknown as {
-      chosenServiceProvider: Partial<ServiceProvider> | null;
-      existingRollenMapping: Array<RollenMapping>;
-      dynamicErWInPortalRoles: Array<Partial<Rolle> & { rolleId?: string }>;
-      selectedRoles: (string | null)[];
-      saveChosenRolesForMapping: () => Promise<void>;
-    };
+    const vm: RolleMappingViewVm = wrapper!.vm as unknown as RolleMappingViewVm;
     vm.chosenServiceProvider = { id: 'sp1', name: orgs[0]!.name };
     vm.existingRollenMapping = rollenMappingStore.allRollenMappings;
     vm.dynamicErWInPortalRoles = [{ id: 'r1', rolleId: 'r1', name: 'USER' }];
@@ -362,19 +360,7 @@ describe('RolleMappingView.vue', () => {
       .spyOn(rollenMappingStore, 'deleteRollenMappingById')
       .mockResolvedValue();
 
-    const vm: {
-      chosenServiceProvider: Partial<ServiceProvider> | null;
-      existingRollenMapping: Array<RollenMapping>;
-      dynamicErWInPortalRoles: Array<Partial<Rolle> & { rolleId?: string }>;
-      selectedRoles: (string | null)[];
-      saveChosenRolesForMapping: () => Promise<void>;
-    } = wrapper!.vm as unknown as {
-      chosenServiceProvider: Partial<ServiceProvider> | null;
-      existingRollenMapping: Array<RollenMapping>;
-      dynamicErWInPortalRoles: Array<Partial<Rolle> & { rolleId?: string }>;
-      selectedRoles: (string | null)[];
-      saveChosenRolesForMapping: () => Promise<void>;
-    };
+    const vm: RolleMappingViewVm = wrapper!.vm as unknown as RolleMappingViewVm;
     vm.chosenServiceProvider = { id: 'sp1', name: orgs[0]!.name };
     vm.existingRollenMapping = rollenMappingStore.allRollenMappings;
     vm.dynamicErWInPortalRoles = [{ id: 'r1', rolleId: 'r1', name: 'USER' }];
@@ -391,13 +377,7 @@ describe('RolleMappingView.vue', () => {
   });
 
   test('saveChosenRolesForMapping does nothing when no service provider is chosen or service provider id is missing', async () => {
-    const vm: {
-      chosenServiceProvider: Partial<ServiceProvider> | null;
-      saveChosenRolesForMapping: () => Promise<void>;
-    } = wrapper!.vm as unknown as {
-      chosenServiceProvider: Partial<ServiceProvider> | null;
-      saveChosenRolesForMapping: () => Promise<void>;
-    };
+    const vm: RolleMappingViewVm = wrapper!.vm as unknown as RolleMappingViewVm;
 
     // No service provider chosen
     vm.chosenServiceProvider = null;
@@ -415,15 +395,7 @@ describe('RolleMappingView.vue', () => {
   });
 
   test('saveChosenRolesForMapping does nothing when no erwInPortalRole is chosen', async () => {
-    const vm: {
-      chosenServiceProvider: Partial<ServiceProvider> | null;
-      dynamicErWInPortalRoles: Array<Partial<Rolle> & { rolleId?: string }>;
-      saveChosenRolesForMapping: () => Promise<void>;
-    } = wrapper!.vm as unknown as {
-      chosenServiceProvider: Partial<ServiceProvider> | null;
-      dynamicErWInPortalRoles: Array<Partial<Rolle> & { rolleId?: string }>;
-      saveChosenRolesForMapping: () => Promise<void>;
-    };
+    const vm: RolleMappingViewVm = wrapper!.vm as unknown as RolleMappingViewVm;
 
     vm.chosenServiceProvider = { id: 'sp1', name: orgs[0]!.name };
     vm.dynamicErWInPortalRoles = [];
@@ -431,12 +403,5 @@ describe('RolleMappingView.vue', () => {
     expect(rollenMappingStore.createRollenMapping).not.toHaveBeenCalled();
     expect(rollenMappingStore.updateRollenMapping).not.toHaveBeenCalled();
     expect(rollenMappingStore.deleteRollenMappingById).not.toHaveBeenCalled();
-  });
-
-  afterEach(() => {
-    if (wrapper) {
-      wrapper.unmount();
-      wrapper = null;
-    }
   });
 });

@@ -64,7 +64,6 @@
     const serviceProvider: ServiceProvider | null = chosenServiceProvider.value;
     if (!serviceProvider || !serviceProvider.id) return;
 
-    // Iterate over each selected role and handle create or update of rollenmapping
     await Promise.all(
       selectedRoles.value.map(async (chosenRole: string | null, index: number) => {
         const erwInPortalRole: RollenMappingRolleResponse | undefined = dynamicErWInPortalRoles.value[index];
@@ -77,22 +76,19 @@
         );
 
         if (chosenRole && !existingMapping) {
-          // create
           await rollenMappingStore.createRollenMapping({
             rolleId: erwInPortalRole.id,
             serviceProviderId: serviceProvider.id,
             mapToLmsRolle: chosenRole,
           });
         } else if (chosenRole && existingMapping && existingMapping.mapToLmsRolle !== chosenRole) {
-          // update
           await rollenMappingStore.updateRollenMapping(existingMapping.id, chosenRole);
         } else if (!chosenRole && existingMapping?.id) {
-          // delete
           await rollenMappingStore.deleteRollenMappingById(existingMapping.id);
         }
       }),
     );
-    // Refresh existing mappings
+
     await rollenMappingStore.getRollenMappingsForServiceProvider(serviceProvider.id);
     existingRollenMapping.value = rollenMappingStore.allRollenMappings;
   }
@@ -121,7 +117,7 @@
 
       await rolleStore.getRollenByServiceProviderId(chosenServiceProvider.value.id);
       dynamicErWInPortalRoles.value = rolleStore.rollenRetrievedByServiceProvider;
-      // fill selectedRoles value based on existing mappings
+
       selectedRoles.value = dynamicErWInPortalRoles.value.map((role: RollenMappingRolleResponse) => {
         const existingMapping: RollenMapping | undefined = existingRollenMapping.value.find(
           (mapping: RollenMapping) =>
@@ -195,7 +191,6 @@
           </tr>
         </tbody>
       </v-table>
-      <!-- Save button can be removed if not needed, can be decided later-->
       <v-row
         justify="end"
         class="mt-4 me-4 pb-4"
