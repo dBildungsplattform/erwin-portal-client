@@ -82,7 +82,7 @@ export const useRollenMappingStore: StoreDefinition<
         return rollenMapping;
       } catch (error) {
         this.errorCode = getResponseErrorCode(error, 'ROLLENMAPPING_CREATE_ERROR');
-        return await Promise.reject(this.errorCode);
+        return await Promise.reject(new Error(this.errorCode));
       } finally {
         this.loading = false;
       }
@@ -161,7 +161,7 @@ export const useRollenMappingStore: StoreDefinition<
         return rollenMapping;
       } catch (error) {
         this.errorCode = getResponseErrorCode(error, 'ROLLENMAPPING_FETCH_ERROR');
-        return await Promise.reject(this.errorCode);
+        return await Promise.reject(new Error(this.errorCode));
       } finally {
         this.loading = false;
       }
@@ -179,7 +179,7 @@ export const useRollenMappingStore: StoreDefinition<
         return data;
       } catch (error) {
         this.errorCode = getResponseErrorCode(error, 'ROLLENMAPPING_FETCH_ERROR');
-        return await Promise.reject(this.errorCode);
+        return await Promise.reject(new Error(this.errorCode));
       } finally {
         this.loading = false;
       }

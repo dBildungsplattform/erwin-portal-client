@@ -63,7 +63,7 @@ describe('rollenMappingStore', () => {
       });
 
       expect(rollenMappingStore.loading).toBe(true);
-      await expect(promise).rejects.toEqual('ROLLENMAPPING_CREATE_ERROR');
+      await expect(promise).rejects.toEqual(new Error('ROLLENMAPPING_CREATE_ERROR'));
       expect(rollenMappingStore.errorCode).toEqual('ROLLENMAPPING_CREATE_ERROR');
       expect(rollenMappingStore.createdRollenMapping).toEqual(null);
       expect(rollenMappingStore.loading).toBe(false);
@@ -77,7 +77,7 @@ describe('rollenMappingStore', () => {
       });
 
       expect(rollenMappingStore.loading).toBe(true);
-      await expect(promise).rejects.toEqual('ROLLENMAPPING_CREATE_ERROR');
+      await expect(promise).rejects.toEqual(new Error('ROLLENMAPPING_CREATE_ERROR'));
       expect(rollenMappingStore.errorCode).toEqual('ROLLENMAPPING_CREATE_ERROR');
       expect(rollenMappingStore.createdRollenMapping).toEqual(null);
       expect(rollenMappingStore.loading).toBe(false);
@@ -263,14 +263,6 @@ describe('rollenMappingStore', () => {
       expect(rollenMappingStore.loading).toBe(false);
     });
 
-    it('should handle string error on delete', async () => {
-      const promise: Promise<void> = rollenMappingStore.deleteRollenMappingById('m1');
-      expect(rollenMappingStore.loading).toBe(true);
-      await promise;
-      expect(rollenMappingStore.errorCode).toEqual('ROLLENMAPPING_DELETE_ERROR');
-      expect(rollenMappingStore.loading).toBe(false);
-    });
-
     it('should handle error code on delete', async () => {
       const promise: Promise<void> = rollenMappingStore.deleteRollenMappingById('m1');
       expect(rollenMappingStore.loading).toBe(true);
@@ -327,7 +319,7 @@ describe('rollenMappingStore', () => {
           invalidResponse.rolleId,
           invalidResponse.serviceProviderId,
         ),
-      ).rejects.toContain('ROLLENMAPPING_FETCH_ERROR');
+      ).rejects.toEqual(new Error('ROLLENMAPPING_FETCH_ERROR'));
     });
 
     it('should throw on invalid API response (missing fields) and set errorCode', async () => {
@@ -338,9 +330,9 @@ describe('rollenMappingStore', () => {
       };
       mockadapter.onAny().reply(200, invalidResponse);
 
-      await expect(rollenMappingStore.getMappingForRolleAndServiceProvider('rolle-1', 'sp-1', 'LEARNER')).rejects.toBe(
-        'ROLLENMAPPING_FETCH_ERROR',
-      );
+      await expect(
+        rollenMappingStore.getMappingForRolleAndServiceProvider('rolle-1', 'sp-1', 'LEARNER'),
+      ).rejects.toStrictEqual(new Error('ROLLENMAPPING_FETCH_ERROR'));
 
       expect(getResponseErrorCodeMock).toHaveBeenCalledTimes(1);
       const firstCall: [unknown, string] | undefined = getResponseErrorCodeMock.mock.calls[0] as
