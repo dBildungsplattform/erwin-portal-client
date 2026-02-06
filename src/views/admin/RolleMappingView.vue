@@ -160,7 +160,7 @@
               <strong>RollenArt</strong>
             </th>
             <th scope="roleSelectionCol">
-              <strong>{{ selectedInstance || '...' }}</strong>
+              <strong>{{ route.query['instance'] || '...' }}</strong>
             </th>
           </tr>
         </thead>
