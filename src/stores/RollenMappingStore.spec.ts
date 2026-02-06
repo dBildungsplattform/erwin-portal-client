@@ -4,6 +4,7 @@ import MockAdapter from 'axios-mock-adapter';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, type MockInstance } from 'vitest';
 import { useRollenMappingStore, type RollenMapping, type RollenMappingStore } from './RollenMappingStore';
+import { faker } from '@faker-js/faker/locale/en';
 
 const mockadapter: MockAdapter = new MockAdapter(ApiService);
 const getResponseErrorCodeMock: MockInstance = vi
@@ -34,16 +35,16 @@ describe('rollenMappingStore', () => {
   describe('createRollenMapping', () => {
     it('should create rollenMapping and update state', async () => {
       const mockResponse: RollenMapping = {
-        id: 'm1',
-        rolleId: 'r1',
-        serviceProviderId: 'sp1',
+        id: faker.string.uuid(),
+        rolleId: faker.string.uuid(),
+        serviceProviderId: faker.string.uuid(),
         mapToLmsRolle: 'LEHRER',
       };
       mockadapter.onPost(/.*/).replyOnce(200, mockResponse);
 
       const promise: Promise<RollenMapping> = rollenMappingStore.createRollenMapping({
-        rolleId: 'r1',
-        serviceProviderId: 'sp1',
+        rolleId: faker.string.uuid(),
+        serviceProviderId: faker.string.uuid(),
         mapToLmsRolle: 'LEHRER',
       });
 
@@ -57,8 +58,8 @@ describe('rollenMappingStore', () => {
 
     it('should handle string error', async () => {
       const promise: Promise<RollenMapping> = rollenMappingStore.createRollenMapping({
-        rolleId: 'r1',
-        serviceProviderId: 'sp1',
+        rolleId: faker.string.uuid(),
+        serviceProviderId: faker.string.uuid(),
         mapToLmsRolle: 'LEHRER',
       });
 
@@ -71,8 +72,8 @@ describe('rollenMappingStore', () => {
 
     it('should handle error code', async () => {
       const promise: Promise<RollenMapping> = rollenMappingStore.createRollenMapping({
-        rolleId: 'r1',
-        serviceProviderId: 'sp1',
+        rolleId: faker.string.uuid(),
+        serviceProviderId: faker.string.uuid(),
         mapToLmsRolle: 'LEHRER',
       });
 
@@ -87,8 +88,18 @@ describe('rollenMappingStore', () => {
   describe('getAllRollenMappings', () => {
     it('should load rollenMappings and update state', async () => {
       const mockResponse: RollenMapping[] = [
-        { id: 'm1', rolleId: 'r1', serviceProviderId: 'sp1', mapToLmsRolle: 'LEHRER' },
-        { id: 'm2', rolleId: 'r2', serviceProviderId: 'sp2', mapToLmsRolle: 'SCHUELER' },
+        {
+          id: faker.string.uuid(),
+          rolleId: faker.string.uuid(),
+          serviceProviderId: faker.string.uuid(),
+          mapToLmsRolle: 'LEHRER',
+        },
+        {
+          id: faker.string.uuid(),
+          rolleId: faker.string.uuid(),
+          serviceProviderId: faker.string.uuid(),
+          mapToLmsRolle: 'SCHUELER',
+        },
       ];
       mockadapter.onGet(/.*/).replyOnce(200, mockResponse);
 
@@ -128,7 +139,12 @@ describe('rollenMappingStore', () => {
   describe('getRollenMappingsForServiceProvider', () => {
     it('should load mappings for service provider and update state', async () => {
       const mockResponse: RollenMapping[] = [
-        { id: 'm1', rolleId: 'r1', serviceProviderId: 'sp1', mapToLmsRolle: 'LEHRER' },
+        {
+          id: faker.string.uuid(),
+          rolleId: faker.string.uuid(),
+          serviceProviderId: faker.string.uuid(),
+          mapToLmsRolle: 'LEHRER',
+        },
       ];
       mockadapter.onGet(/.*/).replyOnce(200, mockResponse);
 
@@ -168,9 +184,9 @@ describe('rollenMappingStore', () => {
   describe('getRollenMappingById', () => {
     it('should load by id and return mapping', async () => {
       const mockResponse: RollenMapping = {
-        id: 'm1',
-        rolleId: 'r1',
-        serviceProviderId: 'sp1',
+        id: faker.string.uuid(),
+        rolleId: faker.string.uuid(),
+        serviceProviderId: faker.string.uuid(),
         mapToLmsRolle: 'LEHRER',
       };
       mockadapter.onGet(/.*/).replyOnce(200, mockResponse);
@@ -203,9 +219,9 @@ describe('rollenMappingStore', () => {
   describe('updateRollenMapping', () => {
     it('should update mapping and set updatedRollenMapping', async () => {
       const mockResponse: RollenMapping = {
-        id: 'm1',
-        rolleId: 'r1',
-        serviceProviderId: 'sp1',
+        id: faker.string.uuid(),
+        rolleId: faker.string.uuid(),
+        serviceProviderId: faker.string.uuid(),
         mapToLmsRolle: 'SCHUELER',
       };
       mockadapter.onPut(/.*/).replyOnce(200, mockResponse);
@@ -235,18 +251,18 @@ describe('rollenMappingStore', () => {
     });
 
     it('should not change updatedRollenMapping on update error', async () => {
-      rollenMappingStore.updatedRollenMapping = {
-        id: 'old',
-        rolleId: 'rOld',
-        serviceProviderId: 'spOld',
+      const oldRollenMapping: RollenMapping = (rollenMappingStore.updatedRollenMapping = {
+        id: faker.string.uuid(),
+        rolleId: faker.string.uuid(),
+        serviceProviderId: faker.string.uuid(),
         mapToLmsRolle: 'LEHRER',
-      };
+      });
       mockadapter.onPut(/.*/).replyOnce(500, { i18nKey: 'UPDATE_FAILED' });
-      await rollenMappingStore.updateRollenMapping('m1', 'SCHUELER');
+      await rollenMappingStore.updateRollenMapping(oldRollenMapping.id, 'SCHUELER');
       expect(rollenMappingStore.updatedRollenMapping).toEqual({
-        id: 'old',
-        rolleId: 'rOld',
-        serviceProviderId: 'spOld',
+        id: oldRollenMapping.id,
+        rolleId: oldRollenMapping.rolleId,
+        serviceProviderId: oldRollenMapping.serviceProviderId,
         mapToLmsRolle: 'LEHRER',
       });
     });
@@ -275,30 +291,30 @@ describe('rollenMappingStore', () => {
   describe('getMappingForRolleAndServiceProvider', () => {
     it('should return correct mapping for given rolleId and serviceProviderId and mapToLmsRolle', async () => {
       const mockResponse1: RollenMapping = {
-        id: 'm1',
-        rolleId: 'r1',
-        serviceProviderId: 'sp1',
+        id: faker.string.uuid(),
+        rolleId: faker.string.uuid(),
+        serviceProviderId: faker.string.uuid(),
         mapToLmsRolle: 'LEHRER',
       };
       mockadapter.onPost(/.*/).reply(200, mockResponse1);
       const mapping1: RollenMapping | null = await rollenMappingStore.getMappingForRolleAndServiceProvider(
-        'r1',
-        'sp1',
+        mockResponse1.rolleId,
+        mockResponse1.serviceProviderId,
         'LEHRER',
       );
 
       expect(mapping1).toEqual(mockResponse1);
 
       const mockResponse2: RollenMapping = {
-        id: 'm2',
-        rolleId: 'r1',
-        serviceProviderId: 'sp1',
+        id: faker.string.uuid(),
+        rolleId: faker.string.uuid(),
+        serviceProviderId: faker.string.uuid(),
         mapToLmsRolle: '',
       };
       mockadapter.onPost(/.*/).reply(200, mockResponse2);
       const mapping2: RollenMapping | null = await rollenMappingStore.getMappingForRolleAndServiceProvider(
-        'r1',
-        'sp1',
+        mockResponse2.rolleId,
+        mockResponse2.serviceProviderId,
         '',
       );
 
@@ -307,9 +323,9 @@ describe('rollenMappingStore', () => {
 
     it('should throw invalid RollenMapping Response error', async () => {
       const invalidResponse: RollenMapping = {
-        id: 'm2',
+        id: faker.string.uuid(),
         rolleId: undefined as unknown as string,
-        serviceProviderId: 'sp1',
+        serviceProviderId: faker.string.uuid(),
         mapToLmsRolle: '',
       };
       mockadapter.onAny(/.*/).reply(200, invalidResponse);
@@ -322,16 +338,20 @@ describe('rollenMappingStore', () => {
       ).rejects.toEqual(new Error('ROLLENMAPPING_FETCH_ERROR'));
     });
 
-    it('should throw on invalid API response (missing fields) and set errorCode', async () => {
+    it('should throw on invalid API response (missing id) and set errorCode', async () => {
       const invalidResponse: Partial<RollenMapping> = {
-        id: 'rm-1',
-        serviceProviderId: 'sp-1',
+        rolleId: faker.string.uuid(),
+        serviceProviderId: faker.string.uuid(),
         mapToLmsRolle: 'LEARNER',
       };
       mockadapter.onAny().reply(200, invalidResponse);
 
       await expect(
-        rollenMappingStore.getMappingForRolleAndServiceProvider('rolle-1', 'sp-1', 'LEARNER'),
+        rollenMappingStore.getMappingForRolleAndServiceProvider(
+          invalidResponse.rolleId!,
+          invalidResponse.serviceProviderId!,
+          'LEARNER',
+        ),
       ).rejects.toStrictEqual(new Error('ROLLENMAPPING_FETCH_ERROR'));
 
       expect(getResponseErrorCodeMock).toHaveBeenCalledTimes(1);
@@ -341,7 +361,67 @@ describe('rollenMappingStore', () => {
       expect(firstCall).toBeDefined();
       const [caughtError, defaultCode]: [unknown, string] = firstCall!;
       expect(caughtError).toBeInstanceOf(Error);
-      expect((caughtError as Error).message).toContain('Invalid RollenMapping response: missing required properties');
+      expect((caughtError as Error).message).toContain('Invalid RollenMapping response: missing id');
+      expect(defaultCode).toBe('ROLLENMAPPING_FETCH_ERROR');
+
+      expect(rollenMappingStore.errorCode).toBe('ROLLENMAPPING_FETCH_ERROR');
+      expect(rollenMappingStore.loading).toBe(false);
+    });
+
+    it('should throw on invalid API response (missing rolleId) and set errorCode', async () => {
+      const invalidResponse: Partial<RollenMapping> = {
+        id: faker.string.uuid(),
+        serviceProviderId: faker.string.uuid(),
+        mapToLmsRolle: 'LEARNER',
+      };
+      mockadapter.onAny().reply(200, invalidResponse);
+
+      await expect(
+        rollenMappingStore.getMappingForRolleAndServiceProvider(
+          invalidResponse.id!,
+          invalidResponse.serviceProviderId!,
+          'LEARNER',
+        ),
+      ).rejects.toStrictEqual(new Error('ROLLENMAPPING_FETCH_ERROR'));
+
+      expect(getResponseErrorCodeMock).toHaveBeenCalledTimes(1);
+      const firstCall: [unknown, string] | undefined = getResponseErrorCodeMock.mock.calls[0] as
+        | [unknown, string]
+        | undefined;
+      expect(firstCall).toBeDefined();
+      const [caughtError, defaultCode]: [unknown, string] = firstCall!;
+      expect(caughtError).toBeInstanceOf(Error);
+      expect((caughtError as Error).message).toContain('Invalid RollenMapping response: missing rolleId');
+      expect(defaultCode).toBe('ROLLENMAPPING_FETCH_ERROR');
+
+      expect(rollenMappingStore.errorCode).toBe('ROLLENMAPPING_FETCH_ERROR');
+      expect(rollenMappingStore.loading).toBe(false);
+    });
+
+    it('should throw on invalid API response (missing serviceProviderId) and set errorCode', async () => {
+      const invalidResponse: Partial<RollenMapping> = {
+        id: faker.string.uuid(),
+        rolleId: faker.string.uuid(),
+        mapToLmsRolle: 'LEARNER',
+      };
+      mockadapter.onAny().reply(200, invalidResponse);
+
+      await expect(
+        rollenMappingStore.getMappingForRolleAndServiceProvider(
+          invalidResponse.id!,
+          invalidResponse.rolleId!,
+          'LEARNER',
+        ),
+      ).rejects.toStrictEqual(new Error('ROLLENMAPPING_FETCH_ERROR'));
+
+      expect(getResponseErrorCodeMock).toHaveBeenCalledTimes(1);
+      const firstCall: [unknown, string] | undefined = getResponseErrorCodeMock.mock.calls[0] as
+        | [unknown, string]
+        | undefined;
+      expect(firstCall).toBeDefined();
+      const [caughtError, defaultCode]: [unknown, string] = firstCall!;
+      expect(caughtError).toBeInstanceOf(Error);
+      expect((caughtError as Error).message).toContain('Invalid RollenMapping response: missing serviceProviderId');
       expect(defaultCode).toBe('ROLLENMAPPING_FETCH_ERROR');
 
       expect(rollenMappingStore.errorCode).toBe('ROLLENMAPPING_FETCH_ERROR');

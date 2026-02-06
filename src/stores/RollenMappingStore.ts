@@ -149,8 +149,12 @@ export const useRollenMappingStore: StoreDefinition<
             mapToLmsRolle,
           )) as AxiosResponse<RollenMapping>;
         const data: Partial<RollenMapping> = response.data;
-        if (!data.id || !data.rolleId || !data.serviceProviderId) {
-          throw new Error('Invalid RollenMapping response: missing required properties');
+        if (!data.id) {
+          throw new Error('Invalid RollenMapping response: missing id');
+        } else if (!data.rolleId) {
+          throw new Error('Invalid RollenMapping response: missing rolleId');
+        } else if (!data.serviceProviderId) {
+          throw new Error('Invalid RollenMapping response: missing serviceProviderId');
         }
         const rollenMapping: RollenMapping = {
           id: data.id,
