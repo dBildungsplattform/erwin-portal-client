@@ -13,7 +13,7 @@ const getResponseErrorCodeMock: MockInstance = vi
     return defaultErrorCode || 'UNSPECIFIED_ERROR';
   });
 
-describe('rollenMappingStore', () => {
+describe('RollenMappingStore', () => {
   let rollenMappingStore: RollenMappingStore;
 
   beforeEach(() => {
@@ -69,20 +69,6 @@ describe('rollenMappingStore', () => {
       expect(rollenMappingStore.createdRollenMapping).toEqual(null);
       expect(rollenMappingStore.loading).toBe(false);
     });
-
-    it('should handle error code', async () => {
-      const promise: Promise<RollenMapping> = rollenMappingStore.createRollenMapping({
-        rolleId: faker.string.uuid(),
-        serviceProviderId: faker.string.uuid(),
-        mapToLmsRolle: 'LEHRER',
-      });
-
-      expect(rollenMappingStore.loading).toBe(true);
-      await expect(promise).rejects.toEqual(new Error('ROLLENMAPPING_CREATE_ERROR'));
-      expect(rollenMappingStore.errorCode).toEqual('ROLLENMAPPING_CREATE_ERROR');
-      expect(rollenMappingStore.createdRollenMapping).toEqual(null);
-      expect(rollenMappingStore.loading).toBe(false);
-    });
   });
 
   describe('getAllRollenMappings', () => {
@@ -113,14 +99,6 @@ describe('rollenMappingStore', () => {
     });
 
     it('should handle string error', async () => {
-      const promise: Promise<void> = rollenMappingStore.getAllRollenMappings();
-      expect(rollenMappingStore.loading).toBe(true);
-      await promise;
-      expect(rollenMappingStore.errorCode).toEqual('ROLLENMAPPING_LIST_ERROR');
-      expect(rollenMappingStore.loading).toBe(false);
-    });
-
-    it('should handle error code', async () => {
       const promise: Promise<void> = rollenMappingStore.getAllRollenMappings();
       expect(rollenMappingStore.loading).toBe(true);
       await promise;
@@ -165,15 +143,7 @@ describe('rollenMappingStore', () => {
       expect(rollenMappingStore.loading).toBe(false);
     });
 
-    it('should handle error code', async () => {
-      const promise: Promise<void> = rollenMappingStore.getRollenMappingsForServiceProvider('sp1');
-      expect(rollenMappingStore.loading).toBe(true);
-      await promise;
-      expect(rollenMappingStore.errorCode).toEqual('ROLLENMAPPING_LIST_ERROR');
-      expect(rollenMappingStore.loading).toBe(false);
-    });
-
-    it('should handle empty list for service provider', async () => {
+    it('should handle empty list of RollenMappings for service provider', async () => {
       await rollenMappingStore.getRollenMappingsForServiceProvider('sp1');
       expect(rollenMappingStore.allRollenMappings).toEqual([]);
       expect(rollenMappingStore.totalRollenMappings).toBe(0);
@@ -206,14 +176,6 @@ describe('rollenMappingStore', () => {
       expect(rollenMappingStore.errorCode).toEqual('ROLLENMAPPING_FETCH_ERROR');
       expect(rollenMappingStore.loading).toBe(false);
     });
-
-    it('should handle error code', async () => {
-      const promise: Promise<RollenMapping> = rollenMappingStore.getRollenMappingById('m1');
-      expect(rollenMappingStore.loading).toBe(true);
-      await promise.catch(() => undefined);
-      expect(rollenMappingStore.errorCode).toEqual('ROLLENMAPPING_FETCH_ERROR');
-      expect(rollenMappingStore.loading).toBe(false);
-    });
   });
 
   describe('updateRollenMapping', () => {
@@ -235,14 +197,6 @@ describe('rollenMappingStore', () => {
     });
 
     it('should handle string error on update', async () => {
-      const promise: Promise<void> = rollenMappingStore.updateRollenMapping('m1', 'SCHUELER');
-      expect(rollenMappingStore.loading).toBe(true);
-      await promise;
-      expect(rollenMappingStore.errorCode).toEqual('ROLLENMAPPING_UPDATE_ERROR');
-      expect(rollenMappingStore.loading).toBe(false);
-    });
-
-    it('should handle error code on update', async () => {
       const promise: Promise<void> = rollenMappingStore.updateRollenMapping('m1', 'SCHUELER');
       expect(rollenMappingStore.loading).toBe(true);
       await promise;

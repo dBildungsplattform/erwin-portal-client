@@ -105,6 +105,7 @@ describe('rolleStore', () => {
           administeredBySchulstrukturknoten: '1234',
           rollenart: 'LEHR',
           name: 'Lehrer',
+          // TODO: remove type casting when generator is fixed
           merkmale: ['KOPERS_PFLICHT'] as unknown as Set<RollenMerkmal>,
           systemrechte: ['ROLLEN_VERWALTEN'] as unknown as Set<RollenSystemRecht>,
           createdAt: '2022',
@@ -234,6 +235,7 @@ describe('rolleStore', () => {
         administeredBySchulstrukturknoten: '1234',
         rollenart: 'LEHR',
         name: 'Lehrer',
+        // TODO: remove type casting when generator is fixed
         merkmale: ['KOPERS_PFLICHT'] as unknown as Set<RollenMerkmal>,
         systemrechte: ['ROLLEN_VERWALTEN'] as unknown as Set<RollenSystemRecht>,
         createdAt: '2022',

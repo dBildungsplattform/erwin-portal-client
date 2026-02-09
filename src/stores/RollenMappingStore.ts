@@ -55,8 +55,7 @@ export const useRollenMappingStore: StoreDefinition<
   RollenMappingState,
   RollenMappingGetters,
   RollenMappingActions
-> = defineStore({
-  id: 'rollenMappingStore',
+> = defineStore('rollenMappingStore', {
   state: (): RollenMappingState => ({
     createdRollenMapping: null,
     updatedRollenMapping: null,
