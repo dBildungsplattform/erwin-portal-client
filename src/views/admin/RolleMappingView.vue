@@ -123,7 +123,10 @@
           (mapping: RollenMapping) =>
             mapping.rolleId === role.id && mapping.serviceProviderId === chosenServiceProvider.value!.id,
         );
-        return existingMapping ? existingMapping.mapToLmsRolle : null;
+        if (existingMapping) return existingMapping.mapToLmsRolle;
+        else {
+          return null;
+        }
       });
     },
     { immediate: true },
