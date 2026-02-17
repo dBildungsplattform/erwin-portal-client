@@ -51,8 +51,8 @@
     },
     {
       src: BMBFSFJ_LOGO,
-      alt: 'BMBF',
-      href: 'https://www.bmfsfj.de/',
+      alt: 'BMBFSFJ',
+      href: 'https://www.bmbfsfj.bund.de/',
     },
   ]);
 
