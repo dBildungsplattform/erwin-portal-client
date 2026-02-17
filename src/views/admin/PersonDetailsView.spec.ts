@@ -671,37 +671,39 @@ describe('PersonDetailsView', () => {
     expect(wrapper?.find('[data-testid="zuordnung-befristung-text"]').isVisible()).toBe(true);
   });
 
-  test('it shows device password template for rollenart lehr', async () => {
-    personStore.personenuebersicht = mockPersonenuebersichtLehr;
-    setCurrentPerson(EmailAddressStatus.Enabled);
-    await nextTick();
-    if (!wrapper) return;
+  // Disabled because device password template is currentlly hidden
+  //
+  // test('it shows device password template for rollenart lehr', async () => {
+  //   personStore.personenuebersicht = mockPersonenuebersichtLehr;
+  //   setCurrentPerson(EmailAddressStatus.Enabled);
+  //   await nextTick();
+  //   if (!wrapper) return;
 
-    expect(wrapper.find('[data-testid="device-password-info"]').isVisible()).toBe(true);
+  //   expect(wrapper.find('[data-testid="device-password-info"]').isVisible()).toBe(true);
 
-    const devicePasswordChangeButton: DOMWrapper<Element> = wrapper
-      .findComponent({ ref: 'device-password-reset' })
-      .find('[data-testid="open-device-password-dialog-button"]');
-    devicePasswordChangeButton.trigger('click');
-    await nextTick();
+  //   const devicePasswordChangeButton: DOMWrapper<Element> = wrapper
+  //     .findComponent({ ref: 'device-password-reset' })
+  //     .find('[data-testid="open-device-password-dialog-button"]');
+  //   devicePasswordChangeButton.trigger('click');
+  //   await nextTick();
 
-    expect(document.querySelector('[data-testid="password-reset-info-text"]')).not.toBeNull();
+  //   expect(document.querySelector('[data-testid="password-reset-info-text"]')).not.toBeNull();
 
-    const resetPasswordButton: HTMLElement = (await document.querySelector(
-      '[data-testid="password-reset-button"]',
-    )) as HTMLElement;
+  //   const resetPasswordButton: HTMLElement = (await document.querySelector(
+  //     '[data-testid="password-reset-button"]',
+  //   )) as HTMLElement;
 
-    expect(resetPasswordButton).not.toBeNull();
-    resetPasswordButton.click();
-    resetPasswordButton.dispatchEvent(new Event('click'));
-    await flushPromises();
-    await nextTick();
+  //   expect(resetPasswordButton).not.toBeNull();
+  //   resetPasswordButton.click();
+  //   resetPasswordButton.dispatchEvent(new Event('click'));
+  //   await flushPromises();
+  //   await nextTick();
 
-    expect(personStore.resetDevicePassword).toHaveBeenCalled();
+  //   expect(personStore.resetDevicePassword).toHaveBeenCalled();
 
-    // reset personenuebersicht
-    personStore.personenuebersicht = mockPersonenuebersicht;
-  });
+  //   // reset personenuebersicht
+  //   personStore.personenuebersicht = mockPersonenuebersicht;
+  // });
 
   test('it shows password reset template', async () => {
     personStore.personenuebersicht = mockPersonenuebersichtLehr;

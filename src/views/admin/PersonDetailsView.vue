@@ -1645,10 +1645,10 @@
                 <span class="text-body">{{ personStore.currentPerson.person.referrer }} </span>
               </v-col>
             </v-row>
-            <!-- KoPers.-Nr. -->
+            <!-- KoPers.-Nr. (disabled using a false condition to re-enable remove the 'false &&')-->
             <v-row
               class="mt-0"
-              v-if="hasKopersRolle || personStore.currentPerson.person.personalnummer"
+              v-if="false && (hasKopersRolle || personStore.currentPerson.person.personalnummer)"
             >
               <v-col cols="1"></v-col>
               <v-col
@@ -2801,16 +2801,18 @@
               </div>
             </v-col>
             <v-col v-else-if="personStore.loading"> <v-progress-circular indeterminate></v-progress-circular></v-col>
-          </v-row> </v-container
-        ><v-divider
-          v-if="hasLehrRolle"
+          </v-row>
+        </v-container>
+        <!-- divider disabled using a false condition to re-enable remove the 'false &&' -->
+        <v-divider
+          v-if="false && hasLehrRolle"
           class="border-opacity-100 rounded my-6 mx-4"
           color="#E5EAEF"
           thickness="6"
         ></v-divider>
-        <!-- reset device password -->
+        <!-- reset device password (disabled using a false condition to re-enable remove the 'false &&') -->
         <v-container
-          v-if="hasLehrRolle"
+          v-if="false && hasLehrRolle"
           data-testid="device-password"
         >
           <v-row class="ml-md-16">
