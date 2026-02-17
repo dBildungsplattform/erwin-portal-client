@@ -1,8 +1,6 @@
 <script setup lang="ts">
-  import { RollenArt } from '@/api-client/generated/api';
   import SpshTooltip from '@/components/admin/SpshTooltip.vue';
   import LayoutCard from '@/components/cards/LayoutCard.vue';
-  import PasswordReset from '@/components/admin/personen/PasswordReset.vue';
   import { useAuthStore, type AuthStore } from '@/stores/AuthStore';
   import { OrganisationsTyp } from '@/stores/OrganisationStore';
   import { usePersonInfoStore, type PersonInfoStore } from '@/stores/PersonInfoStore';
@@ -51,7 +49,8 @@
   const windowOrigin: string = window.location.origin;
   const loading2FA: Ref<boolean> = ref(false);
 
-  const devicePassword: Ref<string> = ref('');
+  // Disabled for ErWIn-Portal because device password is not needed atm.
+  // const devicePassword: Ref<string> = ref('');
 
   /**
    * Gruppiert eine Liste von Zuordnungen nach dem Wert der Eigenschaft 'sskId'.
@@ -184,35 +183,39 @@
   // });
 
   // Used to show device password block
-  const hasLehrRolle: ComputedRef<boolean> = computed(() => {
-    return (
-      !!personStore.personenuebersicht?.zuordnungen.find((zuordnung: Zuordnung) => {
-        return zuordnung.rollenArt === RollenArt.Lehr;
-      }) || false
-    );
-  });
+  // Disabled for ErWIn-Portal because device password is not needed atm.
+  // const hasLehrRolle: ComputedRef<boolean> = computed(() => {
+  //   return (
+  //     !!personStore.personenuebersicht?.zuordnungen.find((zuordnung: Zuordnung) => {
+  //       return zuordnung.rollenArt === RollenArt.Lehr;
+  //     }) || false
+  //   );
+  // });
 
   // Computed property to get the device password dialog text
-  const devicePasswordDialogText: ComputedRef<string> = computed(() => {
-    let message: string = t('admin.person.devicePassword.dialogTextProfile');
-    if (devicePassword.value) {
-      message = `${t('admin.person.resetPasswordSuccessMessage')}\n\n${t('admin.person.devicePassword.dialogTextProfile')}`;
-    }
-    return message;
-  });
+  // Disabled for ErWIn-Portal because device password is not needed atm.
+  // const devicePasswordDialogText: ComputedRef<string> = computed(() => {
+  //   let message: string = t('admin.person.devicePassword.dialogTextProfile');
+  //   if (devicePassword.value) {
+  //     message = `${t('admin.person.resetPasswordSuccessMessage')}\n\n${t('admin.person.devicePassword.dialogTextProfile')}`;
+  //   }
+  //   return message;
+  // });
 
-  const devicePasswordErrorMessage: ComputedRef<string> = computed(() => {
-    let message: string = '';
-    if (personStore.errorCode) {
-      message = t('admin.person.devicePassword.errorMessage');
-    }
-    return message;
-  });
+  // Disabled for ErWIn-Portal because device password is not needed atm.
+  // const devicePasswordErrorMessage: ComputedRef<string> = computed(() => {
+  //   let message: string = '';
+  //   if (personStore.errorCode) {
+  //     message = t('admin.person.devicePassword.errorMessage');
+  //   }
+  //   return message;
+  // });
 
-  async function resetDevicePassword(): Promise<void> {
-    await personStore.resetDevicePassword();
-    devicePassword.value = personStore.newDevicePassword || '';
-  }
+  // Disabled for ErWIn-Portal because device password is not needed atm.
+  // async function resetDevicePassword(): Promise<void> {
+  //   await personStore.resetDevicePassword();
+  //   devicePassword.value = personStore.newDevicePassword || '';
+  // }
 
   const personalData: ComputedRef<LabelValue[]> = computed(() => {
     const data: LabelValue[] = [];
@@ -306,7 +309,7 @@
   });
 
   // not needed for ErWIn Portal
-  
+
   // const twoFactorAuthError: ComputedRef<string> = computed(() => {
   //   // Early return if loading
   //   if (twoFactorAuthenticationStore.loading) return '';
@@ -618,7 +621,7 @@
         </template>
 
         <!-- not needed for ErWIn Portal -->
-        
+
         <!-- <LayoutCard
           v-else-if="twoFactorAuthenticationStore.required"
           :headline-test-id="'two-factor-card'"
@@ -721,7 +724,8 @@
             </v-col>
           </v-row>
         </LayoutCard> -->
-        <LayoutCard
+        <!-- Disabled device password for ErWIn-Portal because it is not needed atm. -->
+        <!-- <LayoutCard
           v-if="hasLehrRolle"
           data-testid="reset-device-password-card"
           :headline-test-id="'reset-device-password-card'"
@@ -769,7 +773,7 @@
               </v-row>
             </v-col>
           </v-row>
-        </LayoutCard>
+        </LayoutCard> -->
       </v-col>
       <v-col
         cols="12"

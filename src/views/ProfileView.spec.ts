@@ -382,30 +382,31 @@ describe('ProfileView', () => {
     });
   });
 
-  describe('device password', () => {
-    test('it opens device password change dialog', async () => {
-      personInfoStore.personInfo = mockLehrer;
-      personStore.personenuebersicht = mockLehrerUebersicht;
-      await nextTick();
-      if (!wrapper) return;
+  // Disabled device password change dialog for ErWIn-Portal because it is not needed atm.
+  // describe('device password', () => {
+  //   test('it opens device password change dialog', async () => {
+  //     personInfoStore.personInfo = mockLehrer;
+  //     personStore.personenuebersicht = mockLehrerUebersicht;
+  //     await nextTick();
+  //     if (!wrapper) return;
 
-      const devicePasswordChangeButton: DOMWrapper<Element> = wrapper.find(
-        '[data-testid="open-device-password-dialog-button"]',
-      );
-      devicePasswordChangeButton.trigger('click');
-      await nextTick();
+  //     const devicePasswordChangeButton: DOMWrapper<Element> = wrapper.find(
+  //       '[data-testid="open-device-password-dialog-button"]',
+  //     );
+  //     devicePasswordChangeButton.trigger('click');
+  //     await nextTick();
 
-      expect(document.querySelector('[data-testid="password-reset-info-text"]')).not.toBeNull();
+  //     expect(document.querySelector('[data-testid="password-reset-info-text"]')).not.toBeNull();
 
-      const resetPasswordButton: HTMLElement = (await document.querySelector(
-        '[data-testid="password-reset-button"]',
-      )) as HTMLElement;
+  //     const resetPasswordButton: HTMLElement = (await document.querySelector(
+  //       '[data-testid="password-reset-button"]',
+  //     )) as HTMLElement;
 
-      expect(resetPasswordButton).not.toBeNull();
-      resetPasswordButton.click();
-      await nextTick();
-    });
-  });
+  //     expect(resetPasswordButton).not.toBeNull();
+  //     resetPasswordButton.click();
+  //     await nextTick();
+  //   });
+  // });
 
   // not needed for ErWIn Portal
 
