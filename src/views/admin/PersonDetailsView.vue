@@ -1403,7 +1403,7 @@
     );
   });
 
-  // Disabled for ErWIn-Portal because it is not needed atm.
+  // Disabled for ErWIn-Portal because 2FA is not needed atm.
   // const twoFactorAuthenticationConnectionError: ComputedRef<string> = computed(() => {
   //   // Early return if loading
   //   if (twoFactorAuthentificationStore.loading) return '';
@@ -2495,7 +2495,7 @@
             </v-row>
           </v-container>
         </template>
-        <!-- Disabled for ErWIn-Portal as it is not needed atm. -->
+        <!-- Disabled for ErWIn-Portal because 2FA is not needed atm. -->
         <!-- <template
           v-else-if="twoFactorAuthentificationStore.required || twoFactorAuthentificationStore.hasToken === true"
         >
