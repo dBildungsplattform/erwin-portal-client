@@ -13,8 +13,6 @@
   import PersonenkontextDelete from '@/components/admin/personen/PersonenkontextDelete.vue';
   import SpshAlert from '@/components/alert/SpshAlert.vue';
   import LayoutCard from '@/components/cards/LayoutCard.vue';
-  import TokenReset from '@/components/two-factor-authentication/TokenReset.vue';
-  import TwoFactorAuthenticationSetUp from '@/components/two-factor-authentication/TwoFactorAuthenticationSetUp.vue';
   import { useKlassen } from '@/composables/useKlassen';
   import { useOrganisationen } from '@/composables/useOrganisationen';
   import { useRollen, type TranslatedRolleWithAttrs } from '@/composables/useRollen';
@@ -45,7 +43,6 @@
   } from '@/stores/PersonenkontextStore';
   import { RollenArt, RollenMerkmal } from '@/stores/RolleStore';
   import {
-    TokenKind,
     useTwoFactorAuthentificationStore,
     type TwoFactorAuthentificationStore,
   } from '@/stores/TwoFactorAuthentificationStore';
@@ -1406,19 +1403,20 @@
     );
   });
 
-  const twoFactorAuthenticationConnectionError: ComputedRef<string> = computed(() => {
-    // Early return if loading
-    if (twoFactorAuthentificationStore.loading) return '';
+  // Disabled for ErWIn-Portal because 2FA is not needed atm.
+  // const twoFactorAuthenticationConnectionError: ComputedRef<string> = computed(() => {
+  //   // Early return if loading
+  //   if (twoFactorAuthentificationStore.loading) return '';
 
-    switch (twoFactorAuthentificationStore.errorCode) {
-      case 'TOKEN_STATE_ERROR':
-        return t('admin.person.twoFactorAuthentication.errors.tokenStateError');
-      case 'PI_UNAVAILABLE_ERROR':
-        return t('admin.person.twoFactorAuthentication.errors.connection');
-      default:
-        return '';
-    }
-  });
+  //   switch (twoFactorAuthentificationStore.errorCode) {
+  //     case 'TOKEN_STATE_ERROR':
+  //       return t('admin.person.twoFactorAuthentication.errors.tokenStateError');
+  //     case 'PI_UNAVAILABLE_ERROR':
+  //       return t('admin.person.twoFactorAuthentication.errors.connection');
+  //     default:
+  //       return '';
+  //   }
+  // });
 
   // Computed property to define what will be shown in the field Email depending on the returned status.
   const emailStatusText: ComputedRef<{
@@ -2497,7 +2495,8 @@
             </v-row>
           </v-container>
         </template>
-        <template
+        <!-- Disabled for ErWIn-Portal because 2FA is not needed atm. -->
+        <!-- <template
           v-else-if="twoFactorAuthentificationStore.required || twoFactorAuthentificationStore.hasToken === true"
         >
           <v-divider
@@ -2661,7 +2660,7 @@
               </template>
             </v-row>
           </v-container>
-        </template>
+        </template> -->
         <v-divider
           class="border-opacity-100 rounded my-6 mx-4"
           color="#E5EAEF"
