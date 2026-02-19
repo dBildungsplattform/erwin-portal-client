@@ -640,7 +640,7 @@ describe('PersonDetailsView', () => {
     expect(wrapper?.find('[data-testid="metadata-edit-button"]').isVisible()).toBe(true);
   });
 
-  // Disabled 2fa tests since 2fa is currently disabled in the UI. Re-enable and adjust tests when 2fa is re-enabled in the UI.
+  // Disabled for ErWIn-Portal 2fa tests since 2fa is currently disabled in the UI. Re-enable and adjust tests when 2fa is re-enabled in the UI.
   //
   // describe('error messages', () => {
   //   test('check 2fa connection error', async () => {
