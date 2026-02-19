@@ -1403,19 +1403,20 @@
     );
   });
 
-  const twoFactorAuthenticationConnectionError: ComputedRef<string> = computed(() => {
-    // Early return if loading
-    if (twoFactorAuthentificationStore.loading) return '';
+  // Disabled for ErWIn-Portal because it is not needed atm.
+  // const twoFactorAuthenticationConnectionError: ComputedRef<string> = computed(() => {
+  //   // Early return if loading
+  //   if (twoFactorAuthentificationStore.loading) return '';
 
-    switch (twoFactorAuthentificationStore.errorCode) {
-      case 'TOKEN_STATE_ERROR':
-        return t('admin.person.twoFactorAuthentication.errors.tokenStateError');
-      case 'PI_UNAVAILABLE_ERROR':
-        return t('admin.person.twoFactorAuthentication.errors.connection');
-      default:
-        return '';
-    }
-  });
+  //   switch (twoFactorAuthentificationStore.errorCode) {
+  //     case 'TOKEN_STATE_ERROR':
+  //       return t('admin.person.twoFactorAuthentication.errors.tokenStateError');
+  //     case 'PI_UNAVAILABLE_ERROR':
+  //       return t('admin.person.twoFactorAuthentication.errors.connection');
+  //     default:
+  //       return '';
+  //   }
+  // });
 
   // Computed property to define what will be shown in the field Email depending on the returned status.
   const emailStatusText: ComputedRef<{
