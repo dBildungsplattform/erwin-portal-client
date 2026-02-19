@@ -671,7 +671,7 @@ describe('PersonDetailsView', () => {
     expect(wrapper?.find('[data-testid="zuordnung-befristung-text"]').isVisible()).toBe(true);
   });
 
-  // Disabled because device password template is currentlly hidden
+  // Disabled for ErWIN-Portal because device password template is currentlly hidden
   //
   // test('it shows device password template for rollenart lehr', async () => {
   //   personStore.personenuebersicht = mockPersonenuebersichtLehr;

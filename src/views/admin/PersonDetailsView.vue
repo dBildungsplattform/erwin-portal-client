@@ -1645,8 +1645,8 @@
                 <span class="text-body">{{ personStore.currentPerson.person.referrer }} </span>
               </v-col>
             </v-row>
-            <!-- KoPers.-Nr. (disabled using a false condition to re-enable remove the 'false &&')-->
-            <v-row
+            <!-- Disabled KoPers.-Nr. for ErWIn-Portal because it is not needed atm. -->
+            <!-- <v-row
               class="mt-0"
               v-if="false && (hasKopersRolle || personStore.currentPerson.person.personalnummer)"
             >
@@ -1679,7 +1679,7 @@
                   {{ personStore.currentPerson.person.personalnummer ?? $t('missing') }}
                 </span>
               </v-col>
-            </v-row>
+            </v-row> -->
             <!-- Email -->
             <v-row
               v-if="emailStatusText.text !== $t('person.emailStatusUnknown')"
@@ -2803,16 +2803,16 @@
             <v-col v-else-if="personStore.loading"> <v-progress-circular indeterminate></v-progress-circular></v-col>
           </v-row>
         </v-container>
-        <!-- divider disabled using a false condition to re-enable remove the 'false &&' -->
-        <v-divider
-          v-if="false && hasLehrRolle"
+        <!-- Disabled divider for ErWIn-Portal because it is not needed atm. -->
+        <!-- <v-divider
+          v-if="hasLehrRolle"
           class="border-opacity-100 rounded my-6 mx-4"
           color="#E5EAEF"
           thickness="6"
-        ></v-divider>
-        <!-- reset device password (disabled using a false condition to re-enable remove the 'false &&') -->
-        <v-container
-          v-if="false && hasLehrRolle"
+        ></v-divider> -->
+        <!-- Disabled reset device password for ErWIn-Portal because it is not needed atm. -->
+        <!-- <v-container
+          v-if="hasLehrRolle"
           data-testid="device-password"
         >
           <v-row class="ml-md-16">
@@ -2867,7 +2867,7 @@
               </div>
             </v-col>
           </v-row>
-        </v-container>
+        </v-container> -->
       </template>
     </LayoutCard>
     <!-- Success Dialog after deleting the Zuordnung-->
