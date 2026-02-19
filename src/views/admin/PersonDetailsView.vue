@@ -13,8 +13,6 @@
   import PersonenkontextDelete from '@/components/admin/personen/PersonenkontextDelete.vue';
   import SpshAlert from '@/components/alert/SpshAlert.vue';
   import LayoutCard from '@/components/cards/LayoutCard.vue';
-  import TokenReset from '@/components/two-factor-authentication/TokenReset.vue';
-  import TwoFactorAuthenticationSetUp from '@/components/two-factor-authentication/TwoFactorAuthenticationSetUp.vue';
   import { useKlassen } from '@/composables/useKlassen';
   import { useOrganisationen } from '@/composables/useOrganisationen';
   import { useRollen, type TranslatedRolleWithAttrs } from '@/composables/useRollen';
@@ -45,7 +43,6 @@
   } from '@/stores/PersonenkontextStore';
   import { RollenArt, RollenMerkmal } from '@/stores/RolleStore';
   import {
-    TokenKind,
     useTwoFactorAuthentificationStore,
     type TwoFactorAuthentificationStore,
   } from '@/stores/TwoFactorAuthentificationStore';
@@ -2497,11 +2494,9 @@
             </v-row>
           </v-container>
         </template>
-        <!-- Disabled using false condition (remove 'false &&' to re-enable) -->
-        <template
-          v-else-if="
-            false && (twoFactorAuthentificationStore.required || twoFactorAuthentificationStore.hasToken === true)
-          "
+        <!-- Disabled for ErWIn-Portal as it is not needed atm. -->
+        <!-- <template
+          v-else-if="twoFactorAuthentificationStore.required || twoFactorAuthentificationStore.hasToken === true"
         >
           <v-divider
             class="border-opacity-100 rounded my-6 mx-4"
@@ -2664,7 +2659,7 @@
               </template>
             </v-row>
           </v-container>
-        </template>
+        </template> -->
         <v-divider
           class="border-opacity-100 rounded my-6 mx-4"
           color="#E5EAEF"
