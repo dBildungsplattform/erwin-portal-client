@@ -91,7 +91,8 @@
   const twoFactorAuthentificationStore: TwoFactorAuthentificationStore = useTwoFactorAuthentificationStore();
   const configStore: ConfigStore = useConfigStore();
 
-  const devicePassword: Ref<string> = ref('');
+  // Disabled for ErWIn-Portal because it is not needed atm.
+  // const devicePassword: Ref<string> = ref('');
   const password: Ref<string> = ref('');
 
   const zuordnungenResult: Ref<Zuordnung[] | undefined> = ref<Zuordnung[] | undefined>(undefined);
@@ -157,7 +158,7 @@
     password.value = personStore.newPassword || '';
   }
 
-  // Disabled for ErWIn-Portal because it is not needed atm.
+  // Disabled for ErWIn-Portal because reset device password functionality is not needed atm.
   // async function resetDevicePassword(personId: string): Promise<void> {
   //   await personStore.resetDevicePassword(personId);
   //   devicePassword.value = personStore.newDevicePassword || '';
@@ -538,7 +539,7 @@
   });
 
   // Used to show device password block
-  // Disabled for ErWIn-Portal because it is not needed atm.
+  // Disabled for ErWIn-Portal because reset device password functionality is not needed atm.
   // const hasLehrRolle: ComputedRef<boolean> = computed(() => {
   //   return (
   //     !!zuordnungenResult.value?.find((zuordnung: Zuordnung) => {
@@ -966,7 +967,7 @@
   });
 
   // Computed property to get the device password dialog text
-  // Disabled for ErWIn-Portal because it is not needed atm.
+  // Disabled for ErWIn-Portal because reset device password functionality is not needed atm.
   // const devicePasswordDialogText: ComputedRef<string> = computed(() => {
   //   let message: string = t('admin.person.devicePassword.dialogText');
   //   if (devicePassword.value) {
