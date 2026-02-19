@@ -537,13 +537,14 @@
   });
 
   // Used to show device password block
-  const hasLehrRolle: ComputedRef<boolean> = computed(() => {
-    return (
-      !!zuordnungenResult.value?.find((zuordnung: Zuordnung) => {
-        return zuordnung.rollenArt === RollenArt.Lehr;
-      }) || false
-    );
-  });
+  // Disabled for ErWIn-Portal because it is not needed atm.
+  // const hasLehrRolle: ComputedRef<boolean> = computed(() => {
+  //   return (
+  //     !!zuordnungenResult.value?.find((zuordnung: Zuordnung) => {
+  //       return zuordnung.rollenArt === RollenArt.Lehr;
+  //     }) || false
+  //   );
+  // });
 
   // Check if the button to change the Klasse should be active or not. Activate only if there is 1 selected Zuordnung and if it is of type LERN.
   const canChangeKlasse: ComputedRef<boolean> = computed(() => {
@@ -964,13 +965,14 @@
   });
 
   // Computed property to get the device password dialog text
-  const devicePasswordDialogText: ComputedRef<string> = computed(() => {
-    let message: string = t('admin.person.devicePassword.dialogText');
-    if (devicePassword.value) {
-      message = `${t('admin.person.devicePassword.createPasswordSuccessMessage')}\n\n` + message;
-    }
-    return message;
-  });
+  // Disabled for ErWIn-Portal because it is not needed atm.
+  // const devicePasswordDialogText: ComputedRef<string> = computed(() => {
+  //   let message: string = t('admin.person.devicePassword.dialogText');
+  //   if (devicePassword.value) {
+  //     message = `${t('admin.person.devicePassword.createPasswordSuccessMessage')}\n\n` + message;
+  //   }
+  //   return message;
+  // });
 
   const onSubmitChangeKlasse: (e?: Event | undefined) => Promise<void | undefined> = handleSubmitChangeKlasse(() => {
     changeKlasseConfirmationDialogMessage.value = t('person.changeKlasseConfirmation', {
