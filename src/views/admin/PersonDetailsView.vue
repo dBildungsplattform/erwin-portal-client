@@ -157,10 +157,11 @@
     password.value = personStore.newPassword || '';
   }
 
-  async function resetDevicePassword(personId: string): Promise<void> {
-    await personStore.resetDevicePassword(personId);
-    devicePassword.value = personStore.newDevicePassword || '';
-  }
+  // Disabled for ErWIn-Portal because it is not needed atm.
+  // async function resetDevicePassword(personId: string): Promise<void> {
+  //   await personStore.resetDevicePassword(personId);
+  //   devicePassword.value = personStore.newDevicePassword || '';
+  // }
 
   async function onLockUser(
     lockedBy: string,
