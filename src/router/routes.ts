@@ -1,39 +1,38 @@
 import { StepUpLevel } from '@/stores/AuthStore';
-import type { RouteRecordRaw } from 'vue-router';
+import type { RouteMeta, RouteRecordRaw } from 'vue-router';
 
-const adminMeta: { layout: 'AdminLayout'; requiresAuth: true } = {
+type Layout = 'DefaultLayout' | 'AdminLayout';
+
+interface BaseMeta extends RouteMeta {
+  layout: Layout;
+  requiresAuth: boolean;
+  requiredStepUpLevel?: StepUpLevel;
+}
+
+type AdminMeta = BaseMeta & { layout: 'AdminLayout' };
+type DefaultLayoutMeta = BaseMeta & { layout: 'DefaultLayout' };
+
+const adminMeta: AdminMeta = {
   layout: 'AdminLayout',
   requiresAuth: true,
-} as const;
+};
 
-const adminMetaWithGoldStepUp: {
-  layout: 'AdminLayout';
-  requiresAuth: true;
-  requiredStepUpLevel: StepUpLevel.GOLD;
-} = {
+const adminMetaWithGoldStepUp: AdminMeta = {
   ...adminMeta,
   requiredStepUpLevel: StepUpLevel.GOLD,
-} as const;
+};
 
-const defaultLayoutMetaAuthenticated: {
-  layout: 'DefaultLayout';
-  requiresAuth: true;
-  requiredStepUpLevel: StepUpLevel.SILVER;
-} = {
+const defaultLayoutMetaAuthenticated: DefaultLayoutMeta = {
   layout: 'DefaultLayout',
   requiresAuth: true,
   requiredStepUpLevel: StepUpLevel.SILVER,
-} as const;
+};
 
-const defaultLayoutMetaPublic: {
-  layout: 'DefaultLayout';
-  requiresAuth: false;
-  requiredStepUpLevel: StepUpLevel.NONE;
-} = {
+const defaultLayoutMetaPublic: DefaultLayoutMeta = {
   layout: 'DefaultLayout',
   requiresAuth: false,
   requiredStepUpLevel: StepUpLevel.NONE,
-} as const;
+};
 
 const routes: readonly RouteRecordRaw[] = [
   {
