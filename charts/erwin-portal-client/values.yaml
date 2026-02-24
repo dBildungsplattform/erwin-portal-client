@@ -11,7 +11,6 @@ image:
 restartPolicy: Always
 
 frontendHostname: ""
-frontend2ndHostname: ""
 
 portal_loadbalancer_ingress_client_limit_connections: 40
 portal_loadbalancer_ingress_client_limit_rpm: 400
@@ -40,7 +39,7 @@ resources:
 ingress:
   # Only enable if 2nd host name is defined 
   enabled2nd: false
-  enabled: true
+  enabled: false
   ingressClassName: nginx
   path: /
   pathType: Prefix
