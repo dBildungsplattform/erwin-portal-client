@@ -23,13 +23,18 @@
     { text: t('footer.contact'), href: 'https://www.secure-lernnetz.de/helpdesk/', external: true },
     {
       text: t('footer.help'),
-      href: 'https://medienberatung.iqsh.de/schulportal-sh.html',
-      external: true,
+      href: '/hilfe',
+      external: false,
+    },
+    {
+      text: t('footer.instructions'),
+      href: '/anleitung',
+      external: false,
     },
     {
       text: t('footer.legalNotice'),
-      href: '/impressum_datenschutzerklaerung.html',
-      external: true,
+      href: '/impressum',
+      external: false,
     },
     {
       text: t('footer.privacyPolicy'),

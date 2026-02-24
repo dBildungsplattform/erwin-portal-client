@@ -158,6 +158,36 @@ const routes: readonly RouteRecordRaw[] = [
     },
   },
   {
+    path: '/impressum',
+    name: 'imprint',
+    component: () => import('../views/ImprintView.vue'),
+    meta: {
+      layout: 'DefaultLayout',
+      requiresAuth: false,
+      requiredStepUpLevel: StepUpLevel.NONE,
+    },
+  },
+  {
+    path: '/hilfe',
+    name: 'help',
+    component: () => import('../views/InfoPlaceholderView.vue'),
+    meta: {
+      layout: 'DefaultLayout',
+      requiresAuth: false,
+      requiredStepUpLevel: StepUpLevel.NONE,
+    },
+  },
+  {
+    path: '/anleitung',
+    name: 'instructions',
+    component: () => import('../views/InfoPlaceholderView.vue'),
+    meta: {
+      layout: 'DefaultLayout',
+      requiresAuth: false,
+      requiredStepUpLevel: StepUpLevel.NONE,
+    },
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'not-found',
     component: () => import('../views/NotFoundView.vue'),
