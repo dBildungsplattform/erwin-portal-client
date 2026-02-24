@@ -37,9 +37,7 @@ resources:
     memory: 200Mi
 
 ingress:
-  # Only enable if 2nd host name is defined 
-  enabled2nd: false
-  enabled: false
+  enabled: true
   ingressClassName: nginx
   path: /
   pathType: Prefix
