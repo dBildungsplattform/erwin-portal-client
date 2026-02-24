@@ -30,6 +30,31 @@ import PersonDetailsView from './PersonDetailsView.vue';
 let wrapper: VueWrapper | null = null;
 let router: Router;
 
+interface ZuordnungForKlasseChange {
+  typ: OrganisationsTyp;
+  administriertVon: string;
+  sskName: string;
+  [key: string]: unknown;
+}
+
+interface PersonDetailsViewVm extends DefineComponent {
+  filteredRollen: ComputedRef<TranslatedRolleWithAttrs[] | undefined>;
+  confirmDialogChangeKlasse: () => Promise<void> | void;
+  finalZuordnungen: ZuordnungForKlasseChange[];
+}
+
+const waitForElement = async (selector: string): Promise<Element> => {
+  for (let attempt: number = 0; attempt < 10; attempt++) {
+    const element: Element | null = document.body.querySelector(selector);
+    if (element) {
+      return element;
+    }
+    await nextTick();
+    await flushPromises();
+  }
+  throw new Error(`Element with selector "${selector}" not found`);
+};
+
 const authStore: AuthStore = useAuthStore();
 const configStore: ConfigStore = useConfigStore();
 const organisationStore: OrganisationStore = useOrganisationStore();
@@ -471,10 +496,7 @@ describe('PersonDetailsView', () => {
   // });
 
   test('filteredRollen returns correct roles based on person context and selection', async () => {
-    interface PersonDetailsViewType extends DefineComponent {
-      filteredRollen: ComputedRef<TranslatedRolleWithAttrs[] | undefined>;
-    }
-    const vm: PersonDetailsViewType = wrapper?.vm as unknown as PersonDetailsViewType;
+    const vm: PersonDetailsViewVm = wrapper?.vm as unknown as PersonDetailsViewVm;
     const filteredRollen: ComputedRef<TranslatedRolleWithAttrs[] | undefined> = vm.filteredRollen;
 
     // Verify that filteredRollen contains only roles that are not already assigned and filtered correctly
@@ -785,43 +807,23 @@ describe('PersonDetailsView', () => {
     await befristungInput?.setValue('12.08.2099');
     await nextTick();
 
-    await nextTick();
-
-    const submitButton: Element | null = document.body.querySelector(
-      '[data-testid="zuordnung-creation-submit-button"]',
-    );
-    expect(submitButton).not.toBeNull();
-    await nextTick();
-
-    if (submitButton) {
-      submitButton.dispatchEvent(new Event('click'));
-    }
-
+    const submitButton: Element = await waitForElement('[data-testid="zuordnung-creation-submit-button"]');
+    submitButton.dispatchEvent(new Event('click'));
     wrapper?.find('[data-testid="zuordnung-creation-submit-button"]').trigger('click');
-
     await flushPromises();
 
-    const confirmDialogButton: Element | null = document.body.querySelector(
-      '[data-testid="confirm-zuordnung-dialog-addition"]',
-    );
-    expect(confirmDialogButton).not.toBeNull();
-
-    if (confirmDialogButton) {
-      confirmDialogButton.dispatchEvent(new Event('click'));
-    }
+    const confirmDialogButton: Element = await waitForElement('[data-testid="confirm-zuordnung-dialog-addition"]');
+    confirmDialogButton.dispatchEvent(new Event('click'));
     await flushPromises();
 
-    const saveButton: Element | null = document.body.querySelector('[data-testid="zuordnung-changes-save"]');
-    expect(saveButton).not.toBeNull();
-
-    if (saveButton) {
-      saveButton.dispatchEvent(new Event('click'));
-    }
+    const saveButton: Element = await waitForElement('[data-testid="zuordnung-changes-save"]');
+    saveButton.dispatchEvent(new Event('click'));
     await flushPromises();
 
     const closeSuccessButton: Element | null = document.body.querySelector(
       '[data-testid="close-zuordnung-create-success-button"]',
     );
+
     expect(closeSuccessButton).not.toBeNull();
 
     if (closeSuccessButton) {
@@ -857,39 +859,98 @@ describe('PersonDetailsView', () => {
 
     await wrapper?.find('[data-testid="klasse-change-submit-button"]').trigger('click');
     await nextTick();
-
-    await flushPromises();
     await flushPromises();
 
-    const confirmDialogButton: Element | null = await document.body.querySelector(
-      '[data-testid="confirm-change-klasse-button"]',
-    );
-    expect(confirmDialogButton).not.toBeNull();
-
-    if (confirmDialogButton) {
-      confirmDialogButton.dispatchEvent(new Event('click'));
-    }
+    const confirmDialogButton: Element = await waitForElement('[data-testid="confirm-change-klasse-button"]');
+    confirmDialogButton.dispatchEvent(new Event('click'));
     await flushPromises();
 
-    const saveButton: Element | null = document.body.querySelector('[data-testid="zuordnung-changes-save"]');
-    expect(saveButton).not.toBeNull();
-
-    if (saveButton) {
-      saveButton.dispatchEvent(new Event('click'));
-    }
+    const saveButton: Element = await waitForElement('[data-testid="zuordnung-changes-save"]');
+    saveButton.dispatchEvent(new Event('click'));
     await flushPromises();
 
-    const closeSuccessButton: Element | null = document.body.querySelector(
-      '[data-testid="change-klasse-success-close"]',
-    );
-    expect(closeSuccessButton).not.toBeNull();
-
-    if (closeSuccessButton) {
-      closeSuccessButton.dispatchEvent(new Event('click'));
-    }
+    const closeSuccessButton: Element = await waitForElement('[data-testid="change-klasse-success-close"]');
+    closeSuccessButton.dispatchEvent(new Event('click'));
     await flushPromises();
 
     expect(wrapper?.find('[data-testid="zuordnung-edit-button"]').isVisible()).toBe(true);
+  });
+
+  test('changing Klasse keeps Klassen of other Schulen in update payload', async () => {
+    personStore.personenuebersicht = {
+      ...mockPersonenuebersicht,
+      zuordnungen: [
+        ...mockPersonenuebersicht.zuordnungen,
+        {
+          sskId: '4',
+          rolleId: '4',
+          sskName: 'Klasse B',
+          sskDstNr: '123459',
+          rolle: 'SuS',
+          rollenArt: RollenArt.Lern,
+          typ: OrganisationsTyp.Klasse,
+          administriertVon: '3',
+          editable: true,
+          merkmale: [] as unknown as RollenMerkmal,
+          befristung: '',
+          admins: ['test'],
+        },
+      ],
+    };
+
+    await nextTick();
+    await flushPromises();
+
+    if (!personenkontextStore.workflowStepResponse) {
+      throw new Error('workflowStepResponse is not defined');
+    }
+
+    personenkontextStore.workflowStepResponse.organisations.push({
+      id: '1',
+      administriertVon: 'string',
+      kennung: '123456',
+      name: 'Testschule Birmingham',
+      namensergaenzung: 'string',
+      kuerzel: 'TSB',
+      typ: 'SCHULE',
+    });
+
+    vi.spyOn(personenkontextStore, 'updatePersonenkontexte').mockResolvedValue(undefined as unknown as void);
+
+    organisationStore.getKlassenByOrganisationId = vi.fn().mockResolvedValue(undefined);
+
+    await wrapper?.find('[data-testid="zuordnung-edit-button"]').trigger('click');
+    await nextTick();
+
+    const checkbox: DOMWrapper<HTMLInputElement> | undefined = wrapper?.find(
+      '[data-testid="person-zuordnung-1"] input[type="checkbox"]',
+    );
+    await checkbox?.setValue(!checkbox.element.checked);
+    await nextTick();
+
+    await wrapper?.find('[data-testid="klasse-change-button"]').trigger('click');
+    await nextTick();
+
+    const klasseInput: VueWrapper | undefined = wrapper
+      ?.findComponent({ ref: 'klasse-change-form' })
+      .findComponent({ ref: 'klasse-select' });
+    await klasseInput?.setValue('9a');
+    await nextTick();
+
+    const vm: PersonDetailsViewVm = wrapper?.vm as unknown as PersonDetailsViewVm;
+    expect(typeof vm.confirmDialogChangeKlasse).toBe('function');
+    await vm.confirmDialogChangeKlasse();
+
+    const finalZuordnungen: ZuordnungForKlasseChange[] = vm.finalZuordnungen;
+
+    const keptKlasseForOtherSchule: ZuordnungForKlasseChange | undefined = finalZuordnungen.find(
+      (zuordnung: ZuordnungForKlasseChange) =>
+        zuordnung.typ === OrganisationsTyp.Klasse &&
+        zuordnung.administriertVon === '3' &&
+        zuordnung.sskName === 'Klasse B',
+    );
+
+    expect(keptKlasseForOtherSchule).toBeTruthy();
   });
 
   test('renders form to delete Zuordnung and triggers submit', async () => {
@@ -1093,45 +1154,24 @@ describe('PersonDetailsView', () => {
         await befristungInput?.setValue('13.08.2099');
         await nextTick();
 
-        const submitButton: Element | null = document.body.querySelector(
-          '[data-testid="change-befristung-submit-button"]',
-        );
-        expect(submitButton).not.toBeNull();
+        const submitButton: Element = await waitForElement('[data-testid="change-befristung-submit-button"]');
         await nextTick();
         await flushPromises();
 
-        if (submitButton) {
-          submitButton.dispatchEvent(new Event('click'));
-        }
+        submitButton.dispatchEvent(new Event('click'));
         await wrapper?.find('[data-testid="change-befristung-submit-button"]').trigger('click');
         await flushPromises();
 
-        const confirmDialogButton: Element | null = document.body.querySelector(
-          '[data-testid="confirm-change-befristung-button"]',
-        );
-        expect(confirmDialogButton).not.toBeNull();
-
-        if (confirmDialogButton) {
-          confirmDialogButton.dispatchEvent(new Event('click'));
-        }
+        const confirmDialogButton: Element = await waitForElement('[data-testid="confirm-change-befristung-button"]');
+        confirmDialogButton.dispatchEvent(new Event('click'));
         await flushPromises();
 
-        const saveButton: Element | null = document.body.querySelector('[data-testid="zuordnung-changes-save"]');
-        expect(saveButton).not.toBeNull();
-
-        if (saveButton) {
-          saveButton.dispatchEvent(new Event('click'));
-        }
+        const saveButton: Element = await waitForElement('[data-testid="zuordnung-changes-save"]');
+        saveButton.dispatchEvent(new Event('click'));
         await flushPromises();
 
-        const closeSuccessButton: Element | null = document.body.querySelector(
-          '[data-testid="change-befristung-success-close"]',
-        );
-        expect(closeSuccessButton).not.toBeNull();
-
-        if (closeSuccessButton) {
-          closeSuccessButton.dispatchEvent(new Event('click'));
-        }
+        const closeSuccessButton: Element = await waitForElement('[data-testid="change-befristung-success-close"]');
+        closeSuccessButton.dispatchEvent(new Event('click'));
         await flushPromises();
 
         expect(wrapper?.find('[data-testid="zuordnung-edit-button"]').isVisible()).toBe(true);
