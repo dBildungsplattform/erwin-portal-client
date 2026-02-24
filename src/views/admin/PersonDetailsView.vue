@@ -13,8 +13,6 @@
   import PersonenkontextDelete from '@/components/admin/personen/PersonenkontextDelete.vue';
   import SpshAlert from '@/components/alert/SpshAlert.vue';
   import LayoutCard from '@/components/cards/LayoutCard.vue';
-  import TokenReset from '@/components/two-factor-authentication/TokenReset.vue';
-  import TwoFactorAuthenticationSetUp from '@/components/two-factor-authentication/TwoFactorAuthenticationSetUp.vue';
   import { useKlassen } from '@/composables/useKlassen';
   import { useOrganisationen } from '@/composables/useOrganisationen';
   import { useRollen, type TranslatedRolleWithAttrs } from '@/composables/useRollen';
@@ -45,7 +43,6 @@
   } from '@/stores/PersonenkontextStore';
   import { RollenArt, RollenMerkmal } from '@/stores/RolleStore';
   import {
-    TokenKind,
     useTwoFactorAuthentificationStore,
     type TwoFactorAuthentificationStore,
   } from '@/stores/TwoFactorAuthentificationStore';
@@ -91,7 +88,8 @@
   const twoFactorAuthentificationStore: TwoFactorAuthentificationStore = useTwoFactorAuthentificationStore();
   const configStore: ConfigStore = useConfigStore();
 
-  const devicePassword: Ref<string> = ref('');
+  // Disabled for ErWIn-Portal because it is not needed atm.
+  // const devicePassword: Ref<string> = ref('');
   const password: Ref<string> = ref('');
 
   const zuordnungenResult: Ref<Zuordnung[] | undefined> = ref<Zuordnung[] | undefined>(undefined);
@@ -157,10 +155,11 @@
     password.value = personStore.newPassword || '';
   }
 
-  async function resetDevicePassword(personId: string): Promise<void> {
-    await personStore.resetDevicePassword(personId);
-    devicePassword.value = personStore.newDevicePassword || '';
-  }
+  // Disabled for ErWIn-Portal because reset device password functionality is not needed atm.
+  // async function resetDevicePassword(personId: string): Promise<void> {
+  //   await personStore.resetDevicePassword(personId);
+  //   devicePassword.value = personStore.newDevicePassword || '';
+  // }
 
   async function onLockUser(
     lockedBy: string,
@@ -537,13 +536,14 @@
   });
 
   // Used to show device password block
-  const hasLehrRolle: ComputedRef<boolean> = computed(() => {
-    return (
-      !!zuordnungenResult.value?.find((zuordnung: Zuordnung) => {
-        return zuordnung.rollenArt === RollenArt.Lehr;
-      }) || false
-    );
-  });
+  // Disabled for ErWIn-Portal because reset device password functionality is not needed atm.
+  // const hasLehrRolle: ComputedRef<boolean> = computed(() => {
+  //   return (
+  //     !!zuordnungenResult.value?.find((zuordnung: Zuordnung) => {
+  //       return zuordnung.rollenArt === RollenArt.Lehr;
+  //     }) || false
+  //   );
+  // });
 
   // Check if the button to change the Klasse should be active or not. Activate only if there is 1 selected Zuordnung and if it is of type LERN.
   const canChangeKlasse: ComputedRef<boolean> = computed(() => {
@@ -964,13 +964,14 @@
   });
 
   // Computed property to get the device password dialog text
-  const devicePasswordDialogText: ComputedRef<string> = computed(() => {
-    let message: string = t('admin.person.devicePassword.dialogText');
-    if (devicePassword.value) {
-      message = `${t('admin.person.devicePassword.createPasswordSuccessMessage')}\n\n` + message;
-    }
-    return message;
-  });
+  // Disabled for ErWIn-Portal because reset device password functionality is not needed atm.
+  // const devicePasswordDialogText: ComputedRef<string> = computed(() => {
+  //   let message: string = t('admin.person.devicePassword.dialogText');
+  //   if (devicePassword.value) {
+  //     message = `${t('admin.person.devicePassword.createPasswordSuccessMessage')}\n\n` + message;
+  //   }
+  //   return message;
+  // });
 
   const onSubmitChangeKlasse: (e?: Event | undefined) => Promise<void | undefined> = handleSubmitChangeKlasse(() => {
     changeKlasseConfirmationDialogMessage.value = t('person.changeKlasseConfirmation', {
@@ -1406,19 +1407,20 @@
     );
   });
 
-  const twoFactorAuthenticationConnectionError: ComputedRef<string> = computed(() => {
-    // Early return if loading
-    if (twoFactorAuthentificationStore.loading) return '';
+  // Disabled for ErWIn-Portal because 2FA is not needed atm.
+  // const twoFactorAuthenticationConnectionError: ComputedRef<string> = computed(() => {
+  //   // Early return if loading
+  //   if (twoFactorAuthentificationStore.loading) return '';
 
-    switch (twoFactorAuthentificationStore.errorCode) {
-      case 'TOKEN_STATE_ERROR':
-        return t('admin.person.twoFactorAuthentication.errors.tokenStateError');
-      case 'PI_UNAVAILABLE_ERROR':
-        return t('admin.person.twoFactorAuthentication.errors.connection');
-      default:
-        return '';
-    }
-  });
+  //   switch (twoFactorAuthentificationStore.errorCode) {
+  //     case 'TOKEN_STATE_ERROR':
+  //       return t('admin.person.twoFactorAuthentication.errors.tokenStateError');
+  //     case 'PI_UNAVAILABLE_ERROR':
+  //       return t('admin.person.twoFactorAuthentication.errors.connection');
+  //     default:
+  //       return '';
+  //   }
+  // });
 
   // Computed property to define what will be shown in the field Email depending on the returned status.
   const emailStatusText: ComputedRef<{
@@ -1645,10 +1647,10 @@
                 <span class="text-body">{{ personStore.currentPerson.person.referrer }} </span>
               </v-col>
             </v-row>
-            <!-- KoPers.-Nr. -->
-            <v-row
+            <!-- Disabled KoPers.-Nr. for ErWIn-Portal because it is not needed atm. -->
+            <!-- <v-row
               class="mt-0"
-              v-if="hasKopersRolle || personStore.currentPerson.person.personalnummer"
+              v-if="false && (hasKopersRolle || personStore.currentPerson.person.personalnummer)"
             >
               <v-col cols="1"></v-col>
               <v-col
@@ -1679,7 +1681,7 @@
                   {{ personStore.currentPerson.person.personalnummer ?? $t('missing') }}
                 </span>
               </v-col>
-            </v-row>
+            </v-row> -->
             <!-- Email -->
             <v-row
               v-if="emailStatusText.text !== $t('person.emailStatusUnknown')"
@@ -2497,7 +2499,8 @@
             </v-row>
           </v-container>
         </template>
-        <template
+        <!-- Disabled for ErWIn-Portal because 2FA is not needed atm. -->
+        <!-- <template
           v-else-if="twoFactorAuthentificationStore.required || twoFactorAuthentificationStore.hasToken === true"
         >
           <v-divider
@@ -2661,7 +2664,7 @@
               </template>
             </v-row>
           </v-container>
-        </template>
+        </template> -->
         <v-divider
           class="border-opacity-100 rounded my-6 mx-4"
           color="#E5EAEF"
@@ -2801,15 +2804,17 @@
               </div>
             </v-col>
             <v-col v-else-if="personStore.loading"> <v-progress-circular indeterminate></v-progress-circular></v-col>
-          </v-row> </v-container
-        ><v-divider
+          </v-row>
+        </v-container>
+        <!-- Disabled divider for ErWIn-Portal because it is not needed atm. -->
+        <!-- <v-divider
           v-if="hasLehrRolle"
           class="border-opacity-100 rounded my-6 mx-4"
           color="#E5EAEF"
           thickness="6"
-        ></v-divider>
-        <!-- reset device password -->
-        <v-container
+        ></v-divider> -->
+        <!-- Disabled reset device password for ErWIn-Portal because it is not needed atm. -->
+        <!-- <v-container
           v-if="hasLehrRolle"
           data-testid="device-password"
         >
@@ -2865,7 +2870,7 @@
               </div>
             </v-col>
           </v-row>
-        </v-container>
+        </v-container> -->
       </template>
     </LayoutCard>
     <!-- Success Dialog after deleting the Zuordnung-->
