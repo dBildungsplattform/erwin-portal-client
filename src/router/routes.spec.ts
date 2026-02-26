@@ -140,7 +140,7 @@ const routeExpectations: RouteConfigExpectation[] = [
   },
   {
     name: 'instructions',
-    path: '/anleitung',
+    path: '/anleitungen',
     layout: 'DefaultLayout',
     requiresAuth: false,
     requiredStepUpLevel: StepUpLevel.NONE,
