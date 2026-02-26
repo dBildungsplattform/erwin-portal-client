@@ -39,6 +39,6 @@ describe('InfoPlaceholderView', () => {
     });
 
     expect(wrapper.exists()).toBe(true);
-    expect(wrapper.text()).toContain('Anleitung - ErWIn Portal');
+    expect(wrapper.text()).toContain('Anleitungen - ErWIn Portal');
   });
 });

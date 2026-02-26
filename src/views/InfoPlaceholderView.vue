@@ -11,7 +11,7 @@
       return `${t('nav.help')} - ErWIn Portal`;
     }
     if (route.name === 'instructions') {
-      return `${t('footer.instructions')} - ErWIn Portal`;
+      return `${t('nav.instructions')} - ErWIn Portal`;
     }
     return 'ErWIn Portal';
   });

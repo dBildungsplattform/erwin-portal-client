@@ -170,7 +170,7 @@ const routes: readonly RouteRecordRaw[] = [
     meta: defaultLayoutMetaPublic,
   },
   {
-    path: '/anleitung',
+    path: '/anleitungen',
     name: 'instructions',
     component: () => import('../views/InfoPlaceholderView.vue'),
     meta: defaultLayoutMetaPublic,
