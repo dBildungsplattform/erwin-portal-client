@@ -29,7 +29,7 @@ describe('InfoPlaceholderView', () => {
   });
 
   test('instructions renders placeholder view with correct title', async () => {
-    router.push('/anleitung');
+    router.push('/anleitungen');
     await router.isReady();
 
     const wrapper: VueWrapper = mount(InfoPlaceholderView, {
