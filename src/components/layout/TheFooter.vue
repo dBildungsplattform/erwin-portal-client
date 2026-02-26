@@ -27,11 +27,6 @@
       external: false,
     },
     {
-      text: t('footer.instructions'),
-      href: '/anleitung',
-      external: false,
-    },
-    {
       text: t('footer.legalNotice'),
       href: '/impressum',
       external: false,
