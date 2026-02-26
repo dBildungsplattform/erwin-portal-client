@@ -496,8 +496,14 @@
     "legalNotice": "Impressum",
     "privacyPolicy": "Datenschutzerklärung"
   },
+  "help": {
+    "title": "Hilfe - ErWIn-Portal"
+  },
   "info": {
     "placeholder": "Diese Seite befindet sich derzeit im Aufbau. Weitere Informationen folgen in Kürze."
+  },
+  "instructions": {
+    "title": "Anleitungen - ErWIn-Portal"
   },
   "itemsPerPage": "Einträge pro Seite",
   "landingTitle": "Willkommen im ErWIn Portal.",

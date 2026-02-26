@@ -166,13 +166,13 @@ const routes: readonly RouteRecordRaw[] = [
   {
     path: '/hilfe',
     name: 'help',
-    component: () => import('../views/InfoPlaceholderView.vue'),
+    component: () => import('../views/HelpView.vue'),
     meta: defaultLayoutMetaPublic,
   },
   {
     path: '/anleitungen',
     name: 'instructions',
-    component: () => import('../views/InfoPlaceholderView.vue'),
+    component: () => import('../views/InstructionsView.vue'),
     meta: defaultLayoutMetaPublic,
   },
   {
