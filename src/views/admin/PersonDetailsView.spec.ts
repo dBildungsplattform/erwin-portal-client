@@ -809,7 +809,6 @@ describe('PersonDetailsView', () => {
 
     const submitButton: Element = await waitForElement('[data-testid="zuordnung-creation-submit-button"]');
     submitButton.dispatchEvent(new Event('click'));
-    wrapper?.find('[data-testid="zuordnung-creation-submit-button"]').trigger('click');
     await flushPromises();
 
     const confirmDialogButton: Element = await waitForElement('[data-testid="confirm-zuordnung-dialog-addition"]');
