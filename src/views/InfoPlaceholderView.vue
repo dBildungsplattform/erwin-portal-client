@@ -25,7 +25,7 @@
         md="8"
       >
         <h1 class="text-h4 mb-4">{{ pageTitle }}</h1>
-        <p>Diese Seite befindet sich derzeit im Aufbau. Weitere Informationen folgen in Kürze.</p>
+        <p>{{ t('info.placeholder') }}</p>
       </v-col>
     </v-row>
   </v-container>
