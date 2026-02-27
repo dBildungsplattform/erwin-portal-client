@@ -3243,6 +3243,7 @@ export type ServiceProviderSystem = typeof ServiceProviderSystem[keyof typeof Se
  */
 
 export const ServiceProviderTarget = {
+    Self: 'SELF',
     Url: 'URL',
     Email: 'EMAIL',
     SchulportalAdministration: 'SCHULPORTAL_ADMINISTRATION'

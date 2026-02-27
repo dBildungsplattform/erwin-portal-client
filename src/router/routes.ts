@@ -173,7 +173,7 @@ const routes: readonly RouteRecordRaw[] = [
     path: '/anleitungen',
     name: 'instructions',
     component: () => import('../views/InstructionsView.vue'),
-    meta: defaultLayoutMetaPublic,
+    meta: defaultLayoutMetaAuthenticated,
   },
   {
     path: '/:pathMatch(.*)*',
