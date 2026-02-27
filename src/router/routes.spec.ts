@@ -142,8 +142,8 @@ const routeExpectations: RouteConfigExpectation[] = [
     name: 'instructions',
     path: '/anleitungen',
     layout: 'DefaultLayout',
-    requiresAuth: false,
-    requiredStepUpLevel: StepUpLevel.NONE,
+    requiresAuth: true,
+    requiredStepUpLevel: StepUpLevel.SILVER,
   },
   {
     name: 'not-found',
