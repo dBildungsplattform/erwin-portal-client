@@ -1,8 +1,6 @@
 <script setup lang="ts">
   import { useI18n, type Composer } from 'vue-i18n';
-  function goBack(): void {
-    window.history.back();
-  }
+
   const { t }: Composer = useI18n({ useScope: 'global' });
 </script>
 
@@ -47,10 +45,10 @@
     <v-row justify="center">
       <v-btn
         class="primary"
-        @click="goBack"
         data-testid="back-button"
+        :href="'/start'"
       >
-        {{ $t('nav.back') }}
+        {{ $t('nav.backToStart') }}
       </v-btn>
     </v-row>
   </v-container>
