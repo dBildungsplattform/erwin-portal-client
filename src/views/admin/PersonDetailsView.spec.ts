@@ -47,6 +47,7 @@ interface PersonDetailsViewVm extends DefineComponent {
   closeChangeBefristungSuccessDialog: () => void;
   onSubmitChangePersonMetadata: (e?: Event) => Promise<Promise<void> | undefined>;
   handleSelectedKopersNrUpdate: (value: string | undefined | null) => void;
+  onSubmitCreateZuordnung: (e?: Event) => Promise<void | undefined>;
 }
 
 const waitForElement = async (selector: string, vueWrapper: VueWrapper | null): Promise<Element> => {
@@ -947,6 +948,131 @@ describe('PersonDetailsView', () => {
     await flushPromises();
 
     expect(wrapper?.find('[data-testid="zuordnung-edit-button"]').isVisible()).toBe(true);
+  });
+
+  test('opens confirmation dialog when creating Zuordnung for non-LERN Rolle', async () => {
+    const mockPersonenuebersichtForAddZuordnung: PersonWithUebersicht = {
+      personId: '1',
+      vorname: 'John',
+      nachname: 'Orton',
+      benutzername: 'jorton',
+      lastModifiedZuordnungen: Date.now().toLocaleString(),
+      zuordnungen: [],
+    };
+    personStore.personenuebersicht = mockPersonenuebersichtForAddZuordnung;
+
+    if (!personenkontextStore.workflowStepResponse) {
+      throw new Error('workflowStepResponse is not defined');
+    }
+
+    personenkontextStore.workflowStepResponse.rollen.push({
+      id: 'LEHR1',
+      createdAt: '2024-06-25T13:03:53.802Z',
+      updatedAt: '2024-06-25T13:03:53.802Z',
+      name: 'Lehrkraft',
+      administeredBySchulstrukturknoten: '1',
+      rollenart: RollenArt.Lehr,
+      merkmale: new Set<RollenMerkmal>(),
+      systemrechte: ['ROLLEN_VERWALTEN'] as unknown as Set<RollenSystemRecht>,
+      administeredBySchulstrukturknotenName: 'Land SH',
+      administeredBySchulstrukturknotenKennung: '',
+      version: 1,
+    });
+
+    await nextTick();
+
+    wrapper?.find('[data-testid="zuordnung-edit-button"]').trigger('click');
+    await nextTick();
+
+    wrapper?.find('[data-testid="zuordnung-create-button"]').trigger('click');
+    await flushPromises();
+
+    const organisationAutocomplete: VueWrapper | undefined = wrapper
+      ?.findComponent({ ref: 'personenkontext-create' })
+      .findComponent({ ref: 'organisation-select' });
+    await organisationAutocomplete?.setValue('O1');
+    await organisationAutocomplete?.vm.$emit('update:search', 'O1');
+    await nextTick();
+
+    const rolleAutocomplete: VueWrapper | undefined = wrapper
+      ?.findComponent({ ref: 'personenkontext-create' })
+      .findComponent({ ref: 'rolle-select' });
+    await rolleAutocomplete?.setValue('LEHR1');
+    await rolleAutocomplete?.vm.$emit('update:search', 'LEHR1');
+    await nextTick();
+
+    const befristungInput: VueWrapper | undefined = wrapper
+      ?.findComponent({ ref: 'personenkontext-create' })
+      .findComponent({ ref: 'befristung-input-wrapper' })
+      .findComponent({ ref: 'befristung-input' });
+    await befristungInput?.setValue('12.08.2099');
+    await nextTick();
+
+    const vm: PersonDetailsViewVm = wrapper?.vm as unknown as PersonDetailsViewVm;
+    await vm.onSubmitCreateZuordnung();
+    await flushPromises();
+
+    const confirmButton: Element | null = document.body.querySelector(
+      '[data-testid="confirm-zuordnung-dialog-addition"]',
+    );
+
+    expect(confirmButton).not.toBeNull();
+  });
+
+  test('opens confirmation dialog when creating Zuordnung for LERN Rolle', async () => {
+    const mockPersonenuebersichtForAddZuordnung: PersonWithUebersicht = {
+      personId: '1',
+      vorname: 'John',
+      nachname: 'Orton',
+      benutzername: 'jorton',
+      lastModifiedZuordnungen: Date.now().toLocaleString(),
+      zuordnungen: [],
+    };
+    personStore.personenuebersicht = mockPersonenuebersichtForAddZuordnung;
+
+    wrapper?.find('[data-testid="zuordnung-edit-button"]').trigger('click');
+    await nextTick();
+
+    wrapper?.find('[data-testid="zuordnung-create-button"]').trigger('click');
+    await flushPromises();
+
+    const organisationAutocomplete: VueWrapper | undefined = wrapper
+      ?.findComponent({ ref: 'personenkontext-create' })
+      .findComponent({ ref: 'organisation-select' });
+    await organisationAutocomplete?.setValue('O1');
+    await organisationAutocomplete?.vm.$emit('update:search', 'O1');
+    await nextTick();
+
+    const rolleAutocomplete: VueWrapper | undefined = wrapper
+      ?.findComponent({ ref: 'personenkontext-create' })
+      .findComponent({ ref: 'rolle-select' });
+    await rolleAutocomplete?.setValue('54321');
+    await rolleAutocomplete?.vm.$emit('update:search', '54321');
+    await nextTick();
+
+    const klasseAutocomplete: VueWrapper | undefined = wrapper
+      ?.findComponent({ ref: 'personenkontext-create' })
+      .findComponent({ ref: 'klasse-select' });
+    await klasseAutocomplete?.setValue('9a');
+    await klasseAutocomplete?.vm.$emit('update:search', '9a');
+    await nextTick();
+
+    const befristungInput: VueWrapper | undefined = wrapper
+      ?.findComponent({ ref: 'personenkontext-create' })
+      .findComponent({ ref: 'befristung-input-wrapper' })
+      .findComponent({ ref: 'befristung-input' });
+    await befristungInput?.setValue('12.08.2099');
+    await nextTick();
+
+    const vm: PersonDetailsViewVm = wrapper?.vm as unknown as PersonDetailsViewVm;
+    await vm.onSubmitCreateZuordnung();
+    await flushPromises();
+
+    const confirmButton: Element | null = document.body.querySelector(
+      '[data-testid="confirm-zuordnung-dialog-addition"]',
+    );
+
+    expect(confirmButton).not.toBeNull();
   });
 
   test('renders form to change Klasse and triggers submit', async () => {
