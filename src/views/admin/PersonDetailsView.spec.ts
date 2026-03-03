@@ -22,7 +22,7 @@ import {
 import { DoFactory } from '@/testing/DoFactory';
 import { adjustDateForTimezoneAndFormat } from '@/utils/date';
 import { DOMWrapper, flushPromises, mount, VueWrapper } from '@vue/test-utils';
-import { expect, test, type MockInstance } from 'vitest';
+import { expect, test, vi, type MockInstance } from 'vitest';
 import { nextTick, type ComputedRef, type DefineComponent } from 'vue';
 import { createRouter, createWebHistory, type Router } from 'vue-router';
 import PersonDetailsView from './PersonDetailsView.vue';
@@ -45,6 +45,8 @@ interface PersonDetailsViewVm extends DefineComponent {
   confirmDialogChangeBefristung: () => Promise<void> | void;
   closeChangeKlasseSuccessDialog: () => void;
   closeChangeBefristungSuccessDialog: () => void;
+  onSubmitChangePersonMetadata: (e?: Event) => Promise<Promise<void> | undefined>;
+  handleSelectedKopersNrUpdate: (value: string | undefined | null) => void;
 }
 
 const waitForElement = async (selector: string, vueWrapper: VueWrapper | null): Promise<Element> => {
@@ -635,6 +637,112 @@ describe('PersonDetailsView', () => {
     );
 
     expect(familienNameInput?.exists()).toBe(true);
+  });
+
+  test('onSubmitChangePersonMetadata updates only names when personal number is unchanged', async () => {
+    const vm: PersonDetailsViewVm = wrapper?.vm as unknown as PersonDetailsViewVm;
+
+    await wrapper?.find('[data-testid="metadata-edit-button"]').trigger('click');
+    await nextTick();
+
+    const metadataComponent: VueWrapper | undefined = wrapper?.findComponent({ ref: 'person-metadata-change' });
+    const vornameField: DOMWrapper<Element> | undefined = metadataComponent?.find('[data-testid="vorname-input"]');
+    const familiennameField: DOMWrapper<Element> | undefined = metadataComponent?.find(
+      '[data-testid="familienname-input"]',
+    );
+
+    await vornameField?.find('input').setValue('Johnny');
+    await familiennameField?.find('input').setValue('Ortonson');
+    await nextTick();
+
+    const changePersonMetadataSpy: MockInstance = vi
+      .spyOn(personStore, 'changePersonMetadataById')
+      .mockResolvedValue(undefined as unknown as void);
+
+    await vm.onSubmitChangePersonMetadata();
+    await flushPromises();
+
+    expect(changePersonMetadataSpy).toHaveBeenCalledTimes(1);
+    const callArgs: unknown[] = changePersonMetadataSpy.mock.calls[0] ?? [];
+    expect(callArgs[1]).toBe('Johnny');
+    expect(callArgs[2]).toBe('Ortonson');
+    expect(callArgs[3]).toBeUndefined();
+
+    const successElement: Element | null = document.querySelector('.metadata-success-message');
+    expect(successElement).not.toBeNull();
+
+    changePersonMetadataSpy.mockRestore();
+  });
+
+  test('onSubmitChangePersonMetadata updates names and personal number when it has changed', async () => {
+    const vm: PersonDetailsViewVm = wrapper?.vm as unknown as PersonDetailsViewVm;
+
+    await wrapper?.find('[data-testid="metadata-edit-button"]').trigger('click');
+    await nextTick();
+
+    const metadataComponent: VueWrapper | undefined = wrapper?.findComponent({ ref: 'person-metadata-change' });
+    const vornameField: DOMWrapper<Element> | undefined = metadataComponent?.find('[data-testid="vorname-input"]');
+    const familiennameField: DOMWrapper<Element> | undefined = metadataComponent?.find(
+      '[data-testid="familienname-input"]',
+    );
+
+    await vornameField?.find('input').setValue('John');
+    await familiennameField?.find('input').setValue('Orton');
+    await nextTick();
+
+    vm.handleSelectedKopersNrUpdate('999999');
+
+    const changePersonMetadataSpy: MockInstance = vi
+      .spyOn(personStore, 'changePersonMetadataById')
+      .mockResolvedValue(undefined as unknown as void);
+
+    await vm.onSubmitChangePersonMetadata();
+    await flushPromises();
+
+    expect(changePersonMetadataSpy).toHaveBeenCalledTimes(1);
+    const callArgs: unknown[] = changePersonMetadataSpy.mock.calls[0] ?? [];
+    expect(callArgs[1]).toBe('John');
+    expect(callArgs[2]).toBe('Orton');
+    expect(callArgs[3]).toBe('999999');
+
+    changePersonMetadataSpy.mockRestore();
+  });
+
+  test('onSubmitChangePersonMetadata updates names when no personal number is present', async () => {
+    const vm: PersonDetailsViewVm = wrapper?.vm as unknown as PersonDetailsViewVm;
+
+    if (personStore.currentPerson) {
+      personStore.currentPerson.person.personalnummer = undefined as unknown as string;
+    }
+    await nextTick();
+
+    await wrapper?.find('[data-testid="metadata-edit-button"]').trigger('click');
+    await nextTick();
+
+    const metadataComponent: VueWrapper | undefined = wrapper?.findComponent({ ref: 'person-metadata-change' });
+    const vornameField: DOMWrapper<Element> | undefined = metadataComponent?.find('[data-testid="vorname-input"]');
+    const familiennameField: DOMWrapper<Element> | undefined = metadataComponent?.find(
+      '[data-testid="familienname-input"]',
+    );
+
+    await vornameField?.find('input').setValue('Jane');
+    await familiennameField?.find('input').setValue('Doe');
+    await nextTick();
+
+    const changePersonMetadataSpy: MockInstance = vi
+      .spyOn(personStore, 'changePersonMetadataById')
+      .mockResolvedValue(undefined as unknown as void);
+
+    await vm.onSubmitChangePersonMetadata();
+    await flushPromises();
+
+    expect(changePersonMetadataSpy).toHaveBeenCalledTimes(1);
+    const callArgs: unknown[] = changePersonMetadataSpy.mock.calls[0] ?? [];
+    expect(callArgs[1]).toBe('Jane');
+    expect(callArgs[2]).toBe('Doe');
+    expect(callArgs[3]).toBeUndefined();
+
+    changePersonMetadataSpy.mockRestore();
   });
 
   test('it checks for dirtiness when metadata Form is active', async () => {
