@@ -248,6 +248,21 @@ describe('KlassenManagementView', () => {
     expect(klasseAutocomplete?.text()).toEqual('');
   });
 
+  it('fetches Klassen matching search when no Schule is selected', async () => {
+    const klasseAutocomplete: VueWrapper | undefined = wrapper?.findComponent({ ref: 'klasse-select' });
+
+    await klasseAutocomplete?.vm.$emit('update:search', '9a');
+    await flushPromises();
+
+    expect(organisationStore.getAllOrganisationen).toHaveBeenLastCalledWith({
+      offset: 0,
+      limit: searchFilterStore.klassenPerPage,
+      searchString: '9a',
+      includeTyp: OrganisationsTyp.Klasse,
+      systemrechte: ['KLASSEN_VERWALTEN'],
+    });
+  });
+
   it('should fetch all Klassen when search string is empty and no Schule is selected', async () => {
     const klasseAutocomplete: VueWrapper | undefined = wrapper?.findComponent({ ref: 'klasse-select' });
 
@@ -277,6 +292,47 @@ describe('KlassenManagementView', () => {
       systemrechte: ['KLASSEN_VERWALTEN'],
     };
     expect(organisationStore.getAllOrganisationen).toHaveBeenLastCalledWith(expectedFilter);
+  });
+
+  it('fetches Klassen matching search for selected Schule when no Klassen are selected', async () => {
+    const schule: Organisation = (await selectSchule())!;
+    const klasseAutocomplete: VueWrapper | undefined = wrapper?.findComponent({ ref: 'klasse-select' });
+
+    await klasseAutocomplete?.vm.$emit('update:search', '9b');
+    await flushPromises();
+
+    expect(organisationStore.getAllOrganisationen).toHaveBeenLastCalledWith({
+      offset: 0,
+      limit: searchFilterStore.klassenPerPage,
+      administriertVon: [schule.id],
+      searchString: '9b',
+      includeTyp: OrganisationsTyp.Klasse,
+      systemrechte: ['KLASSEN_VERWALTEN'],
+      organisationIds: [],
+    });
+  });
+
+  it('fetches Klassen for selected Schule and selected Klassen when search is cleared', async () => {
+    const schule: Organisation = (await selectSchule())!;
+    const klasseAutocomplete: VueWrapper | undefined = wrapper?.findComponent({ ref: 'klasse-select' });
+
+    const selectedKlasseId: string = 'K1';
+
+    await klasseAutocomplete?.setValue(selectedKlasseId);
+    await nextTick();
+
+    await klasseAutocomplete?.vm.$emit('update:search', '');
+    await flushPromises();
+
+    expect(organisationStore.getAllOrganisationen).toHaveBeenLastCalledWith({
+      searchString: '',
+      offset: 0,
+      limit: searchFilterStore.klassenPerPage,
+      administriertVon: [schule.id],
+      includeTyp: OrganisationsTyp.Klasse,
+      systemrechte: ['KLASSEN_VERWALTEN'],
+      organisationIds: selectedKlasseId,
+    });
   });
 
   test('it does nothing if same schule is selected again', async () => {
