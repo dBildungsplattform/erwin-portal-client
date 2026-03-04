@@ -16,7 +16,7 @@ import {
   type PersonenkontextWorkflowResponse,
 } from '@/stores/PersonenkontextStore';
 import { Vertrauensstufe, type DBiamPersonResponse } from '@/api-client/generated';
-import { useOrganisationStore, type OrganisationStore } from '@/stores/OrganisationStore';
+import { useOrganisationStore, type OrganisationStore, type Organisation } from '@/stores/OrganisationStore';
 import { type PersonStore, usePersonStore } from '@/stores/PersonStore';
 import {
   RollenMerkmal,
@@ -27,6 +27,16 @@ import {
 } from '@/stores/RolleStore';
 import { EmailAddressStatus } from '@/api-client/generated/api';
 import type Module from 'module';
+
+type PersonCreationViewVm = {
+  selectedRollen: string[] | undefined;
+  selectedKlasse: string | undefined;
+  handleFieldReset: (field: string) => void;
+  translatedKlassenname: string;
+  filteredRollenCache: Array<{ value: string; title: string; rollenart: string }>;
+  selectedKlasseCache: string | undefined;
+  selectedRolleCache: string[] | undefined;
+};
 
 let wrapper: VueWrapper | null = null;
 let router: Router;
@@ -388,6 +398,28 @@ describe('PersonCreationView', () => {
     expect(personenkontextStore.createdPersonWithKontext).toBe(null);
   });
 
+  test('handleFieldReset clears selectedRollen', () => {
+    const vm: PersonCreationViewVm = wrapper?.vm as unknown as PersonCreationViewVm;
+
+    vm.selectedRollen = ['1'];
+    expect(vm.selectedRollen).toEqual(['1']);
+
+    vm.handleFieldReset('selectedRollen');
+
+    expect(vm.selectedRollen).toBeUndefined();
+  });
+
+  test('handleFieldReset clears selectedKlasse', () => {
+    const vm: PersonCreationViewVm = wrapper?.vm as unknown as PersonCreationViewVm;
+
+    vm.selectedKlasse = '9a';
+    expect(vm.selectedKlasse).toBe('9a');
+
+    vm.handleFieldReset('selectedKlasse');
+
+    expect(vm.selectedKlasse).toBeUndefined();
+  });
+
   test('it fills form and triggers submit', async () => {
     personenkontextStore.workflowStepResponse = {
       organisations: [
@@ -600,6 +632,65 @@ describe('PersonCreationView', () => {
     wrapper?.find('[data-testid="to-details-button"]').trigger('click');
     await nextTick();
     expect(push).toHaveBeenCalledWith({ name: 'person-details', params: { id: '1' } });
+  });
+
+  test('translatedKlassenname returns empty string when no Klassenkontext exists', () => {
+    const vm: PersonCreationViewVm = wrapper?.vm as unknown as PersonCreationViewVm;
+
+    expect(vm.translatedKlassenname).toBe('');
+  });
+
+  test('translatedKlassenname shows Klassen title in success template when Klassenkontext exists', async () => {
+    const vm: PersonCreationViewVm = wrapper?.vm as unknown as PersonCreationViewVm;
+
+    // Make sure there is a Klasse available for translation
+    organisationStore.klassen = [
+      {
+        id: 'K1',
+        name: 'Klasse 9a',
+        kennung: 'K1',
+        namensergaenzung: '',
+        kuerzel: '9a',
+        typ: 'KLASSE' as unknown as string,
+        administriertVon: '9876',
+      } as unknown as Organisation,
+    ];
+
+    // Ensure isLernRolle returns true for the created Kontext
+    vm.filteredRollenCache = [
+      {
+        value: '1',
+        title: 'SuS',
+        rollenart: 'LERN',
+      },
+    ];
+
+    // Cache the selected Klasse and Rolle IDs as the component would do on submit
+    vm.selectedKlasseCache = 'K1';
+    vm.selectedRolleCache = ['1'];
+
+    personenkontextStore.createdPersonWithKontext = {
+      ...mockCreatedPersonWithKontext,
+      dBiamPersonenkontextResponses: [
+        ...mockCreatedPersonWithKontext.dBiamPersonenkontextResponses,
+        {
+          befristung: '2024-05-06',
+          personId: '1',
+          organisationId: 'K1',
+          rolleId: '1',
+        },
+      ],
+    } as DBiamPersonResponse;
+
+    await nextTick();
+
+    expect(wrapper?.find('[data-testid="person-success-text"]').isVisible()).toBe(true);
+
+    const klasseElement: ReturnType<VueWrapper['find']> | undefined = wrapper?.find(
+      '[data-testid="created-person-klasse"]',
+    );
+    expect(klasseElement?.exists()).toBe(true);
+    expect(klasseElement?.text()).toBe('Klasse 9a');
   });
 
   describe('navigation interception', () => {
