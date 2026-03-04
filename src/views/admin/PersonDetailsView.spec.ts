@@ -746,25 +746,94 @@ describe('PersonDetailsView', () => {
     changePersonMetadataSpy.mockRestore();
   });
 
-  test('it checks for dirtiness when metadata Form is active', async () => {
-    await wrapper?.find('[data-testid="metadata-edit-button"]').trigger('click');
-    await nextTick();
+  describe('isFormDirty', () => {
+    test('shows unsaved changes dialog when metadata form is dirty', async () => {
+      await wrapper?.find('[data-testid="metadata-edit-button"]').trigger('click');
+      await nextTick();
 
-    await wrapper
-      ?.findComponent({ ref: 'person-metadata-change' })
-      .findComponent({ ref: 'vorname-input' })
-      .setValue('test');
-    await nextTick();
+      await wrapper
+        ?.findComponent({ ref: 'person-metadata-change' })
+        .findComponent({ ref: 'vorname-input' })
+        .setValue('test');
+      await nextTick();
 
-    location.reload();
+      window.dispatchEvent(new Event('beforeunload'));
 
-    await nextTick();
+      await nextTick();
 
-    const unsavedChangesDialogButton: VueWrapper | undefined = await wrapper?.findComponent({
-      ref: 'unsaved-changes-dialog',
+      const unsavedChangesDialogButton: VueWrapper | undefined = await wrapper?.findComponent({
+        ref: 'unsaved-changes-dialog',
+      });
+
+      expect(unsavedChangesDialogButton?.exists()).toBe(true);
     });
 
-    expect(unsavedChangesDialogButton?.exists()).toBe(true);
+    test('shows unsaved changes dialog when change Klasse form is dirty', async () => {
+      await wrapper?.find('[data-testid="zuordnung-edit-button"]').trigger('click');
+      await nextTick();
+
+      const checkbox: DOMWrapper<HTMLInputElement> | undefined = wrapper?.find(
+        '[data-testid="person-zuordnung-1"] input[type="checkbox"]',
+      );
+      await checkbox?.setValue(!checkbox.element.checked);
+      await nextTick();
+
+      await wrapper?.find('[data-testid="klasse-change-button"]').trigger('click');
+      await nextTick();
+
+      await wrapper
+        ?.findComponent({ ref: 'klasse-change-form' })
+        .findComponent({ ref: 'klasse-select' })
+        .setValue('9a');
+      await nextTick();
+
+      window.dispatchEvent(new Event('beforeunload'));
+
+      await nextTick();
+
+      const unsavedChangesDialogButton: VueWrapper | undefined = await wrapper?.findComponent({
+        ref: 'unsaved-changes-dialog',
+      });
+
+      expect(unsavedChangesDialogButton?.exists()).toBe(true);
+    });
+
+    test('shows unsaved changes dialog when Zuordnung creation form is dirty', async () => {
+      const mockPersonenuebersichtForAddZuordnung: PersonWithUebersicht = {
+        personId: '1',
+        vorname: 'John',
+        nachname: 'Orton',
+        benutzername: 'jorton',
+        lastModifiedZuordnungen: Date.now().toLocaleString(),
+        zuordnungen: [],
+      };
+      personStore.personenuebersicht = mockPersonenuebersichtForAddZuordnung;
+
+      await nextTick();
+
+      wrapper?.find('[data-testid="zuordnung-edit-button"]').trigger('click');
+      await nextTick();
+
+      wrapper?.find('[data-testid="zuordnung-create-button"]').trigger('click');
+      await flushPromises();
+
+      const organisationAutocomplete: VueWrapper | undefined = wrapper
+        ?.findComponent({ ref: 'personenkontext-create' })
+        .findComponent({ ref: 'organisation-select' });
+      await organisationAutocomplete?.setValue('O1');
+      await organisationAutocomplete?.vm.$emit('update:search', 'O1');
+      await nextTick();
+
+      window.dispatchEvent(new Event('beforeunload'));
+
+      await nextTick();
+
+      const unsavedChangesDialogButton: VueWrapper | undefined = await wrapper?.findComponent({
+        ref: 'unsaved-changes-dialog',
+      });
+
+      expect(unsavedChangesDialogButton?.exists()).toBe(true);
+    });
   });
 
   test('it cancels metadata form', async () => {
