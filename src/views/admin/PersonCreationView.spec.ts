@@ -610,6 +610,29 @@ describe('PersonCreationView', () => {
     expect(wrapper?.find('[data-testid="person-success-text"]').isVisible()).toBe(true);
   });
 
+  test('it fills form, triggers discard and then resets form because of error code', async () => {
+    personenkontextStore.workflowStepResponse = mockWorkflowStepResponse;
+
+    const selectors: Partial<FormSelectors> = await fillForm({
+      organisationsebene: '9876',
+      rollen: ['1'],
+      befristung: '12.08.2099',
+      vorname: 'Randy',
+      nachname: 'Cena',
+      kopersNr: '23234',
+    });
+    await nextTick();
+
+    personenkontextStore.createdPersonWithKontext = mockCreatedPersonWithKontext;
+    personenkontextStore.errorCode = 'REQUIRED_STEP_UP_LEVEL_NOT_MET';
+    personStore.errorCode = 'REQUIRED_STEP_UP_LEVEL_NOT_MET';
+
+    wrapper?.find('[data-testid="person-creation-form-discard-button"]').trigger('click');
+    await flushPromises();
+
+    expect(selectors.organisationsebeneSelect?.vm.$data).toStrictEqual({});
+  });
+
   test('it renders success template and navigates back to form', async () => {
     personenkontextStore.createdPersonWithKontext = mockCreatedPersonWithKontext;
     await nextTick();
