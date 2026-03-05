@@ -610,7 +610,7 @@ describe('PersonCreationView', () => {
     expect(wrapper?.find('[data-testid="person-success-text"]').isVisible()).toBe(true);
   });
 
-  test('it fills form, triggers discard and then resets form because of error code REQUIRED_STEP_UP_LEVEL_NOT_MET', async () => {
+  test('it fills form, triggers discard and then resets form because of error code', async () => {
     personenkontextStore.workflowStepResponse = mockWorkflowStepResponse;
 
     const selectors: Partial<FormSelectors> = await fillForm({
