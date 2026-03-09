@@ -1,4 +1,3 @@
-import { StepUpLevel } from '@/stores/AuthStore';
 import type { RouteMeta, RouteRecordRaw } from 'vue-router';
 
 type Layout = 'DefaultLayout' | 'AdminLayout';
@@ -6,7 +5,6 @@ type Layout = 'DefaultLayout' | 'AdminLayout';
 interface BaseMeta extends RouteMeta {
   layout: Layout;
   requiresAuth: boolean;
-  requiredStepUpLevel?: StepUpLevel;
 }
 
 type AdminMeta = BaseMeta & { layout: 'AdminLayout' };
@@ -17,21 +15,14 @@ const adminMeta: AdminMeta = {
   requiresAuth: true,
 };
 
-const adminMetaWithGoldStepUp: AdminMeta = {
-  ...adminMeta,
-  requiredStepUpLevel: StepUpLevel.GOLD,
-};
-
 const defaultLayoutMetaAuthenticated: DefaultLayoutMeta = {
   layout: 'DefaultLayout',
   requiresAuth: true,
-  requiredStepUpLevel: StepUpLevel.SILVER,
 };
 
 const defaultLayoutMetaPublic: DefaultLayoutMeta = {
   layout: 'DefaultLayout',
   requiresAuth: false,
-  requiredStepUpLevel: StepUpLevel.NONE,
 };
 
 const routes: readonly RouteRecordRaw[] = [
@@ -46,7 +37,7 @@ const routes: readonly RouteRecordRaw[] = [
     name: 'person-management',
     component: () => import('../views/admin/PersonManagementView.vue'),
     meta: {
-      ...adminMetaWithGoldStepUp,
+      ...adminMeta,
       requiresPermission: 'personenverwaltung',
     },
   },
@@ -55,7 +46,7 @@ const routes: readonly RouteRecordRaw[] = [
     name: 'person-details',
     component: () => import('../views/admin/PersonDetailsView.vue'),
     meta: {
-      ...adminMetaWithGoldStepUp,
+      ...adminMeta,
       requiresPermission: 'personenverwaltung',
     },
   },
@@ -64,7 +55,7 @@ const routes: readonly RouteRecordRaw[] = [
     name: 'create-person',
     component: () => import('../views/admin/PersonCreationView.vue'),
     meta: {
-      ...adminMetaWithGoldStepUp,
+      ...adminMeta,
       requiresPermission: ['personenverwaltung', 'personenanlegen'],
     },
   },
@@ -82,7 +73,7 @@ const routes: readonly RouteRecordRaw[] = [
     name: 'klasse-management',
     component: () => import('../views/admin/organisationen/KlassenManagementView.vue'),
     meta: {
-      ...adminMetaWithGoldStepUp,
+      ...adminMeta,
       requiresPermission: 'klassenverwaltung',
     },
   },
@@ -91,7 +82,7 @@ const routes: readonly RouteRecordRaw[] = [
     name: 'create-klasse',
     component: () => import('../views/admin/organisationen/KlasseCreationView.vue'),
     meta: {
-      ...adminMetaWithGoldStepUp,
+      ...adminMeta,
       requiresPermission: 'klassenverwaltung',
     },
   },
@@ -100,7 +91,7 @@ const routes: readonly RouteRecordRaw[] = [
     name: 'klasse-details',
     component: () => import('../views/admin/organisationen/KlasseDetailsView.vue'),
     meta: {
-      ...adminMetaWithGoldStepUp,
+      ...adminMeta,
       requiresPermission: 'klassenverwaltung',
     },
   },
@@ -109,7 +100,7 @@ const routes: readonly RouteRecordRaw[] = [
     name: 'create-rolle',
     component: () => import('../views/admin/rollen/RolleCreationView.vue'),
     meta: {
-      ...adminMetaWithGoldStepUp,
+      ...adminMeta,
       requiresPermission: 'rollenverwaltung',
     },
   },
@@ -118,7 +109,7 @@ const routes: readonly RouteRecordRaw[] = [
     name: 'rolle-details',
     component: () => import('../views/admin/rollen/RolleDetailsView.vue'),
     meta: {
-      ...adminMetaWithGoldStepUp,
+      ...adminMeta,
       requiresPermission: 'rollenverwaltung',
     },
   },
@@ -127,7 +118,7 @@ const routes: readonly RouteRecordRaw[] = [
     name: 'rolle-management',
     component: () => import('../views/admin/rollen/RolleManagementView.vue'),
     meta: {
-      ...adminMetaWithGoldStepUp,
+      ...adminMeta,
       requiresPermission: 'rollenverwaltung',
     },
   },
@@ -136,7 +127,7 @@ const routes: readonly RouteRecordRaw[] = [
     name: 'schule-management',
     component: () => import('../views/admin/organisationen/SchuleManagementView.vue'),
     meta: {
-      ...adminMetaWithGoldStepUp,
+      ...adminMeta,
       requiresPermission: 'schulverwaltung',
     },
   },
@@ -190,7 +181,7 @@ const routes: readonly RouteRecordRaw[] = [
     name: 'rolle-mapping',
     component: () => import('../views/admin/RolleMappingView.vue'),
     meta: {
-      ...adminMetaWithGoldStepUp,
+      ...adminMeta,
       requiresPermission: 'rollenverwaltung',
     },
   },
@@ -200,7 +191,7 @@ const routes: readonly RouteRecordRaw[] = [
     name: 'schultraeger-management',
     component: () => import('../views/admin/organisationen/SchultraegerManagementView.vue'),
     meta: {
-      ...adminMetaWithGoldStepUp,
+      ...adminMeta,
       requiresPermission: 'schultraegerverwaltung',
     },
   },
@@ -209,7 +200,7 @@ const routes: readonly RouteRecordRaw[] = [
     name: 'create-schultraeger',
     component: () => import('../views/admin/organisationen/SchultraegerCreationView.vue'),
     meta: {
-      ...adminMetaWithGoldStepUp,
+      ...adminMeta,
       requiresPermission: 'schultraegerverwaltung',
     },
   },
@@ -218,7 +209,7 @@ const routes: readonly RouteRecordRaw[] = [
     name: 'schultraeger-details',
     component: () => import('../views/admin/organisationen/SchultraegerDetailsView.vue'),
     meta: {
-      ...adminMetaWithGoldStepUp,
+      ...adminMeta,
       requiresPermission: 'schultraegerverwaltung',
     },
   },
@@ -227,7 +218,7 @@ const routes: readonly RouteRecordRaw[] = [
     name: 'hinweise-creation',
     component: () => import('../views/admin/HinweiseCreationView.vue'),
     meta: {
-      ...adminMetaWithGoldStepUp,
+      ...adminMeta,
       requiresPermission: ['portalverwaltung', 'hinweisebearbeiten'],
     },
   },
@@ -236,7 +227,7 @@ const routes: readonly RouteRecordRaw[] = [
     name: 'create-schule',
     component: () => import('../views/admin/organisationen/SchuleCreationView.vue'),
     meta: {
-      ...adminMetaWithGoldStepUp,
+      ...adminMeta,
       requiresPermission: 'schulverwaltung',
     },
   },

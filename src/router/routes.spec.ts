@@ -1,13 +1,11 @@
 import { describe, expect, test } from 'vitest';
 import routes from '@/router/routes';
-import { StepUpLevel } from '@/stores/AuthStore';
 
 type RouteConfigExpectation = {
   name: string;
   path: string;
   layout?: 'DefaultLayout' | 'AdminLayout';
   requiresAuth?: boolean;
-  requiredStepUpLevel?: StepUpLevel;
   requiresPermission?: string | string[];
 };
 
@@ -17,14 +15,12 @@ const routeExpectations: RouteConfigExpectation[] = [
     path: '/',
     layout: 'DefaultLayout',
     requiresAuth: false,
-    requiredStepUpLevel: StepUpLevel.NONE,
   },
   {
     name: 'person-management',
     path: '/admin/personen',
     layout: 'AdminLayout',
     requiresAuth: true,
-    requiredStepUpLevel: StepUpLevel.GOLD,
     requiresPermission: 'personenverwaltung',
   },
   {
@@ -32,7 +28,6 @@ const routeExpectations: RouteConfigExpectation[] = [
     path: '/admin/personen/:id',
     layout: 'AdminLayout',
     requiresAuth: true,
-    requiredStepUpLevel: StepUpLevel.GOLD,
     requiresPermission: 'personenverwaltung',
   },
   {
@@ -40,7 +35,6 @@ const routeExpectations: RouteConfigExpectation[] = [
     path: '/admin/personen/new',
     layout: 'AdminLayout',
     requiresAuth: true,
-    requiredStepUpLevel: StepUpLevel.GOLD,
     requiresPermission: ['personenverwaltung', 'personenanlegen'],
   },
   {
@@ -55,7 +49,6 @@ const routeExpectations: RouteConfigExpectation[] = [
     path: '/admin/klassen',
     layout: 'AdminLayout',
     requiresAuth: true,
-    requiredStepUpLevel: StepUpLevel.GOLD,
     requiresPermission: 'klassenverwaltung',
   },
   {
@@ -63,7 +56,6 @@ const routeExpectations: RouteConfigExpectation[] = [
     path: '/admin/klassen/new',
     layout: 'AdminLayout',
     requiresAuth: true,
-    requiredStepUpLevel: StepUpLevel.GOLD,
     requiresPermission: 'klassenverwaltung',
   },
   {
@@ -71,7 +63,6 @@ const routeExpectations: RouteConfigExpectation[] = [
     path: '/admin/klassen/:id',
     layout: 'AdminLayout',
     requiresAuth: true,
-    requiredStepUpLevel: StepUpLevel.GOLD,
     requiresPermission: 'klassenverwaltung',
   },
   {
@@ -79,7 +70,6 @@ const routeExpectations: RouteConfigExpectation[] = [
     path: '/admin/rollen/new',
     layout: 'AdminLayout',
     requiresAuth: true,
-    requiredStepUpLevel: StepUpLevel.GOLD,
     requiresPermission: 'rollenverwaltung',
   },
   {
@@ -87,7 +77,6 @@ const routeExpectations: RouteConfigExpectation[] = [
     path: '/admin/rollen/:id',
     layout: 'AdminLayout',
     requiresAuth: true,
-    requiredStepUpLevel: StepUpLevel.GOLD,
     requiresPermission: 'rollenverwaltung',
   },
   {
@@ -95,7 +84,6 @@ const routeExpectations: RouteConfigExpectation[] = [
     path: '/admin/rollen',
     layout: 'AdminLayout',
     requiresAuth: true,
-    requiredStepUpLevel: StepUpLevel.GOLD,
     requiresPermission: 'rollenverwaltung',
   },
   {
@@ -103,7 +91,6 @@ const routeExpectations: RouteConfigExpectation[] = [
     path: '/admin/schulen',
     layout: 'AdminLayout',
     requiresAuth: true,
-    requiredStepUpLevel: StepUpLevel.GOLD,
     requiresPermission: 'schulverwaltung',
   },
   {
@@ -111,7 +98,6 @@ const routeExpectations: RouteConfigExpectation[] = [
     path: '/start',
     layout: 'DefaultLayout',
     requiresAuth: true,
-    requiredStepUpLevel: StepUpLevel.SILVER,
   },
   {
     name: 'login-error',
@@ -122,28 +108,24 @@ const routeExpectations: RouteConfigExpectation[] = [
     path: '/profile',
     layout: 'DefaultLayout',
     requiresAuth: true,
-    requiredStepUpLevel: StepUpLevel.SILVER,
   },
   {
     name: 'imprint',
     path: '/impressum',
     layout: 'DefaultLayout',
     requiresAuth: false,
-    requiredStepUpLevel: StepUpLevel.NONE,
   },
   {
     name: 'help',
     path: '/hilfe',
     layout: 'DefaultLayout',
     requiresAuth: false,
-    requiredStepUpLevel: StepUpLevel.NONE,
   },
   {
     name: 'instructions',
     path: '/anleitungen',
     layout: 'DefaultLayout',
     requiresAuth: true,
-    requiredStepUpLevel: StepUpLevel.SILVER,
   },
   {
     name: 'not-found',
@@ -158,7 +140,6 @@ const routeExpectations: RouteConfigExpectation[] = [
     path: '/admin/rolle/mapping/:lms',
     layout: 'AdminLayout',
     requiresAuth: true,
-    requiredStepUpLevel: StepUpLevel.GOLD,
     requiresPermission: 'rollenverwaltung',
   },
 ];
@@ -177,10 +158,6 @@ function assertRouteConfig(expectation: RouteConfigExpectation): void {
 
   if (expectation.requiresAuth !== undefined) {
     expect(route?.meta?.['requiresAuth']).toBe(expectation.requiresAuth);
-  }
-
-  if (expectation.requiredStepUpLevel !== undefined) {
-    expect(route?.meta?.['requiredStepUpLevel']).toBe(expectation.requiredStepUpLevel);
   }
 
   if (expectation.requiresPermission !== undefined) {
