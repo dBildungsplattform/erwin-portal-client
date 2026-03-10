@@ -583,7 +583,7 @@ describe('PersonDetailsView', () => {
     }
   });
 
-  it('displays correct email status for Enabled', async () => {
+  test('displays correct email status for Enabled', async () => {
     setCurrentPerson(EmailAddressStatus.Enabled);
 
     await nextTick();
@@ -592,7 +592,7 @@ describe('PersonDetailsView', () => {
     expect(emailElement?.text()).toBe('test@example.com');
   });
 
-  it('displays correct email status for requested', async () => {
+  test('displays correct email status for requested', async () => {
     setCurrentPerson(EmailAddressStatus.Requested);
 
     await nextTick();
@@ -601,7 +601,7 @@ describe('PersonDetailsView', () => {
     expect(emailElement?.text()).toBe('wird erzeugt');
   });
 
-  it('displays correct email status for failed', async () => {
+  test('displays correct email status for failed', async () => {
     setCurrentPerson(EmailAddressStatus.Failed);
 
     await nextTick();
@@ -610,7 +610,7 @@ describe('PersonDetailsView', () => {
     expect(emailElement?.text()).toBe('fehlerhaft');
   });
 
-  it('displays correct email status for disabled', async () => {
+  test('displays correct email status for disabled', async () => {
     setCurrentPerson(EmailAddressStatus.Disabled);
 
     await nextTick();
@@ -619,7 +619,7 @@ describe('PersonDetailsView', () => {
     expect(emailElement?.text()).toBe('deaktiviert');
   });
 
-  it('displays correct email status for unknown', async () => {
+  test('displays correct email status for unknown', async () => {
     setCurrentPerson('UnknownStatus' as EmailAddressStatus);
 
     await nextTick();
@@ -640,114 +640,116 @@ describe('PersonDetailsView', () => {
     expect(familienNameInput?.exists()).toBe(true);
   });
 
-  test('onSubmitChangePersonMetadata updates only names when personal number is unchanged', async () => {
-    const vm: PersonDetailsViewVm = wrapper?.vm as unknown as PersonDetailsViewVm;
+  describe('onSubmitChangePersonMetadata', async () => {
+    test('it updates only names when personal number is unchanged', async () => {
+      const vm: PersonDetailsViewVm = wrapper?.vm as unknown as PersonDetailsViewVm;
 
-    await wrapper?.find('[data-testid="metadata-edit-button"]').trigger('click');
-    await nextTick();
+      await wrapper?.find('[data-testid="metadata-edit-button"]').trigger('click');
+      await nextTick();
 
-    const metadataComponent: VueWrapper | undefined = wrapper?.findComponent({ ref: 'person-metadata-change' });
-    const vornameField: DOMWrapper<Element> | undefined = metadataComponent?.find('[data-testid="vorname-input"]');
-    const familiennameField: DOMWrapper<Element> | undefined = metadataComponent?.find(
-      '[data-testid="familienname-input"]',
-    );
+      const metadataComponent: VueWrapper | undefined = wrapper?.findComponent({ ref: 'person-metadata-change' });
+      const vornameField: DOMWrapper<Element> | undefined = metadataComponent?.find('[data-testid="vorname-input"]');
+      const familiennameField: DOMWrapper<Element> | undefined = metadataComponent?.find(
+        '[data-testid="familienname-input"]',
+      );
 
-    await vornameField?.find('input').setValue('Johnny');
-    await familiennameField?.find('input').setValue('Ortonson');
-    await nextTick();
+      await vornameField?.find('input').setValue('Johnny');
+      await familiennameField?.find('input').setValue('Ortonson');
+      await nextTick();
 
-    const changePersonMetadataSpy: MockInstance = vi
-      .spyOn(personStore, 'changePersonMetadataById')
-      .mockResolvedValue(undefined as unknown as void);
+      const changePersonMetadataSpy: MockInstance = vi
+        .spyOn(personStore, 'changePersonMetadataById')
+        .mockResolvedValue(undefined as unknown as void);
 
-    await vm.onSubmitChangePersonMetadata();
-    await flushPromises();
+      await vm.onSubmitChangePersonMetadata();
+      await flushPromises();
 
-    expect(changePersonMetadataSpy).toHaveBeenCalledTimes(1);
-    const callArgs: unknown[] = changePersonMetadataSpy.mock.calls[0] ?? [];
-    expect(callArgs[1]).toBe('Johnny');
-    expect(callArgs[2]).toBe('Ortonson');
-    expect(callArgs[3]).toBeUndefined();
+      expect(changePersonMetadataSpy).toHaveBeenCalledTimes(1);
+      const callArgs: unknown[] = changePersonMetadataSpy.mock.calls[0] ?? [];
+      expect(callArgs[1]).toBe('Johnny');
+      expect(callArgs[2]).toBe('Ortonson');
+      expect(callArgs[3]).toBeUndefined();
 
-    const successElement: Element | null = document.querySelector('.metadata-success-message');
-    expect(successElement).not.toBeNull();
+      const successElement: Element | null = document.querySelector('.metadata-success-message');
+      expect(successElement).not.toBeNull();
 
-    changePersonMetadataSpy.mockRestore();
-  });
+      changePersonMetadataSpy.mockRestore();
+    });
 
-  test('onSubmitChangePersonMetadata updates names and personal number when it has changed', async () => {
-    const vm: PersonDetailsViewVm = wrapper?.vm as unknown as PersonDetailsViewVm;
+    test('it updates names and personal number when it has changed', async () => {
+      const vm: PersonDetailsViewVm = wrapper?.vm as unknown as PersonDetailsViewVm;
 
-    await wrapper?.find('[data-testid="metadata-edit-button"]').trigger('click');
-    await nextTick();
+      await wrapper?.find('[data-testid="metadata-edit-button"]').trigger('click');
+      await nextTick();
 
-    const metadataComponent: VueWrapper | undefined = wrapper?.findComponent({ ref: 'person-metadata-change' });
-    const vornameField: DOMWrapper<Element> | undefined = metadataComponent?.find('[data-testid="vorname-input"]');
-    const familiennameField: DOMWrapper<Element> | undefined = metadataComponent?.find(
-      '[data-testid="familienname-input"]',
-    );
+      const metadataComponent: VueWrapper | undefined = wrapper?.findComponent({ ref: 'person-metadata-change' });
+      const vornameField: DOMWrapper<Element> | undefined = metadataComponent?.find('[data-testid="vorname-input"]');
+      const familiennameField: DOMWrapper<Element> | undefined = metadataComponent?.find(
+        '[data-testid="familienname-input"]',
+      );
 
-    await vornameField?.find('input').setValue('John');
-    await familiennameField?.find('input').setValue('Orton');
-    await nextTick();
+      await vornameField?.find('input').setValue('John');
+      await familiennameField?.find('input').setValue('Orton');
+      await nextTick();
 
-    vm.handleSelectedKopersNrUpdate('999999');
+      vm.handleSelectedKopersNrUpdate('999999');
 
-    const changePersonMetadataSpy: MockInstance = vi
-      .spyOn(personStore, 'changePersonMetadataById')
-      .mockResolvedValue(undefined as unknown as void);
+      const changePersonMetadataSpy: MockInstance = vi
+        .spyOn(personStore, 'changePersonMetadataById')
+        .mockResolvedValue(undefined as unknown as void);
 
-    await vm.onSubmitChangePersonMetadata();
-    await flushPromises();
+      await vm.onSubmitChangePersonMetadata();
+      await flushPromises();
 
-    expect(changePersonMetadataSpy).toHaveBeenCalledTimes(1);
-    const callArgs: unknown[] = changePersonMetadataSpy.mock.calls[0] ?? [];
-    expect(callArgs[1]).toBe('John');
-    expect(callArgs[2]).toBe('Orton');
-    expect(callArgs[3]).toBe('999999');
+      expect(changePersonMetadataSpy).toHaveBeenCalledTimes(1);
+      const callArgs: unknown[] = changePersonMetadataSpy.mock.calls[0] ?? [];
+      expect(callArgs[1]).toBe('John');
+      expect(callArgs[2]).toBe('Orton');
+      expect(callArgs[3]).toBe('999999');
 
-    changePersonMetadataSpy.mockRestore();
-  });
+      changePersonMetadataSpy.mockRestore();
+    });
 
-  test('onSubmitChangePersonMetadata updates names when no personal number is present', async () => {
-    const vm: PersonDetailsViewVm = wrapper?.vm as unknown as PersonDetailsViewVm;
+    test('it updates names when no personal number is present', async () => {
+      const vm: PersonDetailsViewVm = wrapper?.vm as unknown as PersonDetailsViewVm;
 
-    if (personStore.currentPerson) {
-      personStore.currentPerson.person.personalnummer = undefined as unknown as string;
-    }
-    await nextTick();
+      if (personStore.currentPerson) {
+        personStore.currentPerson.person.personalnummer = undefined as unknown as string;
+      }
+      await nextTick();
 
-    await wrapper?.find('[data-testid="metadata-edit-button"]').trigger('click');
-    await nextTick();
+      await wrapper?.find('[data-testid="metadata-edit-button"]').trigger('click');
+      await nextTick();
 
-    const metadataComponent: VueWrapper | undefined = wrapper?.findComponent({ ref: 'person-metadata-change' });
-    const vornameField: DOMWrapper<Element> | undefined = metadataComponent?.find('[data-testid="vorname-input"]');
-    const familiennameField: DOMWrapper<Element> | undefined = metadataComponent?.find(
-      '[data-testid="familienname-input"]',
-    );
+      const metadataComponent: VueWrapper | undefined = wrapper?.findComponent({ ref: 'person-metadata-change' });
+      const vornameField: DOMWrapper<Element> | undefined = metadataComponent?.find('[data-testid="vorname-input"]');
+      const familiennameField: DOMWrapper<Element> | undefined = metadataComponent?.find(
+        '[data-testid="familienname-input"]',
+      );
 
-    await vornameField?.find('input').setValue('Jane');
-    await familiennameField?.find('input').setValue('Doe');
-    await nextTick();
+      await vornameField?.find('input').setValue('Jane');
+      await familiennameField?.find('input').setValue('Doe');
+      await nextTick();
 
-    const changePersonMetadataSpy: MockInstance = vi
-      .spyOn(personStore, 'changePersonMetadataById')
-      .mockResolvedValue(undefined as unknown as void);
+      const changePersonMetadataSpy: MockInstance = vi
+        .spyOn(personStore, 'changePersonMetadataById')
+        .mockResolvedValue(undefined as unknown as void);
 
-    await vm.onSubmitChangePersonMetadata();
-    await flushPromises();
+      await vm.onSubmitChangePersonMetadata();
+      await flushPromises();
 
-    expect(changePersonMetadataSpy).toHaveBeenCalledTimes(1);
-    const callArgs: unknown[] = changePersonMetadataSpy.mock.calls[0] ?? [];
-    expect(callArgs[1]).toBe('Jane');
-    expect(callArgs[2]).toBe('Doe');
-    expect(callArgs[3]).toBeUndefined();
+      expect(changePersonMetadataSpy).toHaveBeenCalledTimes(1);
+      const callArgs: unknown[] = changePersonMetadataSpy.mock.calls[0] ?? [];
+      expect(callArgs[1]).toBe('Jane');
+      expect(callArgs[2]).toBe('Doe');
+      expect(callArgs[3]).toBeUndefined();
 
-    changePersonMetadataSpy.mockRestore();
+      changePersonMetadataSpy.mockRestore();
+    });
   });
 
   describe('isFormDirty', () => {
-    test('shows unsaved changes dialog when metadata form is dirty', async () => {
+    test('it shows unsaved changes dialog when metadata form is dirty', async () => {
       await wrapper?.find('[data-testid="metadata-edit-button"]').trigger('click');
       await nextTick();
 
@@ -768,7 +770,7 @@ describe('PersonDetailsView', () => {
       expect(unsavedChangesDialogButton?.exists()).toBe(true);
     });
 
-    test('shows unsaved changes dialog when change Klasse form is dirty', async () => {
+    test('it shows unsaved changes dialog when change Klasse form is dirty', async () => {
       await wrapper?.find('[data-testid="zuordnung-edit-button"]').trigger('click');
       await nextTick();
 
@@ -798,7 +800,7 @@ describe('PersonDetailsView', () => {
       expect(unsavedChangesDialogButton?.exists()).toBe(true);
     });
 
-    test('shows unsaved changes dialog when Zuordnung creation form is dirty', async () => {
+    test('it shows unsaved changes dialog when Zuordnung creation form is dirty', async () => {
       const mockPersonenuebersichtForAddZuordnung: PersonWithUebersicht = {
         personId: '1',
         vorname: 'John',
@@ -944,7 +946,7 @@ describe('PersonDetailsView', () => {
     personStore.personenuebersicht = mockPersonenuebersicht;
   });
 
-  test('renders form to add Zuordnung and triggers submit', async () => {
+  test('it renders form to add Zuordnung and triggers submit', async () => {
     // No existing Zuordnungen for the user for easier testing
     const mockPersonenuebersichtForAddZuordnung: PersonWithUebersicht = {
       personId: '1',
@@ -1019,7 +1021,7 @@ describe('PersonDetailsView', () => {
     expect(wrapper?.find('[data-testid="zuordnung-edit-button"]').isVisible()).toBe(true);
   });
 
-  describe('when submitting Zuordnung creation form', () => {
+  describe('onSubmitCreateZuordnung', () => {
     const setupEmptyZuordnungen = (): void => {
       const mockPersonenuebersichtForAddZuordnung: PersonWithUebersicht = {
         personId: '1',
@@ -1098,7 +1100,7 @@ describe('PersonDetailsView', () => {
       await flushPromises();
     };
 
-    test('opens confirmation dialog when creating Zuordnung for non-LERN Rolle', async () => {
+    test('it opens confirmation dialog when creating Zuordnung for non-LERN Rolle', async () => {
       await submitZuordnungForm('LEHR1');
 
       const confirmButton: Element | null = document.body.querySelector(
@@ -1108,7 +1110,7 @@ describe('PersonDetailsView', () => {
       expect(confirmButton).not.toBeNull();
     });
 
-    it('opens confirmation dialog when creating Zuordnung for LERN Rolle', async () => {
+    test('it opens confirmation dialog when creating Zuordnung for LERN Rolle', async () => {
       await submitZuordnungForm('54321', true);
 
       const confirmButton: Element | null = document.body.querySelector(
@@ -1119,7 +1121,7 @@ describe('PersonDetailsView', () => {
     });
   });
 
-  test('renders form to change Klasse and triggers submit', async () => {
+  test('it renders form to change Klasse and triggers submit', async () => {
     organisationStore.getKlassenByOrganisationId = vi.fn().mockResolvedValue(undefined);
 
     await wrapper?.find('[data-testid="zuordnung-edit-button"]').trigger('click');
@@ -1160,7 +1162,7 @@ describe('PersonDetailsView', () => {
     expect(wrapper?.find('[data-testid="zuordnung-edit-button"]').isVisible()).toBe(true);
   });
 
-  test('changing Klasse keeps Klassen of other Schulen in update payload', async () => {
+  test('it keeps Klassen of other Schulen in update payload when changing Klasse', async () => {
     personStore.personenuebersicht = {
       ...mockPersonenuebersicht,
       zuordnungen: [
@@ -1237,7 +1239,7 @@ describe('PersonDetailsView', () => {
     expect(keptKlasseForOtherSchule).toBeTruthy();
   });
 
-  test('renders form to delete Zuordnung and triggers submit', async () => {
+  test('it renders form to delete Zuordnung and triggers submit', async () => {
     await wrapper?.find('[data-testid="zuordnung-edit-button"]').trigger('click');
     await nextTick();
 
@@ -1349,7 +1351,7 @@ describe('PersonDetailsView', () => {
       expect(wrapper?.find('[data-testid="befristung-change-button"]').exists()).toBe(false);
     });
 
-    test('button only active if one zuordnung is selected', async () => {
+    test('it keeps button only active if one zuordnung is selected', async () => {
       await wrapper?.find('[data-testid="zuordnung-edit-button"]').trigger('click');
       await nextTick();
       expect(wrapper?.find('[data-testid="befristung-change-button"]').attributes('disabled')).toBeDefined();
@@ -1390,7 +1392,7 @@ describe('PersonDetailsView', () => {
       [undefined, 'unbefristet'],
       [undefined, 'schuljahresende'],
     ])(
-      'renders form to change befristung with %s %s and triggers submit',
+      'it renders form to change befristung with %s %s and triggers submit',
       async (existingBefristung: string | undefined, existingBefristungOption: string | undefined) => {
         personStore.personenuebersicht = mockPersonenuebersichtLehr;
         if (personStore.personenuebersicht.zuordnungen[0]) {
