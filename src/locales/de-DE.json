@@ -168,7 +168,7 @@
         "PERSON_NOT_FOUND": "Der Benutzer wurde seit Ihrer letzten Änderung gelöscht und kann nicht mehr bearbeitet werden."
       },
       "generatedPassword": "Generiertes Passwort",
-      "homePageIQSH":"Homepage der IQSH-Medienberatung",
+      "homePageIQSH": "Homepage der IQSH-Medienberatung",
       "import": "Benutzer importieren",
       "loadingErrorText": "Es konnten keine Benutzerdaten geladen werden.",
       "loadingErrorTitle": "Fehler beim Laden des Benutzers",
@@ -179,7 +179,7 @@
       "personalInfoChangeNotice": "Namensänderungen haben unmittelbare Auswirkungen auf den Benutzernamen im ErWIn Portal und auf die E-Mail-Adresse! \n\nWeitere Informationen finden Sie auf der Homepage der IQSH-Medienberatung.",
       "personalInfoChangeNotice2": "Weitere Informationen finden Sie auf der ",
       "personalInfoSuccessDialogMessage": "Die Stammdaten wurden erfolgreich geändert.",
-      "personalInfoSuccessDialogMessageWithUsername": "Die Stammdaten wurden erfolgreich geändert.\n\nDas Passwort wurde nicht verändert und kann wie zuvor verwendet werden. \n\nBitte teilen Sie der betroffenen Person die Stammdatenänderung (Benutzername, Mail-Adresse) mit. \n\nDie neuen Daten können Sie in der Gesamtübersicht einsehen." ,
+      "personalInfoSuccessDialogMessageWithUsername": "Die Stammdaten wurden erfolgreich geändert.\n\nDas Passwort wurde nicht verändert und kann wie zuvor verwendet werden. \n\nBitte teilen Sie der betroffenen Person die Stammdatenänderung (Benutzername, Mail-Adresse) mit. \n\nDie neuen Daten können Sie in der Gesamtübersicht einsehen.",
       "printPassword": "Passwort drucken",
       "resetPasswordConfirmation": "Sind Sie sicher, dass Sie das Passwort für {firstname} {lastname} zurücksetzen möchten?",
       "resetPasswordInformation": "Bitte teilen Sie dem Benutzer das temporäre Passwort mit. Nach dem Schließen des Dialogs wird es aus Sicherheitsgründen nicht mehr angezeigt.",
@@ -496,6 +496,15 @@
     "legalNotice": "Impressum",
     "privacyPolicy": "Datenschutzerklärung"
   },
+  "help": {
+    "title": "Hilfe - ErWIn-Portal"
+  },
+  "info": {
+    "placeholder": "Diese Seite befindet sich derzeit im Aufbau. Weitere Informationen folgen in Kürze."
+  },
+  "instructions": {
+    "title": "Anleitungen - ErWIn-Portal"
+  },
   "itemsPerPage": "Einträge pro Seite",
   "landingTitle": "Willkommen im ErWIn Portal.",
   "login": {
@@ -521,6 +530,7 @@
     "navigation": "Navigation",
     "openMobileMenu": "Mobiles Menü öffnen",
     "help": "Hilfe",
+    "instructions": "Anleitungen",
     "profile": "Mein Profil",
     "backToPreviousPage": "Zurück zur vorherigen Seite"
   },
@@ -650,6 +660,15 @@
       "schoolOfferings": "Schulische Angebote",
       "workEmail": "Dienstliche E-Mail"
     }
+  },
+  "imprint": {
+    "title": "Impressum",
+    "providerTitle": "Dataport Bildungscloud | dBildungscloud Dataport AöR",
+    "address": "Altenholzer Straße 10-14\n24161 Altenholz",
+    "contact": "Telefon: +49 (431) 3295-0\nE-Mail: poststelle[at]dataport.de\nDe-Mail: poststelle[at]dataport.de-mail.de",
+    "boardTitle": "Dataport ist eine Anstalt des öffentlichen Rechts. Sie wird vertreten durch den Vorstand:",
+    "boardMembers": "Dr. Johann Bizer (Vorsitzender)\nAndreas Reichel\nTorsten Koß\nSilke Tessmann-Storch",
+    "vatId": "USt-IdNr. gemäß § 27a Umsatzsteuergesetz: DE813840400"
   },
   "transfer": "Versetzen",
   "unsavedChanges": {

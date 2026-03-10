@@ -52,19 +52,17 @@
 
     <v-toolbar-items>
       <v-col class="align-self-center mr-2">
-        <a
+        <router-link
           class="secondary"
           data-testid="help-button"
-          href="https://www.bmbf.de/bmbf/de/forschung/zukunftsstrategie/foerderung-in-der-forschung/foerderung-in-der-forschung_node.html"
-          rel="noopener noreferrer"
-          target="_blank"
+          to="/hilfe"
         >
           <v-icon
             class="hidden-md-and-up mr-2"
             icon="mdi-help-circle-outline"
           ></v-icon>
           <span class="hidden-sm-and-down">{{ $t('nav.help') }}</span>
-        </a>
+        </router-link>
       </v-col>
     </v-toolbar-items>
   </v-app-bar>

@@ -42,6 +42,9 @@
         return { url: serviceProvider.url, newTab: true };
       }
     }
+    if (serviceProvider.target === 'SELF') {
+      return { url: serviceProvider.url, newTab: false };
+    }
     return { url: getInternalServiceProviderUrl(serviceProvider.target), newTab: false };
   }
 </script>

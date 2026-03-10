@@ -1,25 +1,43 @@
-import { StepUpLevel } from '@/stores/AuthStore';
-import type { RouteRecordRaw } from 'vue-router';
+import type { RouteMeta, RouteRecordRaw } from 'vue-router';
+
+type Layout = 'DefaultLayout' | 'AdminLayout';
+
+interface BaseMeta extends RouteMeta {
+  layout: Layout;
+  requiresAuth: boolean;
+}
+
+type AdminMeta = BaseMeta & { layout: 'AdminLayout' };
+type DefaultLayoutMeta = BaseMeta & { layout: 'DefaultLayout' };
+
+const adminMeta: AdminMeta = {
+  layout: 'AdminLayout',
+  requiresAuth: true,
+};
+
+const defaultLayoutMetaAuthenticated: DefaultLayoutMeta = {
+  layout: 'DefaultLayout',
+  requiresAuth: true,
+};
+
+const defaultLayoutMetaPublic: DefaultLayoutMeta = {
+  layout: 'DefaultLayout',
+  requiresAuth: false,
+};
 
 const routes: readonly RouteRecordRaw[] = [
   {
     path: '/',
     name: 'landing',
     component: () => import('../views/LandingView.vue'),
-    meta: {
-      layout: 'DefaultLayout',
-      requiresAuth: false,
-      requiredStepUpLevel: StepUpLevel.NONE,
-    },
+    meta: defaultLayoutMetaPublic,
   },
   {
     path: '/admin/personen',
     name: 'person-management',
     component: () => import('../views/admin/PersonManagementView.vue'),
     meta: {
-      layout: 'AdminLayout',
-      requiresAuth: true,
-      requiredStepUpLevel: StepUpLevel.GOLD,
+      ...adminMeta,
       requiresPermission: 'personenverwaltung',
     },
   },
@@ -28,9 +46,7 @@ const routes: readonly RouteRecordRaw[] = [
     name: 'person-details',
     component: () => import('../views/admin/PersonDetailsView.vue'),
     meta: {
-      layout: 'AdminLayout',
-      requiresAuth: true,
-      requiredStepUpLevel: StepUpLevel.GOLD,
+      ...adminMeta,
       requiresPermission: 'personenverwaltung',
     },
   },
@@ -39,9 +55,7 @@ const routes: readonly RouteRecordRaw[] = [
     name: 'create-person',
     component: () => import('../views/admin/PersonCreationView.vue'),
     meta: {
-      layout: 'AdminLayout',
-      requiresAuth: true,
-      requiredStepUpLevel: StepUpLevel.GOLD,
+      ...adminMeta,
       requiresPermission: ['personenverwaltung', 'personenanlegen'],
     },
   },
@@ -50,8 +64,7 @@ const routes: readonly RouteRecordRaw[] = [
     name: 'person-import',
     component: () => import('../views/admin/PersonImportView.vue'),
     meta: {
-      layout: 'AdminLayout',
-      requiresAuth: true,
+      ...adminMeta,
       requiresPermission: 'personenimport',
     },
   },
@@ -60,9 +73,7 @@ const routes: readonly RouteRecordRaw[] = [
     name: 'klasse-management',
     component: () => import('../views/admin/organisationen/KlassenManagementView.vue'),
     meta: {
-      requiresAuth: true,
-      layout: 'AdminLayout',
-      requiredStepUpLevel: StepUpLevel.GOLD,
+      ...adminMeta,
       requiresPermission: 'klassenverwaltung',
     },
   },
@@ -71,9 +82,7 @@ const routes: readonly RouteRecordRaw[] = [
     name: 'create-klasse',
     component: () => import('../views/admin/organisationen/KlasseCreationView.vue'),
     meta: {
-      layout: 'AdminLayout',
-      requiresAuth: true,
-      requiredStepUpLevel: StepUpLevel.GOLD,
+      ...adminMeta,
       requiresPermission: 'klassenverwaltung',
     },
   },
@@ -82,9 +91,7 @@ const routes: readonly RouteRecordRaw[] = [
     name: 'klasse-details',
     component: () => import('../views/admin/organisationen/KlasseDetailsView.vue'),
     meta: {
-      layout: 'AdminLayout',
-      requiresAuth: true,
-      requiredStepUpLevel: StepUpLevel.GOLD,
+      ...adminMeta,
       requiresPermission: 'klassenverwaltung',
     },
   },
@@ -93,9 +100,7 @@ const routes: readonly RouteRecordRaw[] = [
     name: 'create-rolle',
     component: () => import('../views/admin/rollen/RolleCreationView.vue'),
     meta: {
-      layout: 'AdminLayout',
-      requiresAuth: true,
-      requiredStepUpLevel: StepUpLevel.GOLD,
+      ...adminMeta,
       requiresPermission: 'rollenverwaltung',
     },
   },
@@ -104,9 +109,7 @@ const routes: readonly RouteRecordRaw[] = [
     name: 'rolle-details',
     component: () => import('../views/admin/rollen/RolleDetailsView.vue'),
     meta: {
-      layout: 'AdminLayout',
-      requiresAuth: true,
-      requiredStepUpLevel: StepUpLevel.GOLD,
+      ...adminMeta,
       requiresPermission: 'rollenverwaltung',
     },
   },
@@ -115,9 +118,7 @@ const routes: readonly RouteRecordRaw[] = [
     name: 'rolle-management',
     component: () => import('../views/admin/rollen/RolleManagementView.vue'),
     meta: {
-      layout: 'AdminLayout',
-      requiresAuth: true,
-      requiredStepUpLevel: StepUpLevel.GOLD,
+      ...adminMeta,
       requiresPermission: 'rollenverwaltung',
     },
   },
@@ -126,9 +127,7 @@ const routes: readonly RouteRecordRaw[] = [
     name: 'schule-management',
     component: () => import('../views/admin/organisationen/SchuleManagementView.vue'),
     meta: {
-      layout: 'AdminLayout',
-      requiresAuth: true,
-      requiredStepUpLevel: StepUpLevel.GOLD,
+      ...adminMeta,
       requiresPermission: 'schulverwaltung',
     },
   },
@@ -136,11 +135,7 @@ const routes: readonly RouteRecordRaw[] = [
     path: '/start',
     name: 'start',
     component: () => import('../views/StartView.vue'),
-    meta: {
-      layout: 'DefaultLayout',
-      requiresAuth: true,
-      requiredStepUpLevel: StepUpLevel.SILVER,
-    },
+    meta: defaultLayoutMetaAuthenticated,
   },
   {
     path: '/login-error',
@@ -151,11 +146,25 @@ const routes: readonly RouteRecordRaw[] = [
     path: '/profile',
     name: 'profile',
     component: () => import('../views/ProfileView.vue'),
-    meta: {
-      layout: 'DefaultLayout',
-      requiresAuth: true,
-      requiredStepUpLevel: StepUpLevel.SILVER,
-    },
+    meta: defaultLayoutMetaAuthenticated,
+  },
+  {
+    path: '/impressum',
+    name: 'imprint',
+    component: () => import('../views/ImprintView.vue'),
+    meta: defaultLayoutMetaPublic,
+  },
+  {
+    path: '/hilfe',
+    name: 'help',
+    component: () => import('../views/HelpView.vue'),
+    meta: defaultLayoutMetaPublic,
+  },
+  {
+    path: '/anleitungen',
+    name: 'instructions',
+    component: () => import('../views/InstructionsView.vue'),
+    meta: defaultLayoutMetaAuthenticated,
   },
   {
     path: '/:pathMatch(.*)*',
@@ -172,9 +181,7 @@ const routes: readonly RouteRecordRaw[] = [
     name: 'rolle-mapping',
     component: () => import('../views/admin/RolleMappingView.vue'),
     meta: {
-      layout: 'AdminLayout',
-      requiresAuth: true,
-      requiredStepUpLevel: StepUpLevel.GOLD,
+      ...adminMeta,
       requiresPermission: 'rollenverwaltung',
     },
   },
@@ -184,9 +191,7 @@ const routes: readonly RouteRecordRaw[] = [
     name: 'schultraeger-management',
     component: () => import('../views/admin/organisationen/SchultraegerManagementView.vue'),
     meta: {
-      layout: 'AdminLayout',
-      requiresAuth: true,
-      requiredStepUpLevel: StepUpLevel.GOLD,
+      ...adminMeta,
       requiresPermission: 'schultraegerverwaltung',
     },
   },
@@ -195,9 +200,7 @@ const routes: readonly RouteRecordRaw[] = [
     name: 'create-schultraeger',
     component: () => import('../views/admin/organisationen/SchultraegerCreationView.vue'),
     meta: {
-      layout: 'AdminLayout',
-      requiresAuth: true,
-      requiredStepUpLevel: StepUpLevel.GOLD,
+      ...adminMeta,
       requiresPermission: 'schultraegerverwaltung',
     },
   },
@@ -206,9 +209,7 @@ const routes: readonly RouteRecordRaw[] = [
     name: 'schultraeger-details',
     component: () => import('../views/admin/organisationen/SchultraegerDetailsView.vue'),
     meta: {
-      layout: 'AdminLayout',
-      requiresAuth: true,
-      requiredStepUpLevel: StepUpLevel.GOLD,
+      ...adminMeta,
       requiresPermission: 'schultraegerverwaltung',
     },
   },
@@ -217,9 +218,7 @@ const routes: readonly RouteRecordRaw[] = [
     name: 'hinweise-creation',
     component: () => import('../views/admin/HinweiseCreationView.vue'),
     meta: {
-      layout: 'AdminLayout',
-      requiresAuth: true,
-      requiredStepUpLevel: StepUpLevel.GOLD,
+      ...adminMeta,
       requiresPermission: ['portalverwaltung', 'hinweisebearbeiten'],
     },
   },
@@ -228,9 +227,7 @@ const routes: readonly RouteRecordRaw[] = [
     name: 'create-schule',
     component: () => import('../views/admin/organisationen/SchuleCreationView.vue'),
     meta: {
-      layout: 'AdminLayout',
-      requiresAuth: true,
-      requiredStepUpLevel: StepUpLevel.GOLD,
+      ...adminMeta,
       requiresPermission: 'schulverwaltung',
     },
   },
