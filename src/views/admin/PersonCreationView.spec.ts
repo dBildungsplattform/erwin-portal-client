@@ -335,7 +335,7 @@ describe('PersonCreationView', () => {
     expect(wrapper?.getComponent({ name: 'PersonenkontextCreate' })).toBeTruthy();
   });
 
-  it('emits update:calculatedBefristungOption event with a value', async () => {
+  test('it emits update:calculatedBefristungOption event with a value', async () => {
     const organisationSelect: VueWrapper | undefined = wrapper
       ?.findComponent({ ref: 'personenkontext-create' })
       .findComponent({ ref: 'organisation-select' });
@@ -363,7 +363,7 @@ describe('PersonCreationView', () => {
     ).toEqual(['someOption']);
   });
 
-  it('emits update:calculatedBefristungOption event with no value', async () => {
+  test('it emits update:calculatedBefristungOption event with no value', async () => {
     const organisationSelect: VueWrapper | undefined = wrapper
       ?.findComponent({ ref: 'personenkontext-create' })
       .findComponent({ ref: 'organisation-select' });
@@ -409,15 +409,17 @@ describe('PersonCreationView', () => {
     expect(vm.selectedRollen).toBeUndefined();
   });
 
-  test('handleFieldReset clears selectedKlasse', () => {
-    const vm: PersonCreationViewVm = wrapper?.vm as unknown as PersonCreationViewVm;
+  describe('handleFieldReset', async () => {
+    test('it clears selectedKlasse', () => {
+      const vm: PersonCreationViewVm = wrapper?.vm as unknown as PersonCreationViewVm;
 
-    vm.selectedKlasse = '9a';
-    expect(vm.selectedKlasse).toBe('9a');
+      vm.selectedKlasse = '9a';
+      expect(vm.selectedKlasse).toBe('9a');
 
-    vm.handleFieldReset('selectedKlasse');
+      vm.handleFieldReset('selectedKlasse');
 
-    expect(vm.selectedKlasse).toBeUndefined();
+      expect(vm.selectedKlasse).toBeUndefined();
+    });
   });
 
   test('it fills form and triggers submit', async () => {
@@ -610,110 +612,114 @@ describe('PersonCreationView', () => {
     expect(wrapper?.find('[data-testid="person-success-text"]').isVisible()).toBe(true);
   });
 
-  test('it fills form, triggers discard and then resets form because of error code', async () => {
-    personenkontextStore.workflowStepResponse = mockWorkflowStepResponse;
+  describe('navigateToPersonTable', async () => {
+    test('it fills form, triggers discard and resets form because of error code', async () => {
+      personenkontextStore.workflowStepResponse = mockWorkflowStepResponse;
 
-    const selectors: Partial<FormSelectors> = await fillForm({
-      organisationsebene: '9876',
-      rollen: ['1'],
-      befristung: '12.08.2099',
-      vorname: 'Randy',
-      nachname: 'Cena',
-      kopersNr: '23234',
+      const selectors: Partial<FormSelectors> = await fillForm({
+        organisationsebene: '9876',
+        rollen: ['1'],
+        befristung: '12.08.2099',
+        vorname: 'Randy',
+        nachname: 'Cena',
+        kopersNr: '23234',
+      });
+      await nextTick();
+
+      personenkontextStore.createdPersonWithKontext = mockCreatedPersonWithKontext;
+      personenkontextStore.errorCode = 'REQUIRED_STEP_UP_LEVEL_NOT_MET';
+      personStore.errorCode = 'REQUIRED_STEP_UP_LEVEL_NOT_MET';
+
+      wrapper?.find('[data-testid="person-creation-form-discard-button"]').trigger('click');
+      await flushPromises();
+
+      expect(selectors.organisationsebeneSelect?.vm.$data).toStrictEqual({});
     });
-    await nextTick();
 
-    personenkontextStore.createdPersonWithKontext = mockCreatedPersonWithKontext;
-    personenkontextStore.errorCode = 'REQUIRED_STEP_UP_LEVEL_NOT_MET';
-    personStore.errorCode = 'REQUIRED_STEP_UP_LEVEL_NOT_MET';
+    test('it renders success template and navigates back to form', async () => {
+      personenkontextStore.createdPersonWithKontext = mockCreatedPersonWithKontext;
+      await nextTick();
 
-    wrapper?.find('[data-testid="person-creation-form-discard-button"]').trigger('click');
-    await flushPromises();
+      expect(wrapper?.find('[data-testid="person-success-text"]').isVisible()).toBe(true);
 
-    expect(selectors.organisationsebeneSelect?.vm.$data).toStrictEqual({});
+      expect(wrapper?.find('[data-testid="create-another-person-button"]').isVisible()).toBe(true);
+
+      wrapper?.find('[data-testid="create-another-person-button"]').trigger('click');
+
+      expect(wrapper?.find('[data-testid="person-success-text"]').isVisible()).toBe(true);
+    });
+
+    test('it navigates to person details when clicking on btn in success template', async () => {
+      personenkontextStore.createdPersonWithKontext = mockCreatedPersonWithKontext;
+      await nextTick();
+      expect(wrapper?.find('[data-testid="to-details-button"]').isVisible()).toBe(true);
+
+      const push: MockInstance = vi.spyOn(router, 'push');
+      wrapper?.find('[data-testid="to-details-button"]').trigger('click');
+      await nextTick();
+      expect(push).toHaveBeenCalledWith({ name: 'person-details', params: { id: '1' } });
+    });
   });
 
-  test('it renders success template and navigates back to form', async () => {
-    personenkontextStore.createdPersonWithKontext = mockCreatedPersonWithKontext;
-    await nextTick();
+  describe('translatedKlassenname', async () => {
+    test('it returns empty string when no Klassenkontext exists', () => {
+      const vm: PersonCreationViewVm = wrapper?.vm as unknown as PersonCreationViewVm;
 
-    expect(wrapper?.find('[data-testid="person-success-text"]').isVisible()).toBe(true);
+      expect(vm.translatedKlassenname).toBe('');
+    });
 
-    expect(wrapper?.find('[data-testid="create-another-person-button"]').isVisible()).toBe(true);
+    test('it shows Klassen title in success template when Klassenkontext exists', async () => {
+      const vm: PersonCreationViewVm = wrapper?.vm as unknown as PersonCreationViewVm;
 
-    wrapper?.find('[data-testid="create-another-person-button"]').trigger('click');
-
-    expect(wrapper?.find('[data-testid="person-success-text"]').isVisible()).toBe(true);
-  });
-
-  test('it navigates to person details when clicking on btn in success template', async () => {
-    personenkontextStore.createdPersonWithKontext = mockCreatedPersonWithKontext;
-    await nextTick();
-    expect(wrapper?.find('[data-testid="to-details-button"]').isVisible()).toBe(true);
-
-    const push: MockInstance = vi.spyOn(router, 'push');
-    wrapper?.find('[data-testid="to-details-button"]').trigger('click');
-    await nextTick();
-    expect(push).toHaveBeenCalledWith({ name: 'person-details', params: { id: '1' } });
-  });
-
-  test('translatedKlassenname returns empty string when no Klassenkontext exists', () => {
-    const vm: PersonCreationViewVm = wrapper?.vm as unknown as PersonCreationViewVm;
-
-    expect(vm.translatedKlassenname).toBe('');
-  });
-
-  test('translatedKlassenname shows Klassen title in success template when Klassenkontext exists', async () => {
-    const vm: PersonCreationViewVm = wrapper?.vm as unknown as PersonCreationViewVm;
-
-    // Make sure there is a Klasse available for translation
-    organisationStore.klassen = [
-      {
-        id: 'K1',
-        name: 'Klasse 9a',
-        kennung: 'K1',
-        namensergaenzung: '',
-        kuerzel: '9a',
-        typ: 'KLASSE' as unknown as string,
-        administriertVon: '9876',
-      } as unknown as Organisation,
-    ];
-
-    // Ensure isLernRolle returns true for the created Kontext
-    vm.filteredRollenCache = [
-      {
-        value: '1',
-        title: 'SuS',
-        rollenart: 'LERN',
-      },
-    ];
-
-    // Cache the selected Klasse and Rolle IDs as the component would do on submit
-    vm.selectedKlasseCache = 'K1';
-    vm.selectedRolleCache = ['1'];
-
-    personenkontextStore.createdPersonWithKontext = {
-      ...mockCreatedPersonWithKontext,
-      dBiamPersonenkontextResponses: [
-        ...mockCreatedPersonWithKontext.dBiamPersonenkontextResponses,
+      // Make sure there is a Klasse available for translation
+      organisationStore.klassen = [
         {
-          befristung: '2024-05-06',
-          personId: '1',
-          organisationId: 'K1',
-          rolleId: '1',
+          id: 'K1',
+          name: 'Klasse 9a',
+          kennung: 'K1',
+          namensergaenzung: '',
+          kuerzel: '9a',
+          typ: 'KLASSE' as unknown as string,
+          administriertVon: '9876',
+        } as unknown as Organisation,
+      ];
+
+      // Ensure isLernRolle returns true for the created Kontext
+      vm.filteredRollenCache = [
+        {
+          value: '1',
+          title: 'SuS',
+          rollenart: 'LERN',
         },
-      ],
-    } as DBiamPersonResponse;
+      ];
 
-    await nextTick();
+      // Cache the selected Klasse and Rolle IDs as the component would do on submit
+      vm.selectedKlasseCache = 'K1';
+      vm.selectedRolleCache = ['1'];
 
-    expect(wrapper?.find('[data-testid="person-success-text"]').isVisible()).toBe(true);
+      personenkontextStore.createdPersonWithKontext = {
+        ...mockCreatedPersonWithKontext,
+        dBiamPersonenkontextResponses: [
+          ...mockCreatedPersonWithKontext.dBiamPersonenkontextResponses,
+          {
+            befristung: '2024-05-06',
+            personId: '1',
+            organisationId: 'K1',
+            rolleId: '1',
+          },
+        ],
+      } as DBiamPersonResponse;
 
-    const klasseElement: ReturnType<VueWrapper['find']> | undefined = wrapper?.find(
-      '[data-testid="created-person-klasse"]',
-    );
-    expect(klasseElement?.exists()).toBe(true);
-    expect(klasseElement?.text()).toBe('Klasse 9a');
+      await nextTick();
+
+      expect(wrapper?.find('[data-testid="person-success-text"]').isVisible()).toBe(true);
+
+      const klasseElement: ReturnType<VueWrapper['find']> | undefined = wrapper?.find(
+        '[data-testid="created-person-klasse"]',
+      );
+      expect(klasseElement?.exists()).toBe(true);
+      expect(klasseElement?.text()).toBe('Klasse 9a');
+    });
   });
 
   describe('navigation interception', () => {
