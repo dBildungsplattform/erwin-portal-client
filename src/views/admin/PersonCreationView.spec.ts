@@ -398,18 +398,18 @@ describe('PersonCreationView', () => {
     expect(personenkontextStore.createdPersonWithKontext).toBe(null);
   });
 
-  test('handleFieldReset clears selectedRollen', () => {
-    const vm: PersonCreationViewVm = wrapper?.vm as unknown as PersonCreationViewVm;
-
-    vm.selectedRollen = ['1'];
-    expect(vm.selectedRollen).toEqual(['1']);
-
-    vm.handleFieldReset('selectedRollen');
-
-    expect(vm.selectedRollen).toBeUndefined();
-  });
-
   describe('handleFieldReset', async () => {
+    test('it clears selectedRollen', () => {
+      const vm: PersonCreationViewVm = wrapper?.vm as unknown as PersonCreationViewVm;
+
+      vm.selectedRollen = ['1'];
+      expect(vm.selectedRollen).toEqual(['1']);
+
+      vm.handleFieldReset('selectedRollen');
+
+      expect(vm.selectedRollen).toBeUndefined();
+    });
+
     test('it clears selectedKlasse', () => {
       const vm: PersonCreationViewVm = wrapper?.vm as unknown as PersonCreationViewVm;
 
