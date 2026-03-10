@@ -39,6 +39,16 @@ const mockServiceProviders: Array<ServiceProvider> = [
     kategorie: '',
     hasLogo: false,
   },
+  {
+    id: '4',
+    name: 'Service D',
+    target: 'SELF',
+    requires2fa: true,
+    logoUrl: '/logo-c.png',
+    url: '',
+    kategorie: '',
+    hasLogo: false,
+  },
 ];
 
 const defaultProps: { categoryTitle: string; serviceProviders: ServiceProvider[]; hasToken: boolean } = {
@@ -85,6 +95,13 @@ describe('ServiceProviderCategory.vue', () => {
     expect(cards[2]!.props()).toMatchObject({
       href: '',
       title: 'Service C',
+      logoUrl: '/logo-c.png',
+      newTab: false,
+    });
+
+    expect(cards[3]!.props()).toMatchObject({
+      href: '',
+      title: 'Service D',
       logoUrl: '/logo-c.png',
       newTab: false,
     });
