@@ -854,6 +854,24 @@ describe('PersonDetailsView', () => {
     expect(wrapper?.find('[data-testid="metadata-edit-button"]').isVisible()).toBe(true);
   });
 
+  test('it cancels zuordnung edit', async () => {
+    const editButton: DOMWrapper<Element> | undefined = wrapper?.find('[data-testid="zuordnung-edit-button"]');
+
+    expect(editButton?.exists()).toBe(true);
+
+    await editButton!.trigger('click');
+    await nextTick();
+
+    const cancelButton: DOMWrapper<Element> | undefined = wrapper?.find('[data-testid="zuordnung-edit-cancel"]');
+    expect(cancelButton?.exists()).toBe(true);
+
+    await cancelButton!.trigger('click');
+    await nextTick();
+    await flushPromises();
+
+    expect(wrapper?.find('[data-testid="zuordnung-edit-button"]').isVisible()).toBe(true);
+  });
+
   // Disabled for ErWIn-Portal 2fa tests since 2fa is currently disabled in the UI. Re-enable and adjust tests when 2fa is re-enabled in the UI.
   //
   // describe('error messages', () => {
