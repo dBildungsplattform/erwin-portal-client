@@ -205,7 +205,7 @@ describe('RolleDetailsView', () => {
     expect(confirmButton).not.toBeNull();
 
     if (confirmButton) {
-      confirmButton.dispatchEvent(new Event('click'));
+      await new DOMWrapper(confirmButton).trigger('click');
     }
 
     await flushPromises();
