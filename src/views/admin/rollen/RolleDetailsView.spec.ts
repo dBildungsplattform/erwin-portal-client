@@ -275,6 +275,27 @@ describe('RolleDetailsView', () => {
     rolleStore.errorCode = '';
   });
 
+  test('it clears error and navigates when the alert is closed', async () => {
+    // show the error alert
+    rolleStore.updatedRolle = null;
+    rolleStore.errorCode = 'ROLLE_UPDATE_ERROR';
+    await nextTick();
+
+    const pushSpy: MockInstance = vi.spyOn(router, 'push');
+
+    const spshAlertWrapper: VueWrapper | undefined = wrapper?.findComponent({ name: 'SpshAlert' });
+    expect(spshAlertWrapper?.exists()).toBe(true);
+
+    // simulate closing the alert via its navigation/close UI
+    spshAlertWrapper?.vm.$emit('update:modelValue', false);
+    await flushPromises();
+
+    // errorCode should be cleared by handleAlertClose
+    expect(rolleStore.errorCode).toBe('');
+    // navigation should go back to the rolle table
+    expect(pushSpy).toHaveBeenCalledWith({ name: 'rolle-management' });
+  });
+
   test('it navigates back to Rolle table', async () => {
     const push: MockInstance = vi.spyOn(router, 'push');
     await wrapper?.find('[data-testid="close-layout-card-button"]').trigger('click');
