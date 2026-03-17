@@ -231,6 +231,12 @@ describe('Row click handling', () => {
   });
 
   test('does not emit onHandleRowClick when disableRowClick is true', async () => {
+    if (wrapper) {
+      wrapper.unmount();
+      wrapper = null;
+    }
+    keydownHandlers = [];
+
     wrapper = mount(ResultTable, {
       props: {
         items: mockItems,
