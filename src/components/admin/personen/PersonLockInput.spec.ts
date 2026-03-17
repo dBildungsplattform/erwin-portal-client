@@ -47,13 +47,20 @@ describe('PersonLockInput', () => {
     expect(befristetRadioButton.element.checked).toBe(true);
     expect(unbefristetRadioButton.element.checked).toBe(false);
 
-    await unbefristetRadioButton.trigger('click');
+    await unbefristetRadioButton.setValue(true);
     await nextTick();
 
     expect(befristetRadioButton.element.checked).toBe(false);
     expect(unbefristetRadioButton.element.checked).toBe(true);
 
-    //TODO: DomWrapper empty, and watcher not called even though Radio-Buttons value changes -> Why?
+    const emitted: Record<string, unknown[][]> = wrapper.emitted();
+    const handleSelectedEvents: unknown[][] | undefined = emitted['handleSelectedRadioButtonChange'];
+
+    expect(handleSelectedEvents).toBeTruthy();
+    expect(handleSelectedEvents && handleSelectedEvents[0]).toEqual([true]);
+
+    // When "unbefristet" is selected, the date input should disappear
+    expect(wrapper.find('[data-testid="befristung-input"]').exists()).toBe(false);
   });
 
   it('handles no befristung and isUnbefristet = true', async () => {
@@ -86,12 +93,33 @@ describe('PersonLockInput', () => {
     expect(befristetRadioButton.element.checked).toBe(false);
     expect(unbefristetRadioButton.element.checked).toBe(true);
 
-    await befristetRadioButton.trigger('click');
+    await befristetRadioButton.setValue(true);
     await nextTick();
 
     expect(befristetRadioButton.element.checked).toBe(true);
     expect(unbefristetRadioButton.element.checked).toBe(false);
 
-    //TODO: DomWrapper empty, and watcher not called even though Radio-Buttons value changes -> Why?
+    const emitted: Record<string, unknown[][]> = wrapper.emitted();
+    const handleSelectedEvents: unknown[][] | undefined = emitted['handleSelectedRadioButtonChange'];
+
+    expect(handleSelectedEvents).toBeTruthy();
+    expect(handleSelectedEvents && handleSelectedEvents[0]).toEqual([false]);
+
+    // When "befristet" is selected, the date input should be visible
+    expect(wrapper.find('[data-testid="befristung-input"]').exists()).toBe(true);
+  });
+
+  it('emits update:befristung when date is changed', async () => {
+    const inputWrapper: DOMWrapper<HTMLInputElement> = wrapper.find('[data-testid="befristung-input"] input');
+
+    const newDate: string = '2025-01-01';
+    await inputWrapper.setValue(newDate);
+    await nextTick();
+
+    const emitted: Record<string, unknown[][]> = wrapper.emitted();
+    const updateBefristungEvents: unknown[][] | undefined = emitted['update:befristung'];
+
+    expect(updateBefristungEvents).toBeTruthy();
+    expect(updateBefristungEvents && updateBefristungEvents[0]).toEqual([newDate]);
   });
 });
