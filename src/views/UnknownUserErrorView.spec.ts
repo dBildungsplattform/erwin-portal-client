@@ -62,19 +62,20 @@ describe('UnknownUserErrorView', () => {
     const expectedUrl: string = new URL(window.origin + '/api/auth/logout').toString();
 
     const originalLocation: Location = window.location;
+    try {
+      Object.defineProperty(window, 'location', {
+        configurable: true,
+        value: { ...originalLocation, href: originalLocation.href },
+      });
 
-    Object.defineProperty(window, 'location', {
-      configurable: true,
-      value: { ...originalLocation, href: originalLocation.href },
-    });
+      await alertButton?.trigger('click');
 
-    await alertButton?.trigger('click');
-
-    expect(window.location.href).toBe(expectedUrl);
-
-    Object.defineProperty(window, 'location', {
-      configurable: true,
-      value: originalLocation,
-    });
+      expect(window.location.href).toBe(expectedUrl);
+    } finally {
+      Object.defineProperty(window, 'location', {
+        configurable: true,
+        value: originalLocation,
+      });
+    }
   });
 });
