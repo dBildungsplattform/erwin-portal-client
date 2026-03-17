@@ -817,10 +817,10 @@ describe('PersonDetailsView', () => {
 
       await nextTick();
 
-      wrapper?.find('[data-testid="zuordnung-edit-button"]').trigger('click');
+      await wrapper?.find('[data-testid="zuordnung-edit-button"]').trigger('click');
       await nextTick();
 
-      wrapper?.find('[data-testid="zuordnung-create-button"]').trigger('click');
+      await wrapper?.find('[data-testid="zuordnung-create-button"]').trigger('click');
       await flushPromises();
 
       const organisationAutocomplete: VueWrapper | undefined = wrapper
