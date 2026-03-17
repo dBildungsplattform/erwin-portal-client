@@ -265,11 +265,13 @@ describe('KlassenManagementView', () => {
       searchFilterStore.selectedSchuleForKlassen = schule.id;
       searchFilterStore.selectedKlassenForKlassen = [klasse1.id];
 
+      wrapper?.unmount();
       wrapper = mountComponent();
       await flushPromises();
 
       expect(getKlassenByOrganisationIdSpy).toHaveBeenCalled();
       expect(organisationStore.allKlassen).toEqual([klasse1]);
+      getKlassenByOrganisationIdSpy.mockRestore();
     });
   });
 
