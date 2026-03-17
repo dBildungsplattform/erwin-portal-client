@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, expect, beforeEach, vi } from 'vitest';
 import PersonLockInput from './PersonLockInput.vue'; // Replace with actual component name
 import { DOMWrapper, VueWrapper, mount } from '@vue/test-utils';
 import { nextTick } from 'vue';
@@ -27,12 +27,12 @@ describe('PersonLockInput', () => {
     });
   });
 
-  it('renders the radio buttons', () => {
+  test('it renders the radio buttons', () => {
     expect(wrapper.find('[data-testid="unbefristet-radio-button"]').exists()).toBe(true);
     expect(wrapper.find('[data-testid="befristet-radio-button"]').exists()).toBe(true);
   });
 
-  it('handles option changes', async () => {
+  test('it handles option changes', async () => {
     const befristetRadioButton: DOMWrapper<HTMLInputElement> = wrapper.find(
       '[data-testid="befristet-radio-button"] input[type="radio"]',
     );
@@ -63,7 +63,7 @@ describe('PersonLockInput', () => {
     expect(wrapper.find('[data-testid="befristung-input"]').exists()).toBe(false);
   });
 
-  it('handles no befristung and isUnbefristet = true', async () => {
+  test('it handles no befristung and isUnbefristet = true', async () => {
     wrapper = mount(PersonLockInput, {
       props: {
         befristungProps: {
@@ -109,7 +109,7 @@ describe('PersonLockInput', () => {
     expect(wrapper.find('[data-testid="befristung-input"]').exists()).toBe(true);
   });
 
-  it('emits update:befristung when date is changed', async () => {
+  test('it emits update:befristung when date is changed', async () => {
     const inputWrapper: DOMWrapper<HTMLInputElement> = wrapper.find('[data-testid="befristung-input"] input');
 
     const newDate: string = '2025-01-01';
