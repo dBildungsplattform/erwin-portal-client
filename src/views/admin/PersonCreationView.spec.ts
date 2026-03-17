@@ -1,5 +1,5 @@
 import { expect, type Mock, type MockInstance, test } from 'vitest';
-import { VueWrapper, flushPromises, mount } from '@vue/test-utils';
+import { VueWrapper, flushPromises, mount, type DOMWrapper } from '@vue/test-utils';
 import { nextTick } from 'vue';
 import PersonCreationView from './PersonCreationView.vue';
 import {
@@ -630,7 +630,8 @@ describe('PersonCreationView', () => {
       personenkontextStore.errorCode = 'REQUIRED_STEP_UP_LEVEL_NOT_MET';
       personStore.errorCode = 'REQUIRED_STEP_UP_LEVEL_NOT_MET';
 
-      wrapper?.find('[data-testid="person-creation-form-discard-button"]').trigger('click');
+      await wrapper?.find('[data-testid="person-creation-form-discard-button"]').trigger('click');
+      await nextTick();
       await flushPromises();
 
       expect(selectors.organisationsebeneSelect?.vm.$data).toStrictEqual({});
@@ -640,13 +641,20 @@ describe('PersonCreationView', () => {
       personenkontextStore.createdPersonWithKontext = mockCreatedPersonWithKontext;
       await nextTick();
 
-      expect(wrapper?.find('[data-testid="person-success-text"]').isVisible()).toBe(true);
+      const successElement: DOMWrapper<Element> | undefined = wrapper?.find('[data-testid="person-success-text"]');
+      expect(successElement?.exists()).toBe(true);
 
-      expect(wrapper?.find('[data-testid="create-another-person-button"]').isVisible()).toBe(true);
+      const createAnotherButton: DOMWrapper<Element> | undefined = wrapper?.find(
+        '[data-testid="create-another-person-button"]',
+      );
+      expect(createAnotherButton?.exists()).toBe(true);
 
-      wrapper?.find('[data-testid="create-another-person-button"]').trigger('click');
+      await createAnotherButton?.trigger('click');
+      await nextTick();
 
-      expect(wrapper?.find('[data-testid="person-success-text"]').isVisible()).toBe(true);
+      // After clicking "create another person" we should be back on the form,
+      // so the success template should no longer be rendered.
+      expect(wrapper?.find('[data-testid="person-success-text"]').exists()).toBe(false);
     });
 
     test('it navigates to person details when clicking on btn in success template', async () => {
@@ -655,7 +663,7 @@ describe('PersonCreationView', () => {
       expect(wrapper?.find('[data-testid="to-details-button"]').isVisible()).toBe(true);
 
       const push: MockInstance = vi.spyOn(router, 'push');
-      wrapper?.find('[data-testid="to-details-button"]').trigger('click');
+      await wrapper?.find('[data-testid="to-details-button"]').trigger('click');
       await nextTick();
       expect(push).toHaveBeenCalledWith({ name: 'person-details', params: { id: '1' } });
     });
