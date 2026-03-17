@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test, type MockInstance } from 'vitest';
 import { DOMWrapper, VueWrapper, flushPromises, mount } from '@vue/test-utils';
 import RolleDetailsView from './RolleDetailsView.vue';
 import { setActivePinia, createPinia } from 'pinia';
@@ -236,5 +236,56 @@ describe('RolleDetailsView', () => {
     });
     // reset errorCode after test
     rolleStore.errorCode = '';
+  });
+
+  test('it navigates back to Rolle table', async () => {
+    const push: MockInstance = vi.spyOn(router, 'push');
+    await wrapper?.find('[data-testid="close-layout-card-button"]').trigger('click');
+    expect(push).toHaveBeenCalledTimes(1);
+  });
+
+  test('it submits the form to delete a Rolle', async () => {
+    const deleteSpy: MockInstance = vi
+      .spyOn(rolleStore, 'deleteRolleById')
+      .mockResolvedValue(undefined as unknown as void);
+    const pushSpy: MockInstance = vi.spyOn(router, 'push');
+
+    const openDeleteRolleDialogButton: DOMWrapper<Element> | undefined = wrapper?.find(
+      '[data-testid="open-rolle-delete-dialog-button"]',
+    );
+
+    expect(openDeleteRolleDialogButton?.exists()).toBe(true);
+    await openDeleteRolleDialogButton!.trigger('click');
+    await nextTick();
+    await flushPromises();
+
+    expect(document.body.querySelector('[data-testid="rolle-delete-confirmation-text"]')).not.toBeNull();
+
+    const deleteButton: Element | null = document.body.querySelector('[data-testid="rolle-delete-button"]');
+    expect(deleteButton).not.toBeNull();
+
+    if (deleteButton) {
+      deleteButton.dispatchEvent(new Event('click'));
+    }
+
+    await flushPromises();
+
+    expect(deleteSpy).toHaveBeenCalled();
+
+    const successText: Element | null = document.body.querySelector('[data-testid="rolle-delete-success-text"]');
+    expect(successText).not.toBeNull();
+
+    const closeSuccessButton: Element | null = document.body.querySelector(
+      '[data-testid="close-rolle-delete-success-dialog-button"]',
+    );
+    expect(closeSuccessButton).not.toBeNull();
+
+    if (closeSuccessButton) {
+      closeSuccessButton.dispatchEvent(new Event('click'));
+    }
+
+    await flushPromises();
+
+    expect(pushSpy).toHaveBeenCalledWith({ name: 'rolle-management' });
   });
 });
