@@ -52,11 +52,16 @@ interface PersonDetailsViewVm extends DefineComponent {
   syncPerson: (personId: string) => Promise<void>;
 }
 
-const waitForElement = async (selector: string, vueWrapper: VueWrapper | null): Promise<Element> => {
+const waitForElement = async (
+  selector: string,
+  vueWrapper: VueWrapper | null,
+  numberOfAttempts: number,
+): Promise<Element> => {
   if (!vueWrapper) {
     throw new Error('vueWrapper is null');
   }
-  for (let attempt: number = 0; attempt < 10; attempt++) {
+
+  for (let attempt: number = 0; attempt < numberOfAttempts; attempt++) {
     const domWrapper: DOMWrapper<Element> = vueWrapper.find(selector);
     const element: Element | null = domWrapper.exists() ? domWrapper.element : null;
     if (element) {
@@ -1017,7 +1022,7 @@ describe('PersonDetailsView', () => {
     await befristungInput?.setValue('12.08.2099');
     await nextTick();
 
-    const submitButton: Element = await waitForElement('[data-testid="zuordnung-creation-submit-button"]', wrapper);
+    const submitButton: Element = await waitForElement('[data-testid="zuordnung-creation-submit-button"]', wrapper, 10);
     submitButton.dispatchEvent(new Event('click'));
     await flushPromises();
 
@@ -1025,7 +1030,7 @@ describe('PersonDetailsView', () => {
     await vm.confirmDialogAddition();
     await flushPromises();
 
-    const saveButton: Element = await waitForElement('[data-testid="zuordnung-changes-save"]', wrapper);
+    const saveButton: Element = await waitForElement('[data-testid="zuordnung-changes-save"]', wrapper, 10);
     saveButton.dispatchEvent(new Event('click'));
     await flushPromises();
 
@@ -1174,7 +1179,7 @@ describe('PersonDetailsView', () => {
     await vm.confirmDialogChangeKlasse();
     await flushPromises();
 
-    const saveButton: Element = await waitForElement('[data-testid="zuordnung-changes-save"]', wrapper);
+    const saveButton: Element = await waitForElement('[data-testid="zuordnung-changes-save"]', wrapper, 10);
     saveButton.dispatchEvent(new Event('click'));
     await flushPromises();
 
@@ -1549,7 +1554,11 @@ describe('PersonDetailsView', () => {
         await befristungInput?.setValue('13.08.2099');
         await nextTick();
 
-        const submitButton: Element = await waitForElement('[data-testid="change-befristung-submit-button"]', wrapper);
+        const submitButton: Element = await waitForElement(
+          '[data-testid="change-befristung-submit-button"]',
+          wrapper,
+          10,
+        );
         await nextTick();
         await flushPromises();
 
@@ -1561,7 +1570,7 @@ describe('PersonDetailsView', () => {
         await vm.confirmDialogChangeBefristung();
         await flushPromises();
 
-        const saveButton: Element = await waitForElement('[data-testid="zuordnung-changes-save"]', wrapper);
+        const saveButton: Element = await waitForElement('[data-testid="zuordnung-changes-save"]', wrapper, 10);
         saveButton.dispatchEvent(new Event('click'));
         await flushPromises();
 
