@@ -30,10 +30,6 @@ import PersonDetailsView from './PersonDetailsView.vue';
 let wrapper: VueWrapper | null = null;
 let router: Router;
 
-afterEach(() => {
-  vi.restoreAllMocks();
-});
-
 interface ZuordnungForKlasseChange {
   typ: OrganisationsTyp;
   administriertVon: string;
@@ -332,6 +328,10 @@ describe('PersonDetailsView', () => {
     router = createRouter({
       history: createWebHistory(),
       routes,
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
     });
 
     router.push('/');
