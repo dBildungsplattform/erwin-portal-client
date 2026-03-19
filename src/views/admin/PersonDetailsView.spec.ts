@@ -22,13 +22,56 @@ import {
 import { DoFactory } from '@/testing/DoFactory';
 import { adjustDateForTimezoneAndFormat } from '@/utils/date';
 import { DOMWrapper, flushPromises, mount, VueWrapper } from '@vue/test-utils';
-import { expect, test, type MockInstance } from 'vitest';
+import { expect, test, vi, type MockInstance } from 'vitest';
 import { nextTick, type ComputedRef, type DefineComponent } from 'vue';
 import { createRouter, createWebHistory, type Router } from 'vue-router';
 import PersonDetailsView from './PersonDetailsView.vue';
 
 let wrapper: VueWrapper | null = null;
 let router: Router;
+
+interface ZuordnungForKlasseChange {
+  typ: OrganisationsTyp;
+  administriertVon: string;
+  sskName: string;
+  [key: string]: unknown;
+}
+
+interface PersonDetailsViewVm extends DefineComponent {
+  filteredRollen: ComputedRef<TranslatedRolleWithAttrs[] | undefined>;
+  confirmDialogChangeKlasse: () => Promise<void> | void;
+  finalZuordnungen: ZuordnungForKlasseChange[];
+  confirmDialogAddition: () => Promise<void> | void;
+  confirmDialogChangeBefristung: () => Promise<void> | void;
+  closeChangeKlasseSuccessDialog: () => void;
+  closeChangeBefristungSuccessDialog: () => void;
+  onSubmitChangePersonMetadata: (e?: Event) => Promise<Promise<void> | undefined>;
+  handleSelectedKopersNrUpdate: (value: string | undefined | null) => void;
+  onSubmitCreateZuordnung: (e?: Event) => Promise<void | undefined>;
+  deletePerson: (personId: string) => Promise<void>;
+  syncPerson: (personId: string) => Promise<void>;
+}
+
+const waitForElement = async (
+  selector: string,
+  vueWrapper: VueWrapper | null,
+  numberOfAttempts: number,
+): Promise<Element> => {
+  if (!vueWrapper) {
+    throw new Error('vueWrapper is null');
+  }
+
+  for (let attempt: number = 0; attempt < numberOfAttempts; attempt++) {
+    const domWrapper: DOMWrapper<Element> = vueWrapper.find(selector);
+    const element: Element | null = domWrapper.exists() ? domWrapper.element : null;
+    if (element) {
+      return element;
+    }
+    await nextTick();
+    await flushPromises();
+  }
+  throw new Error(`Element with selector "${selector}" not found`);
+};
 
 const authStore: AuthStore = useAuthStore();
 const configStore: ConfigStore = useConfigStore();
@@ -266,6 +309,8 @@ describe('PersonDetailsView', () => {
     ];
 
     authStore.currentUser = mockCurrentUser;
+    authStore.hasPersonenLoeschenPermission = true;
+    authStore.hasPersonenSyncPermission = true;
     personStore.currentPerson = mockPerson;
     personStore.personenuebersicht = mockPersonenuebersicht;
 
@@ -283,6 +328,10 @@ describe('PersonDetailsView', () => {
     router = createRouter({
       history: createWebHistory(),
       routes,
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
     });
 
     router.push('/');
@@ -471,10 +520,7 @@ describe('PersonDetailsView', () => {
   // });
 
   test('filteredRollen returns correct roles based on person context and selection', async () => {
-    interface PersonDetailsViewType extends DefineComponent {
-      filteredRollen: ComputedRef<TranslatedRolleWithAttrs[] | undefined>;
-    }
-    const vm: PersonDetailsViewType = wrapper?.vm as unknown as PersonDetailsViewType;
+    const vm: PersonDetailsViewVm = wrapper?.vm as unknown as PersonDetailsViewVm;
     const filteredRollen: ComputedRef<TranslatedRolleWithAttrs[] | undefined> = vm.filteredRollen;
 
     // Verify that filteredRollen contains only roles that are not already assigned and filtered correctly
@@ -550,7 +596,7 @@ describe('PersonDetailsView', () => {
     }
   });
 
-  it('displays correct email status for Enabled', async () => {
+  test('displays correct email status for Enabled', async () => {
     setCurrentPerson(EmailAddressStatus.Enabled);
 
     await nextTick();
@@ -559,7 +605,7 @@ describe('PersonDetailsView', () => {
     expect(emailElement?.text()).toBe('test@example.com');
   });
 
-  it('displays correct email status for requested', async () => {
+  test('displays correct email status for requested', async () => {
     setCurrentPerson(EmailAddressStatus.Requested);
 
     await nextTick();
@@ -568,7 +614,7 @@ describe('PersonDetailsView', () => {
     expect(emailElement?.text()).toBe('wird erzeugt');
   });
 
-  it('displays correct email status for failed', async () => {
+  test('displays correct email status for failed', async () => {
     setCurrentPerson(EmailAddressStatus.Failed);
 
     await nextTick();
@@ -577,7 +623,7 @@ describe('PersonDetailsView', () => {
     expect(emailElement?.text()).toBe('fehlerhaft');
   });
 
-  it('displays correct email status for disabled', async () => {
+  test('displays correct email status for disabled', async () => {
     setCurrentPerson(EmailAddressStatus.Disabled);
 
     await nextTick();
@@ -586,7 +632,7 @@ describe('PersonDetailsView', () => {
     expect(emailElement?.text()).toBe('deaktiviert');
   });
 
-  it('displays correct email status for unknown', async () => {
+  test('displays correct email status for unknown', async () => {
     setCurrentPerson('UnknownStatus' as EmailAddressStatus);
 
     await nextTick();
@@ -607,25 +653,202 @@ describe('PersonDetailsView', () => {
     expect(familienNameInput?.exists()).toBe(true);
   });
 
-  test('it checks for dirtiness when metadata Form is active', async () => {
-    await wrapper?.find('[data-testid="metadata-edit-button"]').trigger('click');
-    await nextTick();
+  describe('onSubmitChangePersonMetadata', async () => {
+    test('it updates only names when personal number is unchanged', async () => {
+      const vm: PersonDetailsViewVm = wrapper?.vm as unknown as PersonDetailsViewVm;
 
-    await wrapper
-      ?.findComponent({ ref: 'person-metadata-change' })
-      .findComponent({ ref: 'vorname-input' })
-      .setValue('test');
-    await nextTick();
+      await wrapper?.find('[data-testid="metadata-edit-button"]').trigger('click');
+      await nextTick();
 
-    location.reload();
+      const metadataComponent: VueWrapper | undefined = wrapper?.findComponent({ ref: 'person-metadata-change' });
+      const vornameField: DOMWrapper<Element> | undefined = metadataComponent?.find('[data-testid="vorname-input"]');
+      const familiennameField: DOMWrapper<Element> | undefined = metadataComponent?.find(
+        '[data-testid="familienname-input"]',
+      );
 
-    await nextTick();
+      await vornameField?.find('input').setValue('Johnny');
+      await familiennameField?.find('input').setValue('Ortonson');
+      await nextTick();
 
-    const unsavedChangesDialogButton: VueWrapper | undefined = await wrapper?.findComponent({
-      ref: 'unsaved-changes-dialog',
+      const changePersonMetadataSpy: MockInstance = vi
+        .spyOn(personStore, 'changePersonMetadataById')
+        .mockResolvedValue(undefined as unknown as void);
+
+      await vm.onSubmitChangePersonMetadata();
+      await flushPromises();
+
+      expect(changePersonMetadataSpy).toHaveBeenCalledTimes(1);
+      const callArgs: unknown[] = changePersonMetadataSpy.mock.calls[0] ?? [];
+      expect(callArgs[1]).toBe('Johnny');
+      expect(callArgs[2]).toBe('Ortonson');
+      expect(callArgs[3]).toBeUndefined();
+
+      const successElement: Element | null = document.querySelector('.metadata-success-message');
+      expect(successElement).not.toBeNull();
+
+      changePersonMetadataSpy.mockRestore();
     });
 
-    expect(unsavedChangesDialogButton?.exists()).toBe(true);
+    test('it updates names and personal number when it has changed', async () => {
+      const vm: PersonDetailsViewVm = wrapper?.vm as unknown as PersonDetailsViewVm;
+
+      await wrapper?.find('[data-testid="metadata-edit-button"]').trigger('click');
+      await nextTick();
+
+      const metadataComponent: VueWrapper | undefined = wrapper?.findComponent({ ref: 'person-metadata-change' });
+      const vornameField: DOMWrapper<Element> | undefined = metadataComponent?.find('[data-testid="vorname-input"]');
+      const familiennameField: DOMWrapper<Element> | undefined = metadataComponent?.find(
+        '[data-testid="familienname-input"]',
+      );
+
+      await vornameField?.find('input').setValue('John');
+      await familiennameField?.find('input').setValue('Orton');
+      await nextTick();
+
+      vm.handleSelectedKopersNrUpdate('999999');
+
+      const changePersonMetadataSpy: MockInstance = vi
+        .spyOn(personStore, 'changePersonMetadataById')
+        .mockResolvedValue(undefined as unknown as void);
+
+      await vm.onSubmitChangePersonMetadata();
+      await flushPromises();
+
+      expect(changePersonMetadataSpy).toHaveBeenCalledTimes(1);
+      const callArgs: unknown[] = changePersonMetadataSpy.mock.calls[0] ?? [];
+      expect(callArgs[1]).toBe('John');
+      expect(callArgs[2]).toBe('Orton');
+      expect(callArgs[3]).toBe('999999');
+
+      changePersonMetadataSpy.mockRestore();
+    });
+
+    test('it updates names when no personal number is present', async () => {
+      const vm: PersonDetailsViewVm = wrapper?.vm as unknown as PersonDetailsViewVm;
+
+      if (personStore.currentPerson) {
+        personStore.currentPerson.person.personalnummer = undefined as unknown as string;
+      }
+      await nextTick();
+
+      await wrapper?.find('[data-testid="metadata-edit-button"]').trigger('click');
+      await nextTick();
+
+      const metadataComponent: VueWrapper | undefined = wrapper?.findComponent({ ref: 'person-metadata-change' });
+      const vornameField: DOMWrapper<Element> | undefined = metadataComponent?.find('[data-testid="vorname-input"]');
+      const familiennameField: DOMWrapper<Element> | undefined = metadataComponent?.find(
+        '[data-testid="familienname-input"]',
+      );
+
+      await vornameField?.find('input').setValue('Jane');
+      await familiennameField?.find('input').setValue('Doe');
+      await nextTick();
+
+      const changePersonMetadataSpy: MockInstance = vi
+        .spyOn(personStore, 'changePersonMetadataById')
+        .mockResolvedValue(undefined as unknown as void);
+
+      await vm.onSubmitChangePersonMetadata();
+      await flushPromises();
+
+      expect(changePersonMetadataSpy).toHaveBeenCalledTimes(1);
+      const callArgs: unknown[] = changePersonMetadataSpy.mock.calls[0] ?? [];
+      expect(callArgs[1]).toBe('Jane');
+      expect(callArgs[2]).toBe('Doe');
+      expect(callArgs[3]).toBeUndefined();
+
+      changePersonMetadataSpy.mockRestore();
+    });
+  });
+
+  describe('isFormDirty', () => {
+    test('it shows unsaved changes dialog when metadata form is dirty', async () => {
+      await wrapper?.find('[data-testid="metadata-edit-button"]').trigger('click');
+      await nextTick();
+
+      await wrapper
+        ?.findComponent({ ref: 'person-metadata-change' })
+        .findComponent({ ref: 'vorname-input' })
+        .setValue('test');
+      await nextTick();
+
+      window.dispatchEvent(new Event('beforeunload'));
+
+      await nextTick();
+
+      const unsavedChangesDialogButton: VueWrapper | undefined = await wrapper?.findComponent({
+        ref: 'unsaved-changes-dialog',
+      });
+
+      expect(unsavedChangesDialogButton?.exists()).toBe(true);
+    });
+
+    test('it shows unsaved changes dialog when change Klasse form is dirty', async () => {
+      await wrapper?.find('[data-testid="zuordnung-edit-button"]').trigger('click');
+      await nextTick();
+
+      const checkbox: DOMWrapper<HTMLInputElement> | undefined = wrapper?.find(
+        '[data-testid="person-zuordnung-1"] input[type="checkbox"]',
+      );
+      await checkbox?.setValue(!checkbox.element.checked);
+      await nextTick();
+
+      await wrapper?.find('[data-testid="klasse-change-button"]').trigger('click');
+      await nextTick();
+
+      await wrapper
+        ?.findComponent({ ref: 'klasse-change-form' })
+        .findComponent({ ref: 'klasse-select' })
+        .setValue('9a');
+      await nextTick();
+
+      window.dispatchEvent(new Event('beforeunload'));
+
+      await nextTick();
+
+      const unsavedChangesDialogButton: VueWrapper | undefined = await wrapper?.findComponent({
+        ref: 'unsaved-changes-dialog',
+      });
+
+      expect(unsavedChangesDialogButton?.exists()).toBe(true);
+    });
+
+    test('it shows unsaved changes dialog when Zuordnung creation form is dirty', async () => {
+      const mockPersonenuebersichtForAddZuordnung: PersonWithUebersicht = {
+        personId: '1',
+        vorname: 'John',
+        nachname: 'Orton',
+        benutzername: 'jorton',
+        lastModifiedZuordnungen: Date.now().toLocaleString(),
+        zuordnungen: [],
+      };
+      personStore.personenuebersicht = mockPersonenuebersichtForAddZuordnung;
+
+      await nextTick();
+
+      await wrapper?.find('[data-testid="zuordnung-edit-button"]').trigger('click');
+      await nextTick();
+
+      await wrapper?.find('[data-testid="zuordnung-create-button"]').trigger('click');
+      await flushPromises();
+
+      const organisationAutocomplete: VueWrapper | undefined = wrapper
+        ?.findComponent({ ref: 'personenkontext-create' })
+        .findComponent({ ref: 'organisation-select' });
+      await organisationAutocomplete?.setValue('O1');
+      await organisationAutocomplete?.vm.$emit('update:search', 'O1');
+      await nextTick();
+
+      window.dispatchEvent(new Event('beforeunload'));
+
+      await nextTick();
+
+      const unsavedChangesDialogButton: VueWrapper | undefined = await wrapper?.findComponent({
+        ref: 'unsaved-changes-dialog',
+      });
+
+      expect(unsavedChangesDialogButton?.exists()).toBe(true);
+    });
   });
 
   test('it cancels metadata form', async () => {
@@ -638,6 +861,24 @@ describe('PersonDetailsView', () => {
     await nextTick();
 
     expect(wrapper?.find('[data-testid="metadata-edit-button"]').isVisible()).toBe(true);
+  });
+
+  test('it cancels zuordnung edit', async () => {
+    const editButton: DOMWrapper<Element> | undefined = wrapper?.find('[data-testid="zuordnung-edit-button"]');
+
+    expect(editButton?.exists()).toBe(true);
+
+    await editButton!.trigger('click');
+    await nextTick();
+
+    const cancelButton: DOMWrapper<Element> | undefined = wrapper?.find('[data-testid="zuordnung-edit-cancel"]');
+    expect(cancelButton?.exists()).toBe(true);
+
+    await cancelButton!.trigger('click');
+    await nextTick();
+    await flushPromises();
+
+    expect(wrapper?.find('[data-testid="zuordnung-edit-button"]').isVisible()).toBe(true);
   });
 
   // Disabled for ErWIn-Portal 2fa tests since 2fa is currently disabled in the UI. Re-enable and adjust tests when 2fa is re-enabled in the UI.
@@ -736,7 +977,7 @@ describe('PersonDetailsView', () => {
     personStore.personenuebersicht = mockPersonenuebersicht;
   });
 
-  test('renders form to add Zuordnung and triggers submit', async () => {
+  test('it renders form to add Zuordnung and triggers submit', async () => {
     // No existing Zuordnungen for the user for easier testing
     const mockPersonenuebersichtForAddZuordnung: PersonWithUebersicht = {
       personId: '1',
@@ -785,43 +1026,22 @@ describe('PersonDetailsView', () => {
     await befristungInput?.setValue('12.08.2099');
     await nextTick();
 
-    await nextTick();
-
-    const submitButton: Element | null = document.body.querySelector(
-      '[data-testid="zuordnung-creation-submit-button"]',
-    );
-    expect(submitButton).not.toBeNull();
-    await nextTick();
-
-    if (submitButton) {
-      submitButton.dispatchEvent(new Event('click'));
-    }
-
-    wrapper?.find('[data-testid="zuordnung-creation-submit-button"]').trigger('click');
-
+    const submitButton: Element = await waitForElement('[data-testid="zuordnung-creation-submit-button"]', wrapper, 10);
+    submitButton.dispatchEvent(new Event('click'));
     await flushPromises();
 
-    const confirmDialogButton: Element | null = document.body.querySelector(
-      '[data-testid="confirm-zuordnung-dialog-addition"]',
-    );
-    expect(confirmDialogButton).not.toBeNull();
-
-    if (confirmDialogButton) {
-      confirmDialogButton.dispatchEvent(new Event('click'));
-    }
+    const vm: PersonDetailsViewVm = wrapper?.vm as unknown as PersonDetailsViewVm;
+    await vm.confirmDialogAddition();
     await flushPromises();
 
-    const saveButton: Element | null = document.body.querySelector('[data-testid="zuordnung-changes-save"]');
-    expect(saveButton).not.toBeNull();
-
-    if (saveButton) {
-      saveButton.dispatchEvent(new Event('click'));
-    }
+    const saveButton: Element = await waitForElement('[data-testid="zuordnung-changes-save"]', wrapper, 10);
+    saveButton.dispatchEvent(new Event('click'));
     await flushPromises();
 
     const closeSuccessButton: Element | null = document.body.querySelector(
       '[data-testid="close-zuordnung-create-success-button"]',
     );
+
     expect(closeSuccessButton).not.toBeNull();
 
     if (closeSuccessButton) {
@@ -832,7 +1052,107 @@ describe('PersonDetailsView', () => {
     expect(wrapper?.find('[data-testid="zuordnung-edit-button"]').isVisible()).toBe(true);
   });
 
-  test('renders form to change Klasse and triggers submit', async () => {
+  describe('onSubmitCreateZuordnung', () => {
+    const setupEmptyZuordnungen = (): void => {
+      const mockPersonenuebersichtForAddZuordnung: PersonWithUebersicht = {
+        personId: '1',
+        vorname: 'John',
+        nachname: 'Orton',
+        benutzername: 'jorton',
+        lastModifiedZuordnungen: Date.now().toLocaleString(),
+        zuordnungen: [],
+      };
+      personStore.personenuebersicht = mockPersonenuebersichtForAddZuordnung;
+    };
+
+    const submitZuordnungForm = async (rolleId: string, withKlasse: boolean = false): Promise<void> => {
+      setupEmptyZuordnungen();
+
+      if (rolleId === 'LEHR1') {
+        if (!personenkontextStore.workflowStepResponse) {
+          throw new Error('workflowStepResponse is not defined');
+        }
+
+        personenkontextStore.workflowStepResponse.rollen.push({
+          id: 'LEHR1',
+          createdAt: '2024-06-25T13:03:53.802Z',
+          updatedAt: '2024-06-25T13:03:53.802Z',
+          name: 'Lehrkraft',
+          administeredBySchulstrukturknoten: '1',
+          rollenart: RollenArt.Lehr,
+          merkmale: new Set<RollenMerkmal>(),
+          systemrechte: ['ROLLEN_VERWALTEN'] as unknown as Set<RollenSystemRecht>,
+          administeredBySchulstrukturknotenName: 'Land SH',
+          administeredBySchulstrukturknotenKennung: '',
+          version: 1,
+        });
+      }
+
+      await nextTick();
+
+      wrapper?.find('[data-testid="zuordnung-edit-button"]').trigger('click');
+      await nextTick();
+
+      wrapper?.find('[data-testid="zuordnung-create-button"]').trigger('click');
+      await flushPromises();
+
+      const organisationAutocomplete: VueWrapper | undefined = wrapper
+        ?.findComponent({ ref: 'personenkontext-create' })
+        .findComponent({ ref: 'organisation-select' });
+      await organisationAutocomplete?.setValue('O1');
+      await organisationAutocomplete?.vm.$emit('update:search', 'O1');
+      await nextTick();
+
+      const rolleAutocomplete: VueWrapper | undefined = wrapper
+        ?.findComponent({ ref: 'personenkontext-create' })
+        .findComponent({ ref: 'rolle-select' });
+      await rolleAutocomplete?.setValue(rolleId);
+      await rolleAutocomplete?.vm.$emit('update:search', rolleId);
+      await nextTick();
+
+      if (withKlasse) {
+        const klasseAutocomplete: VueWrapper | undefined = wrapper
+          ?.findComponent({ ref: 'personenkontext-create' })
+          .findComponent({ ref: 'klasse-select' });
+        await klasseAutocomplete?.setValue('9a');
+        await klasseAutocomplete?.vm.$emit('update:search', '9a');
+        await nextTick();
+      }
+
+      const befristungInput: VueWrapper | undefined = wrapper
+        ?.findComponent({ ref: 'personenkontext-create' })
+        .findComponent({ ref: 'befristung-input-wrapper' })
+        .findComponent({ ref: 'befristung-input' });
+      await befristungInput?.setValue('12.08.2099');
+      await nextTick();
+
+      const vm: PersonDetailsViewVm = wrapper?.vm as unknown as PersonDetailsViewVm;
+      await vm.onSubmitCreateZuordnung();
+      await flushPromises();
+    };
+
+    test('it opens confirmation dialog when creating Zuordnung for non-LERN Rolle', async () => {
+      await submitZuordnungForm('LEHR1');
+
+      const confirmButton: Element | null = document.body.querySelector(
+        '[data-testid="confirm-zuordnung-dialog-addition"]',
+      );
+
+      expect(confirmButton).not.toBeNull();
+    });
+
+    test('it opens confirmation dialog when creating Zuordnung for LERN Rolle', async () => {
+      await submitZuordnungForm('54321', true);
+
+      const confirmButton: Element | null = document.body.querySelector(
+        '[data-testid="confirm-zuordnung-dialog-addition"]',
+      );
+
+      expect(confirmButton).not.toBeNull();
+    });
+  });
+
+  test('it renders form to change Klasse and triggers submit', async () => {
     organisationStore.getKlassenByOrganisationId = vi.fn().mockResolvedValue(undefined);
 
     await wrapper?.find('[data-testid="zuordnung-edit-button"]').trigger('click');
@@ -857,42 +1177,100 @@ describe('PersonDetailsView', () => {
 
     await wrapper?.find('[data-testid="klasse-change-submit-button"]').trigger('click');
     await nextTick();
-
-    await flushPromises();
     await flushPromises();
 
-    const confirmDialogButton: Element | null = await document.body.querySelector(
-      '[data-testid="confirm-change-klasse-button"]',
-    );
-    expect(confirmDialogButton).not.toBeNull();
-
-    if (confirmDialogButton) {
-      confirmDialogButton.dispatchEvent(new Event('click'));
-    }
+    const vm: PersonDetailsViewVm = wrapper?.vm as unknown as PersonDetailsViewVm;
+    await vm.confirmDialogChangeKlasse();
     await flushPromises();
 
-    const saveButton: Element | null = document.body.querySelector('[data-testid="zuordnung-changes-save"]');
-    expect(saveButton).not.toBeNull();
-
-    if (saveButton) {
-      saveButton.dispatchEvent(new Event('click'));
-    }
+    const saveButton: Element = await waitForElement('[data-testid="zuordnung-changes-save"]', wrapper, 10);
+    saveButton.dispatchEvent(new Event('click'));
     await flushPromises();
 
-    const closeSuccessButton: Element | null = document.body.querySelector(
-      '[data-testid="change-klasse-success-close"]',
-    );
-    expect(closeSuccessButton).not.toBeNull();
-
-    if (closeSuccessButton) {
-      closeSuccessButton.dispatchEvent(new Event('click'));
-    }
+    vm.closeChangeKlasseSuccessDialog();
     await flushPromises();
 
     expect(wrapper?.find('[data-testid="zuordnung-edit-button"]').isVisible()).toBe(true);
   });
 
-  test('renders form to delete Zuordnung and triggers submit', async () => {
+  test('it keeps Klassen of other Schulen in update payload when changing Klasse', async () => {
+    personStore.personenuebersicht = {
+      ...mockPersonenuebersicht,
+      zuordnungen: [
+        ...mockPersonenuebersicht.zuordnungen,
+        {
+          sskId: '4',
+          rolleId: '4',
+          sskName: 'Klasse B',
+          sskDstNr: '123459',
+          rolle: 'SuS',
+          rollenArt: RollenArt.Lern,
+          typ: OrganisationsTyp.Klasse,
+          administriertVon: '3',
+          editable: true,
+          merkmale: [] as unknown as RollenMerkmal,
+          befristung: '',
+          admins: ['test'],
+        },
+      ],
+    };
+
+    await nextTick();
+    await flushPromises();
+
+    if (!personenkontextStore.workflowStepResponse) {
+      throw new Error('workflowStepResponse is not defined');
+    }
+
+    personenkontextStore.workflowStepResponse.organisations.push({
+      id: '1',
+      administriertVon: 'string',
+      kennung: '123456',
+      name: 'Testschule Birmingham',
+      namensergaenzung: 'string',
+      kuerzel: 'TSB',
+      typ: 'SCHULE',
+    });
+
+    vi.spyOn(personenkontextStore, 'updatePersonenkontexte').mockResolvedValue(undefined as unknown as void);
+
+    organisationStore.getKlassenByOrganisationId = vi.fn().mockResolvedValue(undefined);
+
+    await wrapper?.find('[data-testid="zuordnung-edit-button"]').trigger('click');
+    await nextTick();
+
+    const checkbox: DOMWrapper<HTMLInputElement> | undefined = wrapper?.find(
+      '[data-testid="person-zuordnung-1"] input[type="checkbox"]',
+    );
+    await checkbox?.setValue(!checkbox.element.checked);
+    await nextTick();
+
+    await wrapper?.find('[data-testid="klasse-change-button"]').trigger('click');
+    await nextTick();
+
+    const klasseInput: VueWrapper | undefined = wrapper
+      ?.findComponent({ ref: 'klasse-change-form' })
+      .findComponent({ ref: 'klasse-select' });
+    await klasseInput?.setValue('9a');
+    await nextTick();
+
+    const vm: PersonDetailsViewVm = wrapper?.vm as unknown as PersonDetailsViewVm;
+    expect(typeof vm.confirmDialogChangeKlasse).toBe('function');
+    await vm.confirmDialogChangeKlasse();
+
+    const finalZuordnungen: ZuordnungForKlasseChange[] = vm.finalZuordnungen;
+
+    const keptKlasseForOtherSchule: ZuordnungForKlasseChange | undefined = finalZuordnungen.find(
+      (zuordnung: ZuordnungForKlasseChange) =>
+        zuordnung.typ === OrganisationsTyp.Klasse &&
+        zuordnung.administriertVon === '3' &&
+        zuordnung.sskName === 'Klasse B',
+    );
+
+    expect(keptKlasseForOtherSchule).toBeTruthy();
+  });
+
+  test('it renders form to delete Zuordnung and triggers submit', async () => {
     await wrapper?.find('[data-testid="zuordnung-edit-button"]').trigger('click');
     await nextTick();
 
@@ -976,6 +1354,93 @@ describe('PersonDetailsView', () => {
     personStore.personenuebersicht = mockPersonenuebersicht;
   });
 
+  test('it submits the form to delete a user', async () => {
+    const deleteSpy: MockInstance = vi
+      .spyOn(personStore, 'deletePersonById')
+      .mockResolvedValue(undefined as unknown as void);
+    const pushSpy: MockInstance = vi.spyOn(router, 'push');
+
+    const openDeleteUserDialogButton: DOMWrapper<Element> | undefined = wrapper?.find(
+      '[data-testid="open-person-delete-dialog-button"]',
+    );
+
+    expect(openDeleteUserDialogButton?.exists()).toBe(true);
+    await openDeleteUserDialogButton!.trigger('click');
+    await nextTick();
+    await flushPromises();
+
+    expect(document.body.querySelector('[data-testid="person-delete-confirmation-text"]')).not.toBeNull();
+
+    const deleteButton: Element | null = document.body.querySelector('[data-testid="person-delete-button"]');
+    expect(deleteButton).not.toBeNull();
+
+    if (deleteButton) {
+      deleteButton.dispatchEvent(new Event('click'));
+    }
+
+    await flushPromises();
+
+    expect(deleteSpy).toHaveBeenCalled();
+
+    const successText: Element | null = document.body.querySelector('[data-testid="person-delete-success-text"]');
+    expect(successText).not.toBeNull();
+
+    const closeSuccessButton: Element | null = document.body.querySelector(
+      '[data-testid="close-person-delete-success-dialog-button"]',
+    );
+    expect(closeSuccessButton).not.toBeNull();
+
+    if (closeSuccessButton) {
+      closeSuccessButton.dispatchEvent(new Event('click'));
+    }
+
+    await flushPromises();
+
+    expect(pushSpy).toHaveBeenCalledWith({ name: 'person-management' });
+  });
+
+  test('it submits the form to synchronize a user', async () => {
+    const syncSpy: MockInstance = vi
+      .spyOn(personStore, 'syncPersonById')
+      .mockResolvedValue(undefined as unknown as void);
+
+    const openSyncUserDialogButton: DOMWrapper<Element> | undefined = wrapper?.find(
+      '[data-testid="open-person-sync-dialog-button"]',
+    );
+
+    expect(openSyncUserDialogButton?.exists()).toBe(true);
+    await openSyncUserDialogButton!.trigger('click');
+    await nextTick();
+    await flushPromises();
+
+    expect(document.body.querySelector('[data-testid="person-sync-confirmation-text"]')).not.toBeNull();
+
+    const syncButton: Element | null = document.body.querySelector('[data-testid="person-sync-button"]');
+    expect(syncButton).not.toBeNull();
+
+    if (syncButton) {
+      syncButton.dispatchEvent(new Event('click'));
+    }
+
+    await flushPromises();
+
+    expect(syncSpy).toHaveBeenCalled();
+
+    const successText: Element | null = document.body.querySelector('[data-testid="person-sync-success-text"]');
+    expect(successText).not.toBeNull();
+
+    const closeSuccessButton: Element | null = document.body.querySelector(
+      '[data-testid="close-person-sync-success-dialog-button"]',
+    );
+    expect(closeSuccessButton).not.toBeNull();
+
+    if (closeSuccessButton) {
+      closeSuccessButton.dispatchEvent(new Event('click'));
+    }
+
+    await flushPromises();
+  });
+
   describe('change befristung', () => {
     test('it shows befristung change form', async () => {
       await wrapper?.find('[data-testid="zuordnung-edit-button"]').trigger('click');
@@ -1004,7 +1469,7 @@ describe('PersonDetailsView', () => {
       expect(wrapper?.find('[data-testid="befristung-change-button"]').exists()).toBe(false);
     });
 
-    test('button only active if one zuordnung is selected', async () => {
+    test('it keeps button only active if one zuordnung is selected', async () => {
       await wrapper?.find('[data-testid="zuordnung-edit-button"]').trigger('click');
       await nextTick();
       expect(wrapper?.find('[data-testid="befristung-change-button"]').attributes('disabled')).toBeDefined();
@@ -1045,7 +1510,7 @@ describe('PersonDetailsView', () => {
       [undefined, 'unbefristet'],
       [undefined, 'schuljahresende'],
     ])(
-      'renders form to change befristung with %s %s and triggers submit',
+      'it renders form to change befristung with %s %s and triggers submit',
       async (existingBefristung: string | undefined, existingBefristungOption: string | undefined) => {
         personStore.personenuebersicht = mockPersonenuebersichtLehr;
         if (personStore.personenuebersicht.zuordnungen[0]) {
@@ -1093,45 +1558,25 @@ describe('PersonDetailsView', () => {
         await befristungInput?.setValue('13.08.2099');
         await nextTick();
 
-        const submitButton: Element | null = document.body.querySelector(
+        const submitButton: Element = await waitForElement(
           '[data-testid="change-befristung-submit-button"]',
+          wrapper,
+          10,
         );
-        expect(submitButton).not.toBeNull();
+
+        submitButton.dispatchEvent(new Event('click'));
         await nextTick();
         await flushPromises();
 
-        if (submitButton) {
-          submitButton.dispatchEvent(new Event('click'));
-        }
-        await wrapper?.find('[data-testid="change-befristung-submit-button"]').trigger('click');
+        const vm: PersonDetailsViewVm = wrapper?.vm as unknown as PersonDetailsViewVm;
+        await vm.confirmDialogChangeBefristung();
         await flushPromises();
 
-        const confirmDialogButton: Element | null = document.body.querySelector(
-          '[data-testid="confirm-change-befristung-button"]',
-        );
-        expect(confirmDialogButton).not.toBeNull();
-
-        if (confirmDialogButton) {
-          confirmDialogButton.dispatchEvent(new Event('click'));
-        }
+        const saveButton: Element = await waitForElement('[data-testid="zuordnung-changes-save"]', wrapper, 10);
+        saveButton.dispatchEvent(new Event('click'));
         await flushPromises();
 
-        const saveButton: Element | null = document.body.querySelector('[data-testid="zuordnung-changes-save"]');
-        expect(saveButton).not.toBeNull();
-
-        if (saveButton) {
-          saveButton.dispatchEvent(new Event('click'));
-        }
-        await flushPromises();
-
-        const closeSuccessButton: Element | null = document.body.querySelector(
-          '[data-testid="change-befristung-success-close"]',
-        );
-        expect(closeSuccessButton).not.toBeNull();
-
-        if (closeSuccessButton) {
-          closeSuccessButton.dispatchEvent(new Event('click'));
-        }
+        vm.closeChangeBefristungSuccessDialog();
         await flushPromises();
 
         expect(wrapper?.find('[data-testid="zuordnung-edit-button"]').isVisible()).toBe(true);
@@ -1139,4 +1584,3 @@ describe('PersonDetailsView', () => {
     );
   });
 });
-

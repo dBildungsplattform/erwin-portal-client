@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test, type MockInstance } from 'vitest';
 import { DOMWrapper, VueWrapper, flushPromises, mount } from '@vue/test-utils';
 import RolleDetailsView from './RolleDetailsView.vue';
 import { setActivePinia, createPinia } from 'pinia';
@@ -181,6 +181,43 @@ describe('RolleDetailsView', () => {
     expect(document.querySelector('[data-testid="unsaved-changes-warning-text"]')).not.toBeNull();
   });
 
+  test('it confirms unsaved changes and resets state', async () => {
+    rolleStore.updatedRolle = null;
+    rolleStore.errorCode = '';
+
+    // activate edit mode so that edit controls are visible
+    await wrapper?.find('[data-testid="rolle-edit-button"]').trigger('click');
+    await nextTick();
+
+    // open the unsaved changes dialog by toggling the exposed ref
+    const vmWithDialog: { showUnsavedChangesDialog: boolean } = (wrapper as VueWrapper).vm as unknown as {
+      showUnsavedChangesDialog: boolean;
+    };
+    vmWithDialog.showUnsavedChangesDialog = true;
+    await nextTick();
+
+    expect(document.querySelector('[data-testid="unsaved-changes-warning-text"]')).not.toBeNull();
+
+    // simulate that an error was set before confirming, which should then be cleared
+    rolleStore.errorCode = 'ROLLE_UPDATE_ERROR';
+
+    const confirmButton: Element | null = document.querySelector('[data-testid="confirm-unsaved-changes-button"]');
+    expect(confirmButton).not.toBeNull();
+
+    if (confirmButton) {
+      await new DOMWrapper(confirmButton).trigger('click');
+    }
+
+    await flushPromises();
+
+    // edit mode should be disabled again (save button hidden, edit button visible)
+    expect(wrapper?.find('[data-testid="rolle-changes-save"]').exists()).toBe(false);
+    expect(wrapper?.find('[data-testid="rolle-edit-button"]').isVisible()).toBe(true);
+
+    // errorCode should be cleared by handleConfirmUnsavedChanges
+    expect(rolleStore.errorCode).toBe('');
+  });
+
   test('it submits the form and shows the success template', async () => {
     rolleStore.updatedRolle = null;
     rolleStore.errorCode = '';
@@ -236,5 +273,77 @@ describe('RolleDetailsView', () => {
     });
     // reset errorCode after test
     rolleStore.errorCode = '';
+  });
+
+  test('it clears error and navigates when the alert is closed', async () => {
+    // show the error alert
+    rolleStore.updatedRolle = null;
+    rolleStore.errorCode = 'ROLLE_UPDATE_ERROR';
+    await nextTick();
+
+    const pushSpy: MockInstance = vi.spyOn(router, 'push');
+
+    const spshAlertWrapper: VueWrapper | undefined = wrapper?.findComponent({ name: 'SpshAlert' });
+    expect(spshAlertWrapper?.exists()).toBe(true);
+
+    // simulate closing the alert via its navigation/close UI
+    spshAlertWrapper?.vm.$emit('update:modelValue', false);
+    await flushPromises();
+
+    // errorCode should be cleared by handleAlertClose
+    expect(rolleStore.errorCode).toBe('');
+    // navigation should go back to the rolle table
+    expect(pushSpy).toHaveBeenCalledWith({ name: 'rolle-management' });
+  });
+
+  test('it navigates back to Rolle table', async () => {
+    const push: MockInstance = vi.spyOn(router, 'push');
+    await wrapper?.find('[data-testid="close-layout-card-button"]').trigger('click');
+    expect(push).toHaveBeenCalledTimes(1);
+  });
+
+  test('it submits the form to delete a Rolle', async () => {
+    const deleteSpy: MockInstance = vi
+      .spyOn(rolleStore, 'deleteRolleById')
+      .mockResolvedValue(undefined as unknown as void);
+    const pushSpy: MockInstance = vi.spyOn(router, 'push');
+
+    const openDeleteRolleDialogButton: DOMWrapper<Element> | undefined = wrapper?.find(
+      '[data-testid="open-rolle-delete-dialog-button"]',
+    );
+
+    expect(openDeleteRolleDialogButton?.exists()).toBe(true);
+    await openDeleteRolleDialogButton!.trigger('click');
+    await nextTick();
+    await flushPromises();
+
+    expect(document.body.querySelector('[data-testid="rolle-delete-confirmation-text"]')).not.toBeNull();
+
+    const deleteButton: Element | null = document.body.querySelector('[data-testid="rolle-delete-button"]');
+    expect(deleteButton).not.toBeNull();
+
+    if (deleteButton) {
+      deleteButton.dispatchEvent(new Event('click'));
+    }
+
+    await flushPromises();
+
+    expect(deleteSpy).toHaveBeenCalled();
+
+    const successText: Element | null = document.body.querySelector('[data-testid="rolle-delete-success-text"]');
+    expect(successText).not.toBeNull();
+
+    const closeSuccessButton: Element | null = document.body.querySelector(
+      '[data-testid="close-rolle-delete-success-dialog-button"]',
+    );
+    expect(closeSuccessButton).not.toBeNull();
+
+    if (closeSuccessButton) {
+      closeSuccessButton.dispatchEvent(new Event('click'));
+    }
+
+    await flushPromises();
+
+    expect(pushSpy).toHaveBeenCalledWith({ name: 'rolle-management' });
   });
 });

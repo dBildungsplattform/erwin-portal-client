@@ -236,45 +236,55 @@ describe('PersonManagementView', () => {
   });
 
   test('it autoselects orga if only one is available', async () => {
-    /* set all orgas to 1 */
-    organisationStore.allOrganisationen = [
-      {
-        id: '9876',
-        name: 'Random Schulname Gymnasium',
-        kennung: '9356494',
-        namensergaenzung: 'Schule',
-        kuerzel: 'rsg',
-        typ: 'SCHULE',
-        administriertVon: '1',
+    // Unmount the default wrapper and remount with a single organisation
+    wrapper?.unmount();
+
+    const singleOrganisation: (typeof organisationStore.allOrganisationen)[0] = {
+      id: '9876',
+      name: 'Random Schulname Gymnasium',
+      kennung: '9356494',
+      namensergaenzung: 'Schule',
+      kuerzel: 'rsg',
+      typ: 'SCHULE',
+      administriertVon: '1',
+    };
+
+    const getAllOrganisationenSpy: MockInstance = vi
+      .spyOn(organisationStore, 'getAllOrganisationen')
+      .mockImplementation(async () => {
+        organisationStore.allOrganisationen = [singleOrganisation];
+        organisationStore.totalOrganisationen = 1;
+      });
+
+    wrapper = mount(PersonManagementView, {
+      attachTo: document.getElementById('app') || '',
+      global: {
+        components: {
+          PersonManagementView,
+        },
+        mocks: {
+          route: {
+            fullPath: 'full/path',
+          },
+        },
+        provide: {
+          organisationStore,
+          personStore,
+          personenkontextStore,
+          rolleStore,
+          searchFilterStore,
+          authStore,
+        },
       },
-    ];
+    });
+
     await flushPromises();
 
-    const schuleAutocomplete: VueWrapper | undefined = wrapper?.findComponent({ ref: 'schule-select' });
+    const schuleAutocomplete: VueWrapper | undefined = wrapper.findComponent({ ref: 'schule-select' });
 
-    expect(schuleAutocomplete?.text()).toContain('9356494 (Random Schulname Gymnasium)');
+    expect(schuleAutocomplete.text()).toContain('9356494 (Random Schulname Gymnasium)');
 
-    /* reset all orgas back to 2 */
-    organisationStore.allOrganisationen = [
-      {
-        id: '9876',
-        name: 'Random Schulname Gymnasium',
-        kennung: '9356494',
-        namensergaenzung: 'Schule',
-        kuerzel: 'rsg',
-        typ: 'SCHULE',
-        administriertVon: '1',
-      },
-      {
-        id: '198',
-        name: 'Realschule Randomname',
-        kennung: '13465987',
-        namensergaenzung: 'Schule',
-        kuerzel: 'rsrn',
-        typ: 'SCHULE',
-        administriertVon: '1',
-      },
-    ];
+    getAllOrganisationenSpy.mockRestore();
   });
 
   test('it reloads data after changing page', async () => {

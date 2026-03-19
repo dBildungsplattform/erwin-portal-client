@@ -96,6 +96,7 @@ describe('KlassenManagementView', () => {
   `;
 
     organisationStore.$reset();
+    searchFilterStore.$reset();
     organisationStore.allKlassen = [
       DoFactory.getKlasse(schule1, { name: '9a' }),
       DoFactory.getKlasse(schule2, { name: '9b' }),
@@ -248,35 +249,104 @@ describe('KlassenManagementView', () => {
     expect(klasseAutocomplete?.text()).toEqual('');
   });
 
-  it('should fetch all Klassen when search string is empty and no Schule is selected', async () => {
-    const klasseAutocomplete: VueWrapper | undefined = wrapper?.findComponent({ ref: 'klasse-select' });
+  describe('applySearchAndFilters', () => {
+    test('it applies stored selected Klassen filter on mount', async () => {
+      const schule: Organisation = schule1;
 
-    await klasseAutocomplete?.vm.$emit('update:search', '');
-    await flushPromises();
+      const klasse1: Organisation = DoFactory.getKlasse(schule, { id: 'K1' });
+      const klasse2: Organisation = DoFactory.getKlasse(schule, { id: 'K2' });
 
-    expect(organisationStore.getAllOrganisationen).toHaveBeenCalledWith({
-      offset: 0,
-      limit: searchFilterStore.klassenPerPage,
-      includeTyp: OrganisationsTyp.Klasse,
-      systemrechte: [RollenSystemRecht.KlassenVerwalten],
+      const getKlassenByOrganisationIdSpy: MockInstance = vi
+        .spyOn(organisationStore, 'getKlassenByOrganisationId')
+        .mockImplementation(async () => {
+          organisationStore.klassen = [klasse1, klasse2];
+        });
+
+      searchFilterStore.selectedSchuleForKlassen = schule.id;
+      searchFilterStore.selectedKlassenForKlassen = [klasse1.id];
+
+      wrapper?.unmount();
+      wrapper = mountComponent();
+      await flushPromises();
+
+      expect(getKlassenByOrganisationIdSpy).toHaveBeenCalled();
+      expect(organisationStore.allKlassen).toEqual([klasse1]);
+      getKlassenByOrganisationIdSpy.mockRestore();
     });
   });
 
-  it('should fetch Klassen for selected Schule when search string is empty', async () => {
-    const schule: Organisation = (await selectSchule())!;
-    const klasseAutocomplete: VueWrapper | undefined = wrapper?.findComponent({ ref: 'klasse-select' });
+  describe('updateKlassenSearch', async () => {
+    let schule: Organisation;
+    let klasseAutocomplete: VueWrapper | undefined;
 
-    await klasseAutocomplete?.vm.$emit('update:search', '');
-    await flushPromises();
-    const expectedFilter: OrganisationenFilter = {
-      administriertVon: [schule.id],
-      includeTyp: 'KLASSE',
-      limit: searchFilterStore.klassenPerPage,
-      offset: 0,
-      searchString: '',
-      systemrechte: ['KLASSEN_VERWALTEN'],
-    };
-    expect(organisationStore.getAllOrganisationen).toHaveBeenLastCalledWith(expectedFilter);
+    beforeEach(async () => {
+      klasseAutocomplete = wrapper?.findComponent({ ref: 'klasse-select' });
+    });
+
+    test('it should fetch Klassen matching search when no Schule is selected', async () => {
+      await klasseAutocomplete?.vm.$emit('update:search', '9a');
+      await flushPromises();
+
+      expect(organisationStore.getAllOrganisationen).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          offset: 0,
+          limit: searchFilterStore.klassenPerPage,
+          searchString: '9a',
+          includeTyp: OrganisationsTyp.Klasse,
+          systemrechte: ['KLASSEN_VERWALTEN'],
+        }),
+      );
+    });
+
+    test('it should fetch all Klassen when search string is empty and no Schule is selected', async () => {
+      await klasseAutocomplete?.vm.$emit('update:search', '');
+      await flushPromises();
+
+      expect(organisationStore.getAllOrganisationen).toHaveBeenCalledWith(
+        expect.objectContaining({
+          offset: 0,
+          limit: searchFilterStore.klassenPerPage,
+          includeTyp: OrganisationsTyp.Klasse,
+          systemrechte: [RollenSystemRecht.KlassenVerwalten],
+        }),
+      );
+    });
+
+    test('it should fetch Klassen for selected Schule when search string is empty', async () => {
+      schule = (await selectSchule())!;
+      await klasseAutocomplete?.vm.$emit('update:search', '');
+      await flushPromises();
+      const expectedFilter: OrganisationenFilter = {
+        administriertVon: [schule.id],
+        includeTyp: 'KLASSE',
+        limit: searchFilterStore.klassenPerPage,
+        offset: 0,
+        searchString: '',
+        systemrechte: ['KLASSEN_VERWALTEN'],
+      };
+      expect(organisationStore.getAllOrganisationen).toHaveBeenLastCalledWith(expectedFilter);
+    });
+
+    test('it should fetch Klassen if Schule is selected and search is cleared', async () => {
+      schule = (await selectSchule())!;
+      const selectedKlasseId: string = 'K1';
+
+      await klasseAutocomplete?.setValue(selectedKlasseId);
+      await nextTick();
+
+      await klasseAutocomplete?.vm.$emit('update:search', '');
+      await flushPromises();
+
+      expect(organisationStore.getAllOrganisationen).toHaveBeenLastCalledWith({
+        searchString: '',
+        offset: 0,
+        limit: searchFilterStore.klassenPerPage,
+        administriertVon: [schule.id],
+        includeTyp: OrganisationsTyp.Klasse,
+        systemrechte: ['KLASSEN_VERWALTEN'],
+        organisationIds: selectedKlasseId,
+      });
+    });
   });
 
   test('it does nothing if same schule is selected again', async () => {

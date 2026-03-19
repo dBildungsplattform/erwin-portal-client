@@ -55,4 +55,27 @@ describe('UnknownUserErrorView', () => {
     expect(alertTitle?.isVisible()).toBe(true);
     expect(alertTitle?.text()).toEqual('Abmelden');
   });
+
+  test('it redirects to logout URL when clicking the button', async () => {
+    const alertButton: WrapperLike | undefined = wrapper?.find('[data-testid="alert-button"]');
+
+    const expectedUrl: string = new URL(window.origin + '/api/auth/logout').toString();
+
+    const originalLocation: Location = window.location;
+    try {
+      Object.defineProperty(window, 'location', {
+        configurable: true,
+        value: { ...originalLocation, href: originalLocation.href },
+      });
+
+      await alertButton?.trigger('click');
+
+      expect(window.location.href).toBe(expectedUrl);
+    } finally {
+      Object.defineProperty(window, 'location', {
+        configurable: true,
+        value: originalLocation,
+      });
+    }
+  });
 });
