@@ -30,6 +30,10 @@ import PersonDetailsView from './PersonDetailsView.vue';
 let wrapper: VueWrapper | null = null;
 let router: Router;
 
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+
 interface ZuordnungForKlasseChange {
   typ: OrganisationsTyp;
   administriertVon: string;
@@ -1559,11 +1563,9 @@ describe('PersonDetailsView', () => {
           wrapper,
           10,
         );
-        await nextTick();
-        await flushPromises();
 
         submitButton.dispatchEvent(new Event('click'));
-        await wrapper?.find('[data-testid="change-befristung-submit-button"]').trigger('click');
+        await nextTick();
         await flushPromises();
 
         const vm: PersonDetailsViewVm = wrapper?.vm as unknown as PersonDetailsViewVm;
