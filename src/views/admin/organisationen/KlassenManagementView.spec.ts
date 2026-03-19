@@ -280,7 +280,6 @@ describe('KlassenManagementView', () => {
     let klasseAutocomplete: VueWrapper | undefined;
 
     beforeEach(async () => {
-      schule = (await selectSchule())!;
       klasseAutocomplete = wrapper?.findComponent({ ref: 'klasse-select' });
     });
 
@@ -314,6 +313,7 @@ describe('KlassenManagementView', () => {
     });
 
     test('it should fetch Klassen for selected Schule when search string is empty', async () => {
+      schule = (await selectSchule())!;
       await klasseAutocomplete?.vm.$emit('update:search', '');
       await flushPromises();
       const expectedFilter: OrganisationenFilter = {
@@ -328,6 +328,7 @@ describe('KlassenManagementView', () => {
     });
 
     test('it should fetch Klassen if Schule is selected and search is cleared', async () => {
+      schule = (await selectSchule())!;
       const selectedKlasseId: string = 'K1';
 
       await klasseAutocomplete?.setValue(selectedKlasseId);
