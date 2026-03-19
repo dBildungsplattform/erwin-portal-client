@@ -403,7 +403,6 @@ describe('PersonCreationView', () => {
       const vm: PersonCreationViewVm = wrapper?.vm as unknown as PersonCreationViewVm;
 
       vm.selectedRollen = ['1'];
-      expect(vm.selectedRollen).toEqual(['1']);
 
       vm.handleFieldReset('selectedRollen');
 
@@ -414,7 +413,6 @@ describe('PersonCreationView', () => {
       const vm: PersonCreationViewVm = wrapper?.vm as unknown as PersonCreationViewVm;
 
       vm.selectedKlasse = '9a';
-      expect(vm.selectedKlasse).toBe('9a');
 
       vm.handleFieldReset('selectedKlasse');
 
