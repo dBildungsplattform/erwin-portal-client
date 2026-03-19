@@ -398,7 +398,7 @@ describe('PersonCreationView', () => {
     expect(personenkontextStore.createdPersonWithKontext).toBe(null);
   });
 
-  describe('handleFieldReset', async () => {
+  describe('handleFieldReset', () => {
     test('it clears selectedRollen', () => {
       const vm: PersonCreationViewVm = wrapper?.vm as unknown as PersonCreationViewVm;
 

@@ -249,7 +249,7 @@ describe('KlassenManagementView', () => {
     expect(klasseAutocomplete?.text()).toEqual('');
   });
 
-  describe('applySearchAndFilters', async () => {
+  describe('applySearchAndFilters', () => {
     test('it applies stored selected Klassen filter on mount', async () => {
       const schule: Organisation = schule1;
 
