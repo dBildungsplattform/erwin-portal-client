@@ -20,7 +20,7 @@
   };
 
   const footerLinks: Ref<FooterLink[]> = ref([
-    { text: t('footer.contact'), href: 'mailto:support@dbildungscloud.de', external: false },
+    { text: t('footer.contact'), href: 'mailto:support@dbildungscloud.de', external: true },
     {
       text: t('footer.help'),
       href: '/hilfe',
