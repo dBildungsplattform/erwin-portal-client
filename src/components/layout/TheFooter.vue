@@ -20,7 +20,7 @@
   };
 
   const footerLinks: Ref<FooterLink[]> = ref([
-    { text: t('footer.contact'), href: 'https://www.secure-lernnetz.de/helpdesk/', external: true },
+    { text: t('footer.contact'), href: 'mailto:support@dbildungscloud.de', external: false },
     {
       text: t('footer.help'),
       href: '/hilfe',
@@ -36,11 +36,11 @@
       href: '/impressum_datenschutzerklaerung.html#privacy_policy',
       external: true,
     },
-    {
-      text: t('footer.accessibility'),
-      href: '/impressum_datenschutzerklaerung.html#accessibility',
-      external: true,
-    },
+    // {
+    //   text: t('footer.accessibility'),
+    //   href: '/impressum_datenschutzerklaerung.html#accessibility',
+    //   external: true,
+    // },
   ]);
 
   const sponsors: Ref<Sponsor[]> = ref([
