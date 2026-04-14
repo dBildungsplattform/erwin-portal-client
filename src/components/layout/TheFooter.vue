@@ -33,7 +33,7 @@
     },
     {
       text: t('footer.privacyPolicy'),
-      href: '/impressum_datenschutzerklaerung.html#privacy_policy',
+      href: '/impressum_datenschutzerklaerung.html',
       external: true,
     },
     // {
