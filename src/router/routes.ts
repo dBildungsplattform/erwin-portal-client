@@ -161,6 +161,18 @@ const routes: readonly RouteRecordRaw[] = [
     meta: defaultLayoutMetaPublic,
   },
   {
+    path: '/hilfe/kontakt',
+    name: 'help-contact',
+    component: () => import('../views/HelpContactView.vue'),
+    meta: defaultLayoutMetaPublic,
+  },
+  {
+    path: '/hilfe/faq',
+    name: 'help-faq',
+    component: () => import('../views/HelpFaqView.vue'),
+    meta: defaultLayoutMetaPublic,
+  },
+  {
     path: '/anleitungen',
     name: 'instructions',
     component: () => import('../views/InstructionsView.vue'),
