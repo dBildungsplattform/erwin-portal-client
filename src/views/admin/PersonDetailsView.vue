@@ -2784,7 +2784,6 @@
                   </PersonDelete>
                 </template>
               </div>
-
             </v-col>
             <v-col v-else-if="personStore.loading"> <v-progress-circular indeterminate></v-progress-circular></v-col>
           </v-row>
