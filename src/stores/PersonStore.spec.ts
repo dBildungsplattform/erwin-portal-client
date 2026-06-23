@@ -774,7 +774,7 @@ describe('PersonStore', () => {
       const lockUserBodyParams: LockUserBodyParams = getUserLockBodyParams(true);
       const lockPersonPromise: Promise<void> = personStore.lockPerson(mockPerson.person.id, lockUserBodyParams);
       expect(personStore.loading).toBe(true);
-      expect(lockPersonPromise).resolves.toBeUndefined();
+      await expect(lockPersonPromise).resolves.toBeUndefined();
       await lockPersonPromise;
       expect(personStore.loading).toBe(false);
     });
