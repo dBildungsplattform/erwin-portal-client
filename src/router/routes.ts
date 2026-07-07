@@ -178,7 +178,6 @@ const routes: readonly RouteRecordRaw[] = [
     name: 'no-second-factor',
     component: () => import('../views/NoSecondFactorView.vue'),
   },
-  /*
   {
     path: '/admin/rolle/mapping/:lms',
     name: 'rolle-mapping',
@@ -188,7 +187,6 @@ const routes: readonly RouteRecordRaw[] = [
       requiresPermission: 'rollenverwaltung',
     },
   },
-  */
   /*
   {
     path: '/admin/schultraeger',
