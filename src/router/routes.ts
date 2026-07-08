@@ -157,7 +157,7 @@ const routes: readonly RouteRecordRaw[] = [
   {
     path: '/hilfe',
     name: 'help',
-    component: () => import('../views/HelpView.vue'),
+    component: () => import('../views/InstructionsView.vue'),
     meta: defaultLayoutMetaPublic,
   },
   {
@@ -175,8 +175,7 @@ const routes: readonly RouteRecordRaw[] = [
   {
     path: '/anleitungen',
     name: 'instructions',
-    component: () => import('../views/InstructionsView.vue'),
-    meta: defaultLayoutMetaAuthenticated,
+    redirect: '/hilfe',
   },
   {
     path: '/:pathMatch(.*)*',
