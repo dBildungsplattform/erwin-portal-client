@@ -282,14 +282,25 @@
                     <v-table>
                       <thead>
                         <tr class="bg-grey-lighten-4">
-                          <th class="font-weight-bold text-caption">{{ t('help.users.table.action') }}</th>
                           <th
+                            id="helpUsersTableAction"
+                            class="font-weight-bold text-caption"
+                          >
+                            {{ t('help.users.table.action') }}
+                          </th>
+                          <th
+                            id="helpUsersTableAllowed"
                             class="text-center font-weight-bold text-caption"
                             style="width: 100px"
                           >
                             {{ t('help.users.table.allowed') }}
                           </th>
-                          <th class="font-weight-bold text-caption">{{ t('help.users.table.details') }}</th>
+                          <th
+                            id="helpUsersTableDetails"
+                            class="font-weight-bold text-caption"
+                          >
+                            {{ t('help.users.table.details') }}
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
