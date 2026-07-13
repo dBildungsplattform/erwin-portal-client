@@ -498,7 +498,7 @@
   },
   "help": {
     "title": "Hilfe - ErWIn-Portal",
-    "subtitle": "Hier finden Sie Antworten und Anleitungen zur Nutzung des Ergebnis- und Wissens-Informationssystems (ErWIn) sowie Informationen zum Identitätsmanagement (IDM) und Single Sign-On (SSO).",
+    "subtitle": "Hier finden Sie Antworten und Anleitungen zur Nutzung des Identitätsmanagement (IDM) und Single Sign-On (SSO) des ErWIn-Portals.",
     "tocTitle": "Inhalt dieses Bereichs:",
     "tabs": {
       "users": "Lehrkräfte, Schülerinnen & Schüler",
