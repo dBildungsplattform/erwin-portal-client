@@ -27,14 +27,14 @@
   import { useDisplay } from 'vuetify';
 
   const { mdAndDown }: { mdAndDown: Ref<boolean> } = useDisplay();
-  import { DDMMYYYY, DIN_91379A, NO_LEADING_TRAILING_SPACES } from '@/utils/validation';
+  import { DIN_91379A, NO_LEADING_TRAILING_SPACES } from '@/utils/validation';
   import { useOrganisationen } from '@/composables/useOrganisationen';
   import { useRollen, type TranslatedRolleWithAttrs } from '@/composables/useRollen';
   import { useKlassen } from '@/composables/useKlassen';
   import KopersInput from '@/components/admin/personen/KopersInput.vue';
   import PersonenkontextCreate from '@/components/admin/personen/PersonenkontextCreate.vue';
   import { type TranslatedObject } from '@/types.d';
-  import { getNextSchuljahresende, formatDateToISO, notInPast, isValidDate } from '@/utils/date';
+  import { getNextSchuljahresende, formatDateToISO } from '@/utils/date';
   import { isBefristungspflichtRolle, useBefristungUtils, type BefristungUtilsType } from '@/utils/befristung';
   import { isKopersRolle } from '@/utils/validationPersonenkontext';
 
@@ -99,16 +99,18 @@
           then: (schema: StringSchema<string | undefined, AnyObject, undefined, ''>) =>
             schema.required(t('admin.person.rules.kopersNr.required')),
         }),
-      selectedBefristung: string()
-        .test('notInPast', t('admin.befristung.rules.pastDateNotAllowed'), notInPast)
-        .test('isValidDate', t('admin.befristung.rules.invalidDateNotAllowed'), isValidDate)
-        .matches(DDMMYYYY, t('admin.befristung.rules.format'))
-        .when(['selectedRolle', 'selectedBefristungOption'], {
-          is: (selectedRolleIds: string[], selectedBefristungOption: string | undefined) =>
-            isBefristungspflichtRolle(selectedRolleIds) && selectedBefristungOption === undefined,
-          then: (schema: StringSchema<string | undefined, AnyObject, undefined, ''>) =>
-            schema.required(t('admin.befristung.rules.required')),
-        }),
+      // Not needed for Erwin Portal
+      // selectedBefristung: string()
+      //   .test('notInPast', t('admin.befristung.rules.pastDateNotAllowed'), notInPast)
+      //   .test('isValidDate', t('admin.befristung.rules.invalidDateNotAllowed'), isValidDate)
+      //   .matches(DDMMYYYY, t('admin.befristung.rules.format'))
+      //   .when(['selectedRolle', 'selectedBefristungOption'], {
+      //     is: (selectedRolleIds: string[], selectedBefristungOption: string | undefined) =>
+      //       isBefristungspflichtRolle(selectedRolleIds) && selectedBefristungOption === undefined,
+      //     then: (schema: StringSchema<string | undefined, AnyObject, undefined, ''>) =>
+      //       schema.required(t('admin.befristung.rules.required')),
+      //   }),
+      selectedBefristung: string().notRequired(),
     }),
   );
 
