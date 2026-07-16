@@ -264,8 +264,9 @@
     );
   });
 
+  // Not needed for Erwin Portal
   // Converts the ISO UTC formatted Befristung to the german local format, also ISO.
-  const translatedBefristung: ComputedRef<string> = computed(() => {
+  /*   const translatedBefristung: ComputedRef<string> = computed(() => {
     const ISOFormattedDate: string | undefined = schuleZuordnungFromCreatedKontext.value[0]?.befristung;
 
     if (!ISOFormattedDate) {
@@ -286,7 +287,7 @@
     const germanDate: string = utcDate.toLocaleDateString('de-DE');
 
     return germanDate;
-  });
+  }); */
 
   const creationErrorText: Ref<string> = ref('');
 
@@ -720,12 +721,13 @@
               ><span data-testid="created-person-rolle">{{ translatedRollenname.join(', ') }}</span></v-col
             >
           </v-row>
+          <!-- Not needed for Erwin Portal 
           <v-row>
             <v-col class="text-body bold text-right"> {{ $t('admin.befristung.befristung') }}: </v-col>
             <v-col class="text-body"
               ><span data-testid="created-person-befristung">{{ translatedBefristung }}</span></v-col
             >
-          </v-row>
+          </v-row> -->
           <v-row
             v-if="
               isLernRolle(
