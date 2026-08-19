@@ -207,6 +207,8 @@ export const useRolleStore: StoreDefinition<'rolleStore', RolleState, RolleGette
         this.rollenRetrievedByServiceProvider = response.data;
       } catch (error) {
         this.errorCode = getResponseErrorCode(error, 'ROLLE_STORE_ERROR');
+      } finally {
+        this.loading = false;
       }
     },
 

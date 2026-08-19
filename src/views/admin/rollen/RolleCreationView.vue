@@ -193,6 +193,7 @@
   }
 
   onMounted(async () => {
+    rolleStore.errorCode = '';
     rolleStore.createdRolle = null;
     await organisationStore.getAllOrganisationen({
       systemrechte: ['ROLLEN_VERWALTEN'],
