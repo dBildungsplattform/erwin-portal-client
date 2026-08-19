@@ -234,7 +234,6 @@
         :title="$t('admin.schule.showAll')"
         to="/admin/schulen"
       ></v-list-item>
-      <!--
       <v-list-item
         class="menu-bar-sub-item caption"
         @click="closeMenuOnMobile"
@@ -243,7 +242,6 @@
         :title="$t('admin.schule.createNew')"
         to="/admin/schulen/new"
       ></v-list-item>
-      -->
     </div>
     <!-- Not needed for ErWIn Portal -->
     <!-- Schulträgerverwaltung -->
