@@ -121,7 +121,8 @@
     for (const [index, zuordnung] of zuordnungen.entries()) {
       const tempSchulDaten: SchulDaten = {
         title: zuordnung.sskName,
-        info: t('profile.yourSchuleAdminsAre'),
+        // Not needed for ErWIn Portal atm.
+        // info: t('profile.yourSchuleAdminsAre'),
         schulAdmins: zuordnung.admins,
         labelAndValues: [
           {
@@ -149,15 +150,16 @@
         testIdValue: 'rolle-value-' + (index + 1),
       });
 
-      if (zuordnung.sskDstNr) {
-        tempSchulDaten.labelAndValues.push({
-          label: t('profile.dienstStellenNummer'),
-          labelAbbr: t('profile.dienstStellenNummerAbbr'),
-          value: zuordnung.sskDstNr,
-          testIdLabel: 'dienststellennummer-label-' + (index + 1),
-          testIdValue: 'dienststellennummer-value-' + (index + 1),
-        });
-      }
+      // Not needed for ErWIn Portal atm.
+      // if (zuordnung.sskDstNr) {
+      //   tempSchulDaten.labelAndValues.push({
+      //     label: t('profile.dienstStellenNummer'),
+      //     labelAbbr: t('profile.dienstStellenNummerAbbr'),
+      //     value: zuordnung.sskDstNr,
+      //     testIdLabel: 'dienststellennummer-label-' + (index + 1),
+      //     testIdValue: 'dienststellennummer-value-' + (index + 1),
+      //   });
+      // }
 
       if (zuordnung.befristung) {
         tempSchulDaten.labelAndValues.push({
@@ -813,6 +815,7 @@
                   </tbody>
                 </template>
               </v-table>
+              <!-- Not needed for ErWIn Portal atm.
               <p
                 class="pt-4 text-center text-body-1 text-medium-emphasis"
                 data-testid="schuladmins-info-text-with-icon"
@@ -828,6 +831,7 @@
                   {{ `${schuleData.info} ${schuleData.schulAdmins?.join(', ') || ''}` }}
                 </span>
               </p>
+              -->
             </v-col>
           </v-row>
         </LayoutCard>
