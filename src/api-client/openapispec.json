@@ -125,45 +125,23 @@
         "operationId": "KeycloakInternalController_getExternalData",
         "summary": "External Data about requested in user.",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KeycloakInternalDataBody"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Returns external Data about the requested user.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserExeternalDataResponse"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Keycloakinternal"
-        ]
-      }
-    },
-    "/api/keycloakinternal/newldapuser": {
-      "post": {
-        "operationId": "KeycloakInternalController_onNewLdapUser",
-        "summary": "Send data for a new LDAP user",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/LdapUserDataBodyParams"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "User was created",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LdapUserDataBodyParams"
+                  "$ref": "#/components/schemas/UserExternalDataResponse"
                 }
               }
             }
@@ -845,51 +823,6 @@
                 }
               }
             }
-          },
-          "403": {
-            "description": "Insufficient permissions to perform operation."
-          },
-          "404": {
-            "description": "The person was not found."
-          },
-          "500": {
-            "description": "An internal server error occurred."
-          },
-          "502": {
-            "description": "A downstream server returned an error."
-          }
-        },
-        "tags": [
-          "personen"
-        ],
-        "security": [
-          {
-            "oauth2": [
-              "openid"
-            ]
-          },
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/personen/{personId}/sync": {
-      "post": {
-        "operationId": "PersonController_syncPerson",
-        "parameters": [
-          {
-            "name": "personId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "User will be synced."
           },
           "403": {
             "description": "Insufficient permissions to perform operation."
@@ -4065,6 +3998,37 @@
         ]
       }
     },
+    "/api/keycloakprovisioning/newldapuser": {
+      "post": {
+        "operationId": "KeycloakProvisioningController_onNewLdapUser",
+        "summary": "Send data for a new LDAP user",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LdapUserDataBodyParams"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User was created"
+          },
+          "403": {
+            "description": "Forbidden Operation or Argument"
+          },
+          "500": {
+            "description": "Internal Server Error while Saving Ldap User"
+          }
+        },
+        "tags": [
+          "Keycloakprovisioning"
+        ]
+      }
+    },
     "/api/rollenMapping/{id}": {
       "get": {
         "operationId": "RollenMappingController_getRollenMappingWithId",
@@ -4391,35 +4355,17 @@
     "/api/rollenMapping/extract-mapping/keycloak": {
       "post": {
         "operationId": "RollenMappingController_getMappingForRolleAndServiceProvider",
-        "parameters": [
-          {
-            "description": "The id of the user that needs token authentication.",
-            "name": "userId",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "The id of the client the user is trying to access.",
-            "name": "clientId",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "The name of the client the user is trying to access.",
-            "name": "clientName",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RollenMappingExtractMappingRequestBody"
+              }
             }
           }
-        ],
+        },
         "responses": {
           "200": {
             "description": "Mapping successfully extracted",
@@ -5972,154 +5918,120 @@
           "timeLimits"
         ]
       },
-      "UserExeternalDataResponseOx": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id"
-        ]
-      },
-      "UserExeternalDataResponseItslearning": {
-        "type": "object",
-        "properties": {
-          "personId": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "personId"
-        ]
-      },
-      "UserExeternalDataResponseVidis": {
-        "type": "object",
-        "properties": {
-          "dienststellenNummern": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        },
-        "required": [
-          "dienststellenNummern"
-        ]
-      },
-      "UserExeternalDataResponseOpshPk": {
-        "type": "object",
-        "properties": {
-          "rollenArt": {
-            "type": "string"
-          },
-          "dstNr": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "rollenArt",
-          "dstNr"
-        ]
-      },
-      "UserExeternalDataResponseOpsh": {
-        "type": "object",
-        "properties": {
-          "vorname": {
-            "type": "string"
-          },
-          "nachname": {
-            "type": "string"
-          },
-          "personenkontexte": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/UserExeternalDataResponseOpshPk"
-            }
-          },
-          "emailAdresse": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "vorname",
-          "nachname",
-          "personenkontexte",
-          "emailAdresse"
-        ]
-      },
-      "UserExeternalDataResponseOnlineDateiablage": {
-        "type": "object",
-        "properties": {
-          "personId": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "personId"
-        ]
-      },
-      "UserExeternalDataResponse": {
-        "type": "object",
-        "properties": {
-          "ox": {
-            "$ref": "#/components/schemas/UserExeternalDataResponseOx"
-          },
-          "itslearning": {
-            "$ref": "#/components/schemas/UserExeternalDataResponseItslearning"
-          },
-          "vidis": {
-            "$ref": "#/components/schemas/UserExeternalDataResponseVidis"
-          },
-          "opsh": {
-            "$ref": "#/components/schemas/UserExeternalDataResponseOpsh"
-          },
-          "onlineDateiablage": {
-            "$ref": "#/components/schemas/UserExeternalDataResponseOnlineDateiablage"
-          }
-        },
-        "required": [
-          "ox",
-          "itslearning",
-          "vidis",
-          "opsh",
-          "onlineDateiablage"
-        ]
-      },
-      "LdapUserDataBodyParams": {
+      "KeycloakInternalDataBody": {
         "type": "object",
         "properties": {
           "keycloakUserId": {
+            "type": "string",
+            "description": "The Keycloak user ID of the user to be provisioned."
+          }
+        },
+        "required": [
+          "keycloakUserId"
+        ]
+      },
+      "UserExternalPersonDataResponse": {
+        "type": "object",
+        "properties": {
+          "externalId": {
             "type": "string"
           },
-          "userName": {
+          "vorname": {
+            "type": "string"
+          },
+          "familienname": {
+            "type": "string"
+          },
+          "rolle": {
             "type": "string"
           },
           "email": {
             "type": "string"
           },
-          "firstName": {
+          "geburtsdatum": {
+            "format": "date-time",
             "type": "string"
           },
-          "lastName": {
-            "type": "string"
-          },
-          "ldapDn": {
-            "type": "string"
-          },
-          "ldapId": {
+          "erwinId": {
             "type": "string"
           }
         },
         "required": [
-          "keycloakUserId",
-          "userName",
+          "externalId",
+          "vorname",
+          "familienname",
+          "rolle",
           "email",
-          "firstName",
-          "lastName",
-          "ldapDn",
-          "ldapId"
+          "geburtsdatum",
+          "erwinId"
+        ]
+      },
+      "UserExternalSchuleDataResponse": {
+        "type": "object",
+        "properties": {
+          "externalId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "zugehoerigZu": {
+            "type": "string"
+          },
+          "erwinId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "externalId",
+          "name",
+          "zugehoerigZu",
+          "erwinId"
+        ]
+      },
+      "UserExternalKlasseDataResponse": {
+        "type": "object",
+        "properties": {
+          "externalId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "erwinId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "externalId",
+          "name",
+          "erwinId"
+        ]
+      },
+      "UserExternalDataResponse": {
+        "type": "object",
+        "properties": {
+          "keycloakUserId": {
+            "type": "string"
+          },
+          "personData": {
+            "$ref": "#/components/schemas/UserExternalPersonDataResponse"
+          },
+          "schuleData": {
+            "$ref": "#/components/schemas/UserExternalSchuleDataResponse"
+          },
+          "klasseData": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserExternalKlasseDataResponse"
+            }
+          }
+        },
+        "required": [
+          "keycloakUserId",
+          "personData",
+          "schuleData",
+          "klasseData"
         ]
       },
       "CreatePersonMigrationBodyParams": {
@@ -6662,7 +6574,8 @@
           "ORGADMIN",
           "LEIT",
           "SYSADMIN",
-          "PORTALADMIN"
+          "PORTALADMIN",
+          "PORTALADMINMANAGER"
         ]
       },
       "RollenMerkmal": {
@@ -7605,7 +7518,8 @@
         "enum": [
           "URL",
           "EMAIL",
-          "SCHULPORTAL_ADMINISTRATION"
+          "SCHULPORTAL_ADMINISTRATION",
+          "SELF"
         ]
       },
       "ServiceProviderKategorie": {
@@ -8292,11 +8206,120 @@
           "total"
         ]
       },
+      "KlasseLdapImportBodyParams": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "externalId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "externalId"
+        ]
+      },
+      "SchuleLdapImportBodyParams": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "zugehoerigZu": {
+            "type": "string"
+          },
+          "externalId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "zugehoerigZu",
+          "externalId"
+        ]
+      },
+      "PersonLdapImportDataBody": {
+        "type": "object",
+        "properties": {
+          "keycloakUserId": {
+            "type": "string"
+          },
+          "vorname": {
+            "type": "string"
+          },
+          "nachname": {
+            "type": "string"
+          },
+          "externalId": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "geburtstag": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "keycloakUserId",
+          "vorname",
+          "nachname",
+          "externalId",
+          "email",
+          "geburtstag"
+        ]
+      },
+      "LdapUserDataBodyParams": {
+        "type": "object",
+        "properties": {
+          "klassen": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/KlasseLdapImportBodyParams"
+            }
+          },
+          "schule": {
+            "$ref": "#/components/schemas/SchuleLdapImportBodyParams"
+          },
+          "person": {
+            "$ref": "#/components/schemas/PersonLdapImportDataBody"
+          },
+          "rolle": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "klassen",
+          "schule",
+          "person",
+          "rolle"
+        ]
+      },
       "RollenMapping": {
         "type": "object",
         "properties": {
 
         }
+      },
+      "RollenMappingExtractMappingRequestBody": {
+        "type": "object",
+        "properties": {
+          "keycloakUserId": {
+            "type": "string",
+            "description": "The keycloakUserId of the user that needs token authentication."
+          },
+          "clientName": {
+            "type": "string",
+            "description": "The name of the client the user is trying to access."
+          }
+        },
+        "required": [
+          "keycloakUserId",
+          "clientName"
+        ]
       },
       "RollenMappingRolleUserIdResponse": {
         "type": "object",

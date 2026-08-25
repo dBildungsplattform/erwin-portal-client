@@ -1343,51 +1343,65 @@ export interface ImportvorgangByIdBodyParams {
 /**
  * 
  * @export
+ * @interface KeycloakInternalDataBody
+ */
+export interface KeycloakInternalDataBody {
+    /**
+     * The Keycloak user ID of the user to be provisioned.
+     * @type {string}
+     * @memberof KeycloakInternalDataBody
+     */
+    'keycloakUserId': string;
+}
+/**
+ * 
+ * @export
+ * @interface KlasseLdapImportBodyParams
+ */
+export interface KlasseLdapImportBodyParams {
+    /**
+     * 
+     * @type {string}
+     * @memberof KlasseLdapImportBodyParams
+     */
+    'name': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof KlasseLdapImportBodyParams
+     */
+    'externalId': string;
+}
+/**
+ * 
+ * @export
  * @interface LdapUserDataBodyParams
  */
 export interface LdapUserDataBodyParams {
     /**
      * 
-     * @type {string}
+     * @type {Array<KlasseLdapImportBodyParams>}
      * @memberof LdapUserDataBodyParams
      */
-    'keycloakUserId': string;
+    'klassen': Array<KlasseLdapImportBodyParams>;
+    /**
+     * 
+     * @type {SchuleLdapImportBodyParams}
+     * @memberof LdapUserDataBodyParams
+     */
+    'schule': SchuleLdapImportBodyParams;
+    /**
+     * 
+     * @type {PersonLdapImportDataBody}
+     * @memberof LdapUserDataBodyParams
+     */
+    'person': PersonLdapImportDataBody;
     /**
      * 
      * @type {string}
      * @memberof LdapUserDataBodyParams
      */
-    'userName': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof LdapUserDataBodyParams
-     */
-    'email': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof LdapUserDataBodyParams
-     */
-    'firstName': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof LdapUserDataBodyParams
-     */
-    'lastName': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof LdapUserDataBodyParams
-     */
-    'ldapDn': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof LdapUserDataBodyParams
-     */
-    'ldapId': string;
+    'rolle': string;
 }
 /**
  * 
@@ -1898,6 +1912,49 @@ export interface PersonInfoResponse {
      * @memberof PersonInfoResponse
      */
     'email': PersonResponseEmail | null;
+}
+/**
+ * 
+ * @export
+ * @interface PersonLdapImportDataBody
+ */
+export interface PersonLdapImportDataBody {
+    /**
+     * 
+     * @type {string}
+     * @memberof PersonLdapImportDataBody
+     */
+    'keycloakUserId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PersonLdapImportDataBody
+     */
+    'vorname': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PersonLdapImportDataBody
+     */
+    'nachname': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PersonLdapImportDataBody
+     */
+    'externalId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PersonLdapImportDataBody
+     */
+    'email': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PersonLdapImportDataBody
+     */
+    'geburtstag': string;
 }
 /**
  * 
@@ -3040,12 +3097,32 @@ export const RollenArt = {
     Orgadmin: 'ORGADMIN',
     Leit: 'LEIT',
     Sysadmin: 'SYSADMIN',
-    Portaladmin: 'PORTALADMIN'
+    Portaladmin: 'PORTALADMIN',
+    Portaladminmanager: 'PORTALADMINMANAGER'
 } as const;
 
 export type RollenArt = typeof RollenArt[keyof typeof RollenArt];
 
 
+/**
+ * 
+ * @export
+ * @interface RollenMappingExtractMappingRequestBody
+ */
+export interface RollenMappingExtractMappingRequestBody {
+    /**
+     * The keycloakUserId of the user that needs token authentication.
+     * @type {string}
+     * @memberof RollenMappingExtractMappingRequestBody
+     */
+    'keycloakUserId': string;
+    /**
+     * The name of the client the user is trying to access.
+     * @type {string}
+     * @memberof RollenMappingExtractMappingRequestBody
+     */
+    'clientName': string;
+}
 /**
  * 
  * @export
@@ -3132,6 +3209,31 @@ export interface RollenSystemRechtServiceProviderIDResponse {
      * @memberof RollenSystemRechtServiceProviderIDResponse
      */
     'serviceProviderIds': Array<string>;
+}
+/**
+ * 
+ * @export
+ * @interface SchuleLdapImportBodyParams
+ */
+export interface SchuleLdapImportBodyParams {
+    /**
+     * 
+     * @type {string}
+     * @memberof SchuleLdapImportBodyParams
+     */
+    'name': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof SchuleLdapImportBodyParams
+     */
+    'zugehoerigZu': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof SchuleLdapImportBodyParams
+     */
+    'externalId': string;
 }
 /**
  * 
@@ -3243,10 +3345,10 @@ export type ServiceProviderSystem = typeof ServiceProviderSystem[keyof typeof Se
  */
 
 export const ServiceProviderTarget = {
-    Self: 'SELF',
     Url: 'URL',
     Email: 'EMAIL',
-    SchulportalAdministration: 'SCHULPORTAL_ADMINISTRATION'
+    SchulportalAdministration: 'SCHULPORTAL_ADMINISTRATION',
+    Self: 'SELF'
 } as const;
 
 export type ServiceProviderTarget = typeof ServiceProviderTarget[keyof typeof ServiceProviderTarget];
@@ -3638,141 +3740,138 @@ export interface UpdateServiceProviderBodyParams {
 /**
  * 
  * @export
- * @interface UserExeternalDataResponse
+ * @interface UserExternalDataResponse
  */
-export interface UserExeternalDataResponse {
+export interface UserExternalDataResponse {
     /**
      * 
-     * @type {UserExeternalDataResponseOx}
-     * @memberof UserExeternalDataResponse
+     * @type {string}
+     * @memberof UserExternalDataResponse
      */
-    'ox': UserExeternalDataResponseOx;
+    'keycloakUserId': string;
     /**
      * 
-     * @type {UserExeternalDataResponseItslearning}
-     * @memberof UserExeternalDataResponse
+     * @type {UserExternalPersonDataResponse}
+     * @memberof UserExternalDataResponse
      */
-    'itslearning': UserExeternalDataResponseItslearning;
+    'personData': UserExternalPersonDataResponse;
     /**
      * 
-     * @type {UserExeternalDataResponseVidis}
-     * @memberof UserExeternalDataResponse
+     * @type {UserExternalSchuleDataResponse}
+     * @memberof UserExternalDataResponse
      */
-    'vidis': UserExeternalDataResponseVidis;
+    'schuleData': UserExternalSchuleDataResponse;
     /**
      * 
-     * @type {UserExeternalDataResponseOpsh}
-     * @memberof UserExeternalDataResponse
+     * @type {Array<UserExternalKlasseDataResponse>}
+     * @memberof UserExternalDataResponse
      */
-    'opsh': UserExeternalDataResponseOpsh;
-    /**
-     * 
-     * @type {UserExeternalDataResponseOnlineDateiablage}
-     * @memberof UserExeternalDataResponse
-     */
-    'onlineDateiablage': UserExeternalDataResponseOnlineDateiablage;
+    'klasseData': Array<UserExternalKlasseDataResponse>;
 }
 /**
  * 
  * @export
- * @interface UserExeternalDataResponseItslearning
+ * @interface UserExternalKlasseDataResponse
  */
-export interface UserExeternalDataResponseItslearning {
+export interface UserExternalKlasseDataResponse {
     /**
      * 
      * @type {string}
-     * @memberof UserExeternalDataResponseItslearning
+     * @memberof UserExternalKlasseDataResponse
      */
-    'personId': string;
+    'externalId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserExternalKlasseDataResponse
+     */
+    'name': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserExternalKlasseDataResponse
+     */
+    'erwinId': string;
 }
 /**
  * 
  * @export
- * @interface UserExeternalDataResponseOnlineDateiablage
+ * @interface UserExternalPersonDataResponse
  */
-export interface UserExeternalDataResponseOnlineDateiablage {
+export interface UserExternalPersonDataResponse {
     /**
      * 
      * @type {string}
-     * @memberof UserExeternalDataResponseOnlineDateiablage
+     * @memberof UserExternalPersonDataResponse
      */
-    'personId': string;
-}
-/**
- * 
- * @export
- * @interface UserExeternalDataResponseOpsh
- */
-export interface UserExeternalDataResponseOpsh {
+    'externalId': string;
     /**
      * 
      * @type {string}
-     * @memberof UserExeternalDataResponseOpsh
+     * @memberof UserExternalPersonDataResponse
      */
     'vorname': string;
     /**
      * 
      * @type {string}
-     * @memberof UserExeternalDataResponseOpsh
+     * @memberof UserExternalPersonDataResponse
      */
-    'nachname': string;
-    /**
-     * 
-     * @type {Array<UserExeternalDataResponseOpshPk>}
-     * @memberof UserExeternalDataResponseOpsh
-     */
-    'personenkontexte': Array<UserExeternalDataResponseOpshPk>;
+    'familienname': string;
     /**
      * 
      * @type {string}
-     * @memberof UserExeternalDataResponseOpsh
+     * @memberof UserExternalPersonDataResponse
      */
-    'emailAdresse': string;
+    'rolle': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserExternalPersonDataResponse
+     */
+    'email': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserExternalPersonDataResponse
+     */
+    'geburtsdatum': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserExternalPersonDataResponse
+     */
+    'erwinId': string;
 }
 /**
  * 
  * @export
- * @interface UserExeternalDataResponseOpshPk
+ * @interface UserExternalSchuleDataResponse
  */
-export interface UserExeternalDataResponseOpshPk {
+export interface UserExternalSchuleDataResponse {
     /**
      * 
      * @type {string}
-     * @memberof UserExeternalDataResponseOpshPk
+     * @memberof UserExternalSchuleDataResponse
      */
-    'rollenArt': string;
+    'externalId': string;
     /**
      * 
      * @type {string}
-     * @memberof UserExeternalDataResponseOpshPk
+     * @memberof UserExternalSchuleDataResponse
      */
-    'dstNr': string;
-}
-/**
- * 
- * @export
- * @interface UserExeternalDataResponseOx
- */
-export interface UserExeternalDataResponseOx {
+    'name': string;
     /**
      * 
      * @type {string}
-     * @memberof UserExeternalDataResponseOx
+     * @memberof UserExternalSchuleDataResponse
      */
-    'id': string;
-}
-/**
- * 
- * @export
- * @interface UserExeternalDataResponseVidis
- */
-export interface UserExeternalDataResponseVidis {
+    'zugehoerigZu': string;
     /**
      * 
-     * @type {Array<string>}
-     * @memberof UserExeternalDataResponseVidis
+     * @type {string}
+     * @memberof UserExternalSchuleDataResponse
      */
-    'dienststellenNummern': Array<string>;
+    'erwinId': string;
 }
 /**
  * 
@@ -6549,10 +6648,13 @@ export const KeycloakinternalApiAxiosParamCreator = function (configuration?: Co
         /**
          * 
          * @summary External Data about requested in user.
+         * @param {KeycloakInternalDataBody} keycloakInternalDataBody 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        keycloakInternalControllerGetExternalData: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+        keycloakInternalControllerGetExternalData: async (keycloakInternalDataBody: KeycloakInternalDataBody, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'keycloakInternalDataBody' is not null or undefined
+            assertParamExists('keycloakInternalControllerGetExternalData', 'keycloakInternalDataBody', keycloakInternalDataBody)
             const localVarPath = `/keycloakinternal/externaldata`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -6567,15 +6669,107 @@ export const KeycloakinternalApiAxiosParamCreator = function (configuration?: Co
 
 
     
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(keycloakInternalDataBody, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
                 options: localVarRequestOptions,
             };
         },
+    }
+};
+
+/**
+ * KeycloakinternalApi - functional programming interface
+ * @export
+ */
+export const KeycloakinternalApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = KeycloakinternalApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary External Data about requested in user.
+         * @param {KeycloakInternalDataBody} keycloakInternalDataBody 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async keycloakInternalControllerGetExternalData(keycloakInternalDataBody: KeycloakInternalDataBody, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserExternalDataResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.keycloakInternalControllerGetExternalData(keycloakInternalDataBody, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+    }
+};
+
+/**
+ * KeycloakinternalApi - factory interface
+ * @export
+ */
+export const KeycloakinternalApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = KeycloakinternalApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary External Data about requested in user.
+         * @param {KeycloakInternalDataBody} keycloakInternalDataBody 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        keycloakInternalControllerGetExternalData(keycloakInternalDataBody: KeycloakInternalDataBody, options?: any): AxiosPromise<UserExternalDataResponse> {
+            return localVarFp.keycloakInternalControllerGetExternalData(keycloakInternalDataBody, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * KeycloakinternalApi - interface
+ * @export
+ * @interface KeycloakinternalApi
+ */
+export interface KeycloakinternalApiInterface {
+    /**
+     * 
+     * @summary External Data about requested in user.
+     * @param {KeycloakInternalDataBody} keycloakInternalDataBody 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof KeycloakinternalApiInterface
+     */
+    keycloakInternalControllerGetExternalData(keycloakInternalDataBody: KeycloakInternalDataBody, options?: AxiosRequestConfig): AxiosPromise<UserExternalDataResponse>;
+
+}
+
+/**
+ * KeycloakinternalApi - object-oriented interface
+ * @export
+ * @class KeycloakinternalApi
+ * @extends {BaseAPI}
+ */
+export class KeycloakinternalApi extends BaseAPI implements KeycloakinternalApiInterface {
+    /**
+     * 
+     * @summary External Data about requested in user.
+     * @param {KeycloakInternalDataBody} keycloakInternalDataBody 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof KeycloakinternalApi
+     */
+    public keycloakInternalControllerGetExternalData(keycloakInternalDataBody: KeycloakInternalDataBody, options?: AxiosRequestConfig) {
+        return KeycloakinternalApiFp(this.configuration).keycloakInternalControllerGetExternalData(keycloakInternalDataBody, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+/**
+ * KeycloakprovisioningApi - axios parameter creator
+ * @export
+ */
+export const KeycloakprovisioningApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
         /**
          * 
          * @summary Send data for a new LDAP user
@@ -6583,10 +6777,10 @@ export const KeycloakinternalApiAxiosParamCreator = function (configuration?: Co
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        keycloakInternalControllerOnNewLdapUser: async (ldapUserDataBodyParams: LdapUserDataBodyParams, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+        keycloakProvisioningControllerOnNewLdapUser: async (ldapUserDataBodyParams: LdapUserDataBodyParams, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'ldapUserDataBodyParams' is not null or undefined
-            assertParamExists('keycloakInternalControllerOnNewLdapUser', 'ldapUserDataBodyParams', ldapUserDataBodyParams)
-            const localVarPath = `/api/keycloakinternal/newldapuser`;
+            assertParamExists('keycloakProvisioningControllerOnNewLdapUser', 'ldapUserDataBodyParams', ldapUserDataBodyParams)
+            const localVarPath = `/api/keycloakprovisioning/newldapuser`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -6616,22 +6810,12 @@ export const KeycloakinternalApiAxiosParamCreator = function (configuration?: Co
 };
 
 /**
- * KeycloakinternalApi - functional programming interface
+ * KeycloakprovisioningApi - functional programming interface
  * @export
  */
-export const KeycloakinternalApiFp = function(configuration?: Configuration) {
-    const localVarAxiosParamCreator = KeycloakinternalApiAxiosParamCreator(configuration)
+export const KeycloakprovisioningApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = KeycloakprovisioningApiAxiosParamCreator(configuration)
     return {
-        /**
-         * 
-         * @summary External Data about requested in user.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async keycloakInternalControllerGetExternalData(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserExeternalDataResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.keycloakInternalControllerGetExternalData(options);
-            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-        },
         /**
          * 
          * @summary Send data for a new LDAP user
@@ -6639,29 +6823,20 @@ export const KeycloakinternalApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async keycloakInternalControllerOnNewLdapUser(ldapUserDataBodyParams: LdapUserDataBodyParams, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LdapUserDataBodyParams>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.keycloakInternalControllerOnNewLdapUser(ldapUserDataBodyParams, options);
+        async keycloakProvisioningControllerOnNewLdapUser(ldapUserDataBodyParams: LdapUserDataBodyParams, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.keycloakProvisioningControllerOnNewLdapUser(ldapUserDataBodyParams, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
     }
 };
 
 /**
- * KeycloakinternalApi - factory interface
+ * KeycloakprovisioningApi - factory interface
  * @export
  */
-export const KeycloakinternalApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    const localVarFp = KeycloakinternalApiFp(configuration)
+export const KeycloakprovisioningApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = KeycloakprovisioningApiFp(configuration)
     return {
-        /**
-         * 
-         * @summary External Data about requested in user.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        keycloakInternalControllerGetExternalData(options?: any): AxiosPromise<UserExeternalDataResponse> {
-            return localVarFp.keycloakInternalControllerGetExternalData(options).then((request) => request(axios, basePath));
-        },
         /**
          * 
          * @summary Send data for a new LDAP user
@@ -6669,67 +6844,47 @@ export const KeycloakinternalApiFactory = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        keycloakInternalControllerOnNewLdapUser(ldapUserDataBodyParams: LdapUserDataBodyParams, options?: any): AxiosPromise<LdapUserDataBodyParams> {
-            return localVarFp.keycloakInternalControllerOnNewLdapUser(ldapUserDataBodyParams, options).then((request) => request(axios, basePath));
+        keycloakProvisioningControllerOnNewLdapUser(ldapUserDataBodyParams: LdapUserDataBodyParams, options?: any): AxiosPromise<void> {
+            return localVarFp.keycloakProvisioningControllerOnNewLdapUser(ldapUserDataBodyParams, options).then((request) => request(axios, basePath));
         },
     };
 };
 
 /**
- * KeycloakinternalApi - interface
+ * KeycloakprovisioningApi - interface
  * @export
- * @interface KeycloakinternalApi
+ * @interface KeycloakprovisioningApi
  */
-export interface KeycloakinternalApiInterface {
-    /**
-     * 
-     * @summary External Data about requested in user.
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof KeycloakinternalApiInterface
-     */
-    keycloakInternalControllerGetExternalData(options?: AxiosRequestConfig): AxiosPromise<UserExeternalDataResponse>;
-
+export interface KeycloakprovisioningApiInterface {
     /**
      * 
      * @summary Send data for a new LDAP user
      * @param {LdapUserDataBodyParams} ldapUserDataBodyParams 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof KeycloakinternalApiInterface
+     * @memberof KeycloakprovisioningApiInterface
      */
-    keycloakInternalControllerOnNewLdapUser(ldapUserDataBodyParams: LdapUserDataBodyParams, options?: AxiosRequestConfig): AxiosPromise<LdapUserDataBodyParams>;
+    keycloakProvisioningControllerOnNewLdapUser(ldapUserDataBodyParams: LdapUserDataBodyParams, options?: AxiosRequestConfig): AxiosPromise<void>;
 
 }
 
 /**
- * KeycloakinternalApi - object-oriented interface
+ * KeycloakprovisioningApi - object-oriented interface
  * @export
- * @class KeycloakinternalApi
+ * @class KeycloakprovisioningApi
  * @extends {BaseAPI}
  */
-export class KeycloakinternalApi extends BaseAPI implements KeycloakinternalApiInterface {
-    /**
-     * 
-     * @summary External Data about requested in user.
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof KeycloakinternalApi
-     */
-    public keycloakInternalControllerGetExternalData(options?: AxiosRequestConfig) {
-        return KeycloakinternalApiFp(this.configuration).keycloakInternalControllerGetExternalData(options).then((request) => request(this.axios, this.basePath));
-    }
-
+export class KeycloakprovisioningApi extends BaseAPI implements KeycloakprovisioningApiInterface {
     /**
      * 
      * @summary Send data for a new LDAP user
      * @param {LdapUserDataBodyParams} ldapUserDataBodyParams 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof KeycloakinternalApi
+     * @memberof KeycloakprovisioningApi
      */
-    public keycloakInternalControllerOnNewLdapUser(ldapUserDataBodyParams: LdapUserDataBodyParams, options?: AxiosRequestConfig) {
-        return KeycloakinternalApiFp(this.configuration).keycloakInternalControllerOnNewLdapUser(ldapUserDataBodyParams, options).then((request) => request(this.axios, this.basePath));
+    public keycloakProvisioningControllerOnNewLdapUser(ldapUserDataBodyParams: LdapUserDataBodyParams, options?: AxiosRequestConfig) {
+        return KeycloakprovisioningApiFp(this.configuration).keycloakProvisioningControllerOnNewLdapUser(ldapUserDataBodyParams, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -9122,47 +9277,6 @@ export const PersonenApiAxiosParamCreator = function (configuration?: Configurat
         },
         /**
          * 
-         * @param {string} personId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        personControllerSyncPerson: async (personId: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'personId' is not null or undefined
-            assertParamExists('personControllerSyncPerson', 'personId', personId)
-            const localVarPath = `/api/personen/{personId}/sync`
-                .replace(`{${"personId"}}`, encodeURIComponent(String(personId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication bearer required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-            // authentication oauth2 required
-            // oauth required
-            await setOAuthToObject(localVarHeaderParameter, "oauth2", [], configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
          * @param {string} personId The id for the account.
          * @param {PersonMetadataBodyParams} personMetadataBodyParams 
          * @param {*} [options] Override http request option.
@@ -9385,16 +9499,6 @@ export const PersonenApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @param {string} personId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async personControllerSyncPerson(personId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.personControllerSyncPerson(personId, options);
-            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-        },
-        /**
-         * 
          * @param {string} personId The id for the account.
          * @param {PersonMetadataBodyParams} personMetadataBodyParams 
          * @param {*} [options] Override http request option.
@@ -9535,15 +9639,6 @@ export const PersonenApiFactory = function (configuration?: Configuration, baseP
         },
         /**
          * 
-         * @param {string} personId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        personControllerSyncPerson(personId: string, options?: any): AxiosPromise<void> {
-            return localVarFp.personControllerSyncPerson(personId, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
          * @param {string} personId The id for the account.
          * @param {PersonMetadataBodyParams} personMetadataBodyParams 
          * @param {*} [options] Override http request option.
@@ -9678,15 +9773,6 @@ export interface PersonenApiInterface {
      * @memberof PersonenApiInterface
      */
     personControllerResetUEMPasswordByPersonId(personId: string, options?: AxiosRequestConfig): AxiosPromise<string>;
-
-    /**
-     * 
-     * @param {string} personId 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof PersonenApiInterface
-     */
-    personControllerSyncPerson(personId: string, options?: AxiosRequestConfig): AxiosPromise<void>;
 
     /**
      * 
@@ -9843,17 +9929,6 @@ export class PersonenApi extends BaseAPI implements PersonenApiInterface {
      */
     public personControllerResetUEMPasswordByPersonId(personId: string, options?: AxiosRequestConfig) {
         return PersonenApiFp(this.configuration).personControllerResetUEMPasswordByPersonId(personId, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @param {string} personId 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof PersonenApi
-     */
-    public personControllerSyncPerson(personId: string, options?: AxiosRequestConfig) {
-        return PersonenApiFp(this.configuration).personControllerSyncPerson(personId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -12655,19 +12730,13 @@ export const RollenMappingApiAxiosParamCreator = function (configuration?: Confi
         },
         /**
          * 
-         * @param {string} userId The id of the user that needs token authentication.
-         * @param {string} clientId The id of the client the user is trying to access.
-         * @param {string} clientName The name of the client the user is trying to access.
+         * @param {RollenMappingExtractMappingRequestBody} rollenMappingExtractMappingRequestBody 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        rollenMappingControllerGetMappingForRolleAndServiceProvider: async (userId: string, clientId: string, clientName: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'userId' is not null or undefined
-            assertParamExists('rollenMappingControllerGetMappingForRolleAndServiceProvider', 'userId', userId)
-            // verify required parameter 'clientId' is not null or undefined
-            assertParamExists('rollenMappingControllerGetMappingForRolleAndServiceProvider', 'clientId', clientId)
-            // verify required parameter 'clientName' is not null or undefined
-            assertParamExists('rollenMappingControllerGetMappingForRolleAndServiceProvider', 'clientName', clientName)
+        rollenMappingControllerGetMappingForRolleAndServiceProvider: async (rollenMappingExtractMappingRequestBody: RollenMappingExtractMappingRequestBody, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'rollenMappingExtractMappingRequestBody' is not null or undefined
+            assertParamExists('rollenMappingControllerGetMappingForRolleAndServiceProvider', 'rollenMappingExtractMappingRequestBody', rollenMappingExtractMappingRequestBody)
             const localVarPath = `/api/rollenMapping/extract-mapping/keycloak`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -12688,23 +12757,14 @@ export const RollenMappingApiAxiosParamCreator = function (configuration?: Confi
             // oauth required
             await setOAuthToObject(localVarHeaderParameter, "oauth2", [], configuration)
 
-            if (userId !== undefined) {
-                localVarQueryParameter['userId'] = userId;
-            }
-
-            if (clientId !== undefined) {
-                localVarQueryParameter['clientId'] = clientId;
-            }
-
-            if (clientName !== undefined) {
-                localVarQueryParameter['clientName'] = clientName;
-            }
-
 
     
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(rollenMappingExtractMappingRequestBody, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -12853,14 +12913,12 @@ export const RollenMappingApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @param {string} userId The id of the user that needs token authentication.
-         * @param {string} clientId The id of the client the user is trying to access.
-         * @param {string} clientName The name of the client the user is trying to access.
+         * @param {RollenMappingExtractMappingRequestBody} rollenMappingExtractMappingRequestBody 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async rollenMappingControllerGetMappingForRolleAndServiceProvider(userId: string, clientId: string, clientName: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<object>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.rollenMappingControllerGetMappingForRolleAndServiceProvider(userId, clientId, clientName, options);
+        async rollenMappingControllerGetMappingForRolleAndServiceProvider(rollenMappingExtractMappingRequestBody: RollenMappingExtractMappingRequestBody, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<object>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.rollenMappingControllerGetMappingForRolleAndServiceProvider(rollenMappingExtractMappingRequestBody, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -12933,14 +12991,12 @@ export const RollenMappingApiFactory = function (configuration?: Configuration, 
         },
         /**
          * 
-         * @param {string} userId The id of the user that needs token authentication.
-         * @param {string} clientId The id of the client the user is trying to access.
-         * @param {string} clientName The name of the client the user is trying to access.
+         * @param {RollenMappingExtractMappingRequestBody} rollenMappingExtractMappingRequestBody 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        rollenMappingControllerGetMappingForRolleAndServiceProvider(userId: string, clientId: string, clientName: string, options?: any): AxiosPromise<object> {
-            return localVarFp.rollenMappingControllerGetMappingForRolleAndServiceProvider(userId, clientId, clientName, options).then((request) => request(axios, basePath));
+        rollenMappingControllerGetMappingForRolleAndServiceProvider(rollenMappingExtractMappingRequestBody: RollenMappingExtractMappingRequestBody, options?: any): AxiosPromise<object> {
+            return localVarFp.rollenMappingControllerGetMappingForRolleAndServiceProvider(rollenMappingExtractMappingRequestBody, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -13009,14 +13065,12 @@ export interface RollenMappingApiInterface {
 
     /**
      * 
-     * @param {string} userId The id of the user that needs token authentication.
-     * @param {string} clientId The id of the client the user is trying to access.
-     * @param {string} clientName The name of the client the user is trying to access.
+     * @param {RollenMappingExtractMappingRequestBody} rollenMappingExtractMappingRequestBody 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof RollenMappingApiInterface
      */
-    rollenMappingControllerGetMappingForRolleAndServiceProvider(userId: string, clientId: string, clientName: string, options?: AxiosRequestConfig): AxiosPromise<object>;
+    rollenMappingControllerGetMappingForRolleAndServiceProvider(rollenMappingExtractMappingRequestBody: RollenMappingExtractMappingRequestBody, options?: AxiosRequestConfig): AxiosPromise<object>;
 
     /**
      * 
@@ -13093,15 +13147,13 @@ export class RollenMappingApi extends BaseAPI implements RollenMappingApiInterfa
 
     /**
      * 
-     * @param {string} userId The id of the user that needs token authentication.
-     * @param {string} clientId The id of the client the user is trying to access.
-     * @param {string} clientName The name of the client the user is trying to access.
+     * @param {RollenMappingExtractMappingRequestBody} rollenMappingExtractMappingRequestBody 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof RollenMappingApi
      */
-    public rollenMappingControllerGetMappingForRolleAndServiceProvider(userId: string, clientId: string, clientName: string, options?: AxiosRequestConfig) {
-        return RollenMappingApiFp(this.configuration).rollenMappingControllerGetMappingForRolleAndServiceProvider(userId, clientId, clientName, options).then((request) => request(this.axios, this.basePath));
+    public rollenMappingControllerGetMappingForRolleAndServiceProvider(rollenMappingExtractMappingRequestBody: RollenMappingExtractMappingRequestBody, options?: AxiosRequestConfig) {
+        return RollenMappingApiFp(this.configuration).rollenMappingControllerGetMappingForRolleAndServiceProvider(rollenMappingExtractMappingRequestBody, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
