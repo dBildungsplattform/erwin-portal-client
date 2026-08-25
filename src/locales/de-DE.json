@@ -352,7 +352,12 @@
           "KLASSEN_VERWALTEN": "Darf Klassen verwalten",
           "SCHULTRAEGER_VERWALTEN": "Darf Schulträger verwalten",
           "PERSON_SYNCHRONISIEREN": "Darf Benutzer synchronisieren",
-          "PERSONEN_ANLEGEN": "Darf Benutzer anlegen"
+          "PERSONEN_ANLEGEN": "Darf Benutzer anlegen",
+          "BULK_VERWALTEN": "Darf Benutzer im Bulk verwalten",
+          "SCHULPORTAL_VERWALTEN": "Darf ErWIn Portal verwalten",
+          "HINWEISE_BEARBEITEN": "Darf Hinweise bearbeiten",
+          "SERVICEPROVIDER_VERWALTEN": "Darf ServiceProvider verwalten",
+          "LMS_VERWALTEN": "Darf LMS verwalten"
         },
         "rollenarten": {
           "LERN": "Lern",
@@ -361,7 +366,8 @@
           "ORGADMIN": "Orgadmin",
           "LEIT": "Leit",
           "SYSADMIN": "Sysadmin",
-          "PORTALADMIN": "Portaladmin"
+          "PORTALADMIN": "Portaladmin",
+          "PORTALADMINSEEDING": "Portaladminseeding"
         },
         "merkmale": {
           "BEFRISTUNG_PFLICHT": "Befristung ist Pflichtangabe",
@@ -420,6 +426,7 @@
       "dienststellennummer": "Dienststellennummer",
       "enterDienststellennummer": "Dienststellennummer eingeben",
       "enterSchulname": "Schulname eingeben",
+      "itsLearningStatus": "itslearning-Status",
       "errors": {
         "KENNUNG_REQUIRED_FOR_SCHULE": "Die Angabe einer Dienststellennummer ist erforderlich.",
         "NAME_REQUIRED_FOR_SCHULE": "Die Angabe eines Namens ist erforderlich.",
