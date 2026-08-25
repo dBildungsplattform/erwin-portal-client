@@ -138,7 +138,8 @@ jobs:
     needs:
       - create_branch_identifier 
       - select_helm_version_generation_and_image_tag_generation
-    secrets: inherit
+    secrets:
+      HELM_CHARTS_REGISTRY_PUBLISHER: ${{ secrets.HELM_CHARTS_REGISTRY_PUBLISHER }}
     with:
       chart_name: erwin-portal-client
       image_tag_generation: ${{ needs.select_helm_version_generation_and_image_tag_generation.outputs.SELECT_IMAGE_TAG_GENERATION }}

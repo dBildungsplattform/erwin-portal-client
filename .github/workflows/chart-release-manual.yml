@@ -24,8 +24,9 @@ jobs:
   release:
     needs: scan
     uses: dBildungsplattform/dbp-github-workflows/.github/workflows/chart-release.yaml@8
-    secrets: inherit
-    with:
+    secrets:
+      HELM_CHARTS_REGISTRY_PUBLISHER: ${{ secrets.HELM_CHARTS_REGISTRY_PUBLISHER }}
+   with:
       chart_name: erwin-portal-client
       helm_chart_version_generation: specified 
       image_tag_generation: specified 
