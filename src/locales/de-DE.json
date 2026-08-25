@@ -367,7 +367,7 @@
           "LEIT": "Leit",
           "SYSADMIN": "Sysadmin",
           "PORTALADMIN": "Portaladmin",
-          "PORTALADMINSEEDING": "Portaladminseeding"
+          "PORTALADMINMANAGER": "Portaladmin-Manager"
         },
         "merkmale": {
           "BEFRISTUNG_PFLICHT": "Befristung ist Pflichtangabe",
