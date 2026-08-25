@@ -759,7 +759,7 @@
                 data-testid="to-details-button"
                 :block="mdAndDown"
               >
-                {{ $t('nav.toDetails') }}
+                {{ $t('nav.backToDetails') }}
               </v-btn>
             </v-col>
             <v-col
