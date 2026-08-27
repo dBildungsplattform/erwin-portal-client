@@ -37,10 +37,15 @@
   import { getNextSchuljahresende, formatDateToISO } from '@/utils/date';
   import { isBefristungspflichtRolle, useBefristungUtils, type BefristungUtilsType } from '@/utils/befristung';
   import { isKopersRolle } from '@/utils/validationPersonenkontext';
+  import { creatableRollenByRollenArt } from '@/utils/rollenHierarchie';
+  import { usePersonInfoStore, type PersonInfoStore } from '@/stores/PersonInfoStore';
+  import type { PersonenInfoKontextResponse } from '@/api-client/generated';
 
   const router: Router = useRouter();
   const personStore: PersonStore = usePersonStore();
   const personenkontextStore: PersonenkontextStore = usePersonenkontextStore();
+  const personInfoStore: PersonInfoStore = usePersonInfoStore();
+
   const { t }: Composer = useI18n({ useScope: 'global' });
 
   const showUnsavedChangesDialog: Ref<boolean> = ref(false);
@@ -191,16 +196,30 @@
   const organisationen: ComputedRef<TranslatedObject[] | undefined> = useOrganisationen();
   const klassen: ComputedRef<TranslatedObject[] | undefined> = useKlassen();
 
+  const allowedRollen: ComputedRef<TranslatedRolleWithAttrs[]> = computed(() => {
+    const ownRollen: string[] =
+      personInfoStore.personInfo?.personenkontexte.map((pk: PersonenInfoKontextResponse) => pk.rolle ?? '') ?? [];
+    const creatableRollen: string[] = ownRollen.flatMap((rollenArt: string) =>
+      creatableRollenByRollenArt(rollenArt as RollenArt),
+    );
+
+    return (
+      rollen.value?.filter((translatedRolle: TranslatedRolleWithAttrs) =>
+        creatableRollen.includes(translatedRolle.rollenart),
+      ) ?? []
+    );
+  });
+
   // Watch the selectedRollen and update filteredRollen accordingly
   watch(
     selectedRollen,
     (newSelectedRollen: string[] | undefined) => {
       if (newSelectedRollen && newSelectedRollen.length > 0) {
-        const selectedRollenart: RollenArt | undefined = rollen.value?.find((rolle: TranslatedRolleWithAttrs) =>
+        const selectedRollenart: RollenArt | undefined = allowedRollen.value.find((rolle: TranslatedRolleWithAttrs) =>
           newSelectedRollen.includes(rolle.value),
         )?.rollenart;
         // Update filteredRollen based on selected rollen and their rollenart
-        filteredRollen.value = rollen.value?.filter(
+        filteredRollen.value = allowedRollen.value.filter(
           (rolle: TranslatedRolleWithAttrs) => rolle.rollenart === selectedRollenart,
         );
       } else if (newSelectedRollen && newSelectedRollen.length === 0) {
@@ -249,7 +268,7 @@
 
     return schuleZuordnungFromCreatedKontext.value.map(
       (kontext: DBiamPersonenkontextResponse) =>
-        rollen.value?.find((rolle: TranslatedObject) => rolle.value === kontext.rolleId)?.title || '',
+        allowedRollen.value.find((rolle: TranslatedObject) => rolle.value === kontext.rolleId)?.title || '',
     );
   });
 
@@ -445,6 +464,8 @@
   });
 
   onMounted(async () => {
+    await personInfoStore.initPersonInfo();
+
     await personenkontextStore.processWorkflowStep({ limit: 25 });
     personStore.errorCode = '';
     personenkontextStore.createdPersonWithKontext = null;
@@ -519,7 +540,7 @@
               :showHeadline="true"
               :organisationen="organisationen"
               ref="personenkontext-create"
-              :rollen="(filteredRollen?.length ?? 0) === 0 ? rollen : filteredRollen"
+              :rollen="(filteredRollen?.length ?? 0) === 0 ? allowedRollen : filteredRollen"
               :klassen="klassen"
               :selectedOrganisationProps="selectedOrganisationProps"
               :selectedRollenProps="selectedRollenProps"

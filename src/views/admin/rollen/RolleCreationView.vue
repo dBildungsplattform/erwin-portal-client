@@ -40,11 +40,14 @@
   } from '@/utils/validationRolle';
   import RolleSuccessTemplate from '@/components/admin/rollen/RolleSuccessTemplate.vue';
   import { type TranslatedObject } from '@/types.d';
-  import { isHiddenSystemrecht } from '@/utils/systemrechte';
+  import { isHiddenSystemrecht, allowedSystemrechteForRollenart } from '@/utils/systemrechte';
+  import { creatableRollenByRollenArt } from '@/utils/rollenHierarchie';
+  import { usePersonInfoStore, type PersonInfoStore } from '@/stores/PersonInfoStore';
 
   const rolleStore: RolleStore = useRolleStore();
   const organisationStore: OrganisationStore = useOrganisationStore();
   const serviceProviderStore: ServiceProviderStore = useServiceProviderStore();
+  const personInfoStore: PersonInfoStore = usePersonInfoStore();
 
   const { t }: Composer = useI18n({ useScope: 'global' });
   const router: Router = useRouter();
@@ -52,6 +55,14 @@
 
   type TranslatedRollenArt = { value: RollenArt; title: string };
   const translatedRollenarten: Ref<TranslatedRollenArt[]> = ref([]);
+  const allowedTranslatedRollenarten: ComputedRef<TranslatedRollenArt[]> = computed(() => {
+    const ownRollen: string[] = personInfoStore.personInfo?.personenkontexte.map((pk) => pk.rolle ?? '') ?? [];
+    const creatableRollen: string[] = ownRollen.flatMap((rollenArt: string) =>
+      creatableRollenByRollenArt(rollenArt as RollenArt),
+    );
+
+    return translatedRollenarten.value.filter((tr: TranslatedRollenArt) => creatableRollen.includes(tr.value));
+  });
 
   type TranslatedMerkmal = { value: RollenMerkmal; title: string };
   const translatedMerkmale: Ref<TranslatedMerkmal[]> = ref([]);
@@ -184,6 +195,19 @@
     })),
   );
 
+  const allowedTranslatedSystemrechte: ComputedRef<TranslatedSystemrecht[]> = computed(() => {
+    const rollenArt: RollenArt | undefined = selectedRollenArt.value;
+    if (!rollenArt) {
+      return [];
+    }
+
+    const allowedRechte: RollenSystemRecht[] = allowedSystemrechteForRollenart(rollenArt);
+
+    return translatedSystemrechte.value.filter((translatedSystemrecht: TranslatedSystemrecht) =>
+      allowedRechte.includes(translatedSystemrecht.value),
+    );
+  });
+
   function preventNavigation(event: BeforeUnloadEvent): void {
     if (rolleStore.errorCode) formContext.resetForm();
     if (!isFormDirty.value) return;
@@ -201,6 +225,7 @@
       limit: 25,
     });
     await serviceProviderStore.getAllServiceProviders();
+    await personInfoStore.initPersonInfo();
 
     // Iterate over the enum values
     Object.values(RollenArt).forEach((enumValue: RollenArt) => {
@@ -313,9 +338,9 @@
           :selectedSystemRechteProps="selectedSystemRechteProps"
           :serviceProviders="serviceProviders"
           :showUnsavedChangesDialog="showUnsavedChangesDialog"
-          :translatedRollenarten="translatedRollenarten"
+          :translatedRollenarten="allowedTranslatedRollenarten"
           :translatedMerkmale="translatedMerkmale"
-          :translatedSystemrechte="translatedSystemrechte"
+          :translatedSystemrechte="allowedTranslatedSystemrechte"
         >
           <!-- Error Message Display if error on submit -->
           <!-- To trigger unsaved changes dialog the alert has to be inside the form wrapper -->
