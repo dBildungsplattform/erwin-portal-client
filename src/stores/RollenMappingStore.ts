@@ -34,11 +34,6 @@ type RollenMappingActions = {
   deleteRollenMappingById: (rollenMappingId: string) => Promise<void>;
   getAllRollenMappings: () => Promise<void>;
   getRollenMappingsForServiceProvider: (serviceProviderId: string) => Promise<void>;
-  getMappingForRolleAndServiceProvider: (
-    rolleId: string,
-    serviceProviderId: string,
-    mapToLmsRolle: string,
-  ) => Promise<RollenMapping>;
   getRollenMappingById: (rollenMappingId: string) => Promise<RollenMapping>;
   updateRollenMapping: (rollenMappingId: string, mapToLmsRolle: string) => Promise<void>;
 };
@@ -128,43 +123,6 @@ export const useRollenMappingStore: StoreDefinition<
         this.totalRollenMappings = response.data.length;
       } catch (error) {
         this.errorCode = getResponseErrorCode(error, 'ROLLENMAPPING_LIST_ERROR');
-      } finally {
-        this.loading = false;
-      }
-    },
-
-    async getMappingForRolleAndServiceProvider(
-      rolleId: string,
-      serviceProviderId: string,
-      mapToLmsRolle: string,
-    ): Promise<RollenMapping> {
-      this.loading = true;
-      this.errorCode = '';
-      try {
-        const response: AxiosResponse<RollenMapping> =
-          (await rollenMappingApi.rollenMappingControllerGetMappingForRolleAndServiceProvider(
-            rolleId,
-            serviceProviderId,
-            mapToLmsRolle,
-          )) as AxiosResponse<RollenMapping>;
-        const data: Partial<RollenMapping> = response.data;
-        if (!data.id) {
-          throw new Error('Invalid RollenMapping response: missing id');
-        } else if (!data.rolleId) {
-          throw new Error('Invalid RollenMapping response: missing rolleId');
-        } else if (!data.serviceProviderId) {
-          throw new Error('Invalid RollenMapping response: missing serviceProviderId');
-        }
-        const rollenMapping: RollenMapping = {
-          id: data.id,
-          rolleId: data.rolleId,
-          serviceProviderId: data.serviceProviderId,
-          mapToLmsRolle: data.mapToLmsRolle || '',
-        };
-        return rollenMapping;
-      } catch (error) {
-        this.errorCode = getResponseErrorCode(error, 'ROLLENMAPPING_FETCH_ERROR');
-        return await Promise.reject(new Error(this.errorCode));
       } finally {
         this.loading = false;
       }

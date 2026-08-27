@@ -367,7 +367,7 @@
           "LEIT": "Leit",
           "SYSADMIN": "Sysadmin",
           "PORTALADMIN": "Portaladmin",
-          "PORTALADMINSEEDING": "Portaladminseeding"
+          "PORTALADMINMANAGER": "Portaladmin-Manager"
         },
         "merkmale": {
           "BEFRISTUNG_PFLICHT": "Befristung ist Pflichtangabe",
@@ -731,7 +731,7 @@
     "userName": "Benutzername",
     "willBeCreated": "wird hinzugefügt",
     "willBeRemoved": "wird entfernt",
-    "zuordnungen": "Schulzuordnung(en)",
+    "zuordnungen": "Schul- und Klassenzuordnung(en)",
     "zuordnung": "Schulzuordnung"
   },
   "profile": {

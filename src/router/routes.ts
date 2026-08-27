@@ -235,6 +235,7 @@ const routes: readonly RouteRecordRaw[] = [
       requiresPermission: ['portalverwaltung', 'hinweisebearbeiten'],
     },
   },
+  */
   {
     path: '/admin/schulen/new',
     name: 'create-schule',
@@ -244,7 +245,6 @@ const routes: readonly RouteRecordRaw[] = [
       requiresPermission: 'schulverwaltung',
     },
   },
-  */
 ];
 
 export default routes;
