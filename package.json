@@ -33,7 +33,7 @@
     "yup": "^1.6.1"
   },
   "devDependencies": {
-    "@faker-js/faker": "^9.5.0",
+    "@faker-js/faker": "^10.5.0",
     "@intlify/unplugin-vue-i18n": "^3.0.1",
     "@openapitools/openapi-generator-cli": "^2.18.4",
     "@pinia/testing": "^0.1.7",
